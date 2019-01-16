@@ -1,3 +1,4 @@
+import re
 import shlex
 
 symbol_table = []
@@ -8,8 +9,15 @@ current_symbol_has_errors = False
 parser_errors = {
     'UNEXPECTED': "unexpected '{}'",
     'SYMBOL_NAME_EXPECTED': 'symbol name expected',
-    'DUPLICATE_SYMBOL': "duplicate symbol '{}'"
+    'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
+    'INVALID_SYMBOL_NAME': "invalid symbol name '{}'"
 }
+
+valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
+
+
+def is_valid_name(name):
+    return valid_name_regex.fullmatch(name)
 
 
 def parser_error(error, file=None, line_number=None, line_str=None):
@@ -134,6 +142,12 @@ def parse_asm_file(file):
                 if symbol in symbol_table:
                     parser_error({
                         'name': 'DUPLICATE_SYMBOL',
+                        'info': [symbol]
+                    }, file, line_number, line_str)
+
+                elif not is_valid_name(symbol):
+                    parser_error({
+                        'name': 'INVALID_SYMBOL_NAME',
                         'info': [symbol]
                     }, file, line_number, line_str)
 
