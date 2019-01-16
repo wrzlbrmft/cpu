@@ -15,9 +15,44 @@ parser_errors = {
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
 
+valid_directives = ['include',
+                    'define', 'undef', 'ifdef', 'ifndef', 'else', 'endif',
+                    'end']
+
+valid_mnemonics = ['nop', 'hlt', 'rst',
+                   'mov', 'lda', 'sta', 'push', 'pop',
+                   'add', 'sub', 'cmp',
+                   'jmp', 'jc', 'jnc', 'jz', 'jnz',
+                   'call', 'cc', 'cnc', 'cz', 'cnz',
+                   'ret', 'rc', 'rnc', 'rz', 'rnz',
+                   'db', 'dw']
+
+valid_registers = {
+    'a': 8, 'b': 8, 'c': 8, 'd': 8, 'h': 8, 'l': 8,
+    'hl': 16, 'ip': 16, 'sp': 16
+}
+
+valid_operands = list(valid_registers) + ['m']
+
 
 def is_valid_name(name):
     return valid_name_regex.fullmatch(name)
+
+
+def is_valid_directive(directive):
+    return directive in valid_directives
+
+
+def is_valid_mnemonic(mnemonic):
+    return mnemonic in valid_mnemonics
+
+
+def is_valid_register(register):
+    return register in valid_registers
+
+
+def is_valid_operand(operand):
+    return operand in valid_operands
 
 
 def parser_error(error, file=None, line_number=None, line_str=None):
