@@ -1,12 +1,25 @@
 import shlex
 
+symbol_table = []
+symbols = {}
+current_symbol = None
+current_symbol_has_errors = False
+
 parser_errors = {
     'UNEXPECTED': "unexpected '{}'",
-    'SYMBOL_NAME_EXPECTED': 'symbol name expected'
+    'SYMBOL_NAME_EXPECTED': 'symbol name expected',
+    'DUPLICATE_SYMBOL': "duplicate symbol '{}'"
 }
 
 
 def parser_error(error, file=None, line_number=None, line_str=None):
+    global current_symbol_has_errors
+    if current_symbol and not current_symbol_has_errors:
+        if file:
+            print(f'{file}: ', end='')
+        print(f"in symbol '{current_symbol}':")
+        current_symbol_has_errors = True
+
     if file:
         print(f'{file}:', end='')
         if line_number:
@@ -17,6 +30,8 @@ def parser_error(error, file=None, line_number=None, line_str=None):
 
     if line_str:
         print('', line_str.strip())
+
+    print()
 
 
 def parse_asm_line(line_str):
@@ -112,6 +127,25 @@ def parse_asm_file(file):
             line_number += 1
 
             line = parse_asm_line(line_str)
+
+            if line['symbol']:
+                symbol = line['symbol']
+
+                if symbol in symbol_table:
+                    parser_error({
+                        'name': 'DUPLICATE_SYMBOL',
+                        'info': [symbol]
+                    }, file, line_number, line_str)
+
+                else:
+                    symbol_table.append(symbol)
+                    symbols[symbol] = {
+                        'machine_code': bytearray(),
+                        'references': []
+                    }
+                    global current_symbol, current_symbol_has_errors
+                    current_symbol = symbol
+                    current_symbol_has_errors = False
 
             for error in line['errors']:
                 parser_error(error, file, line_number, line_str)
