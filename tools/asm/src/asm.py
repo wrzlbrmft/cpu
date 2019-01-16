@@ -1,12 +1,30 @@
 import shlex
 
+parser_errors = {
+    'UNEXPECTED': "unexpected '{}'",
+    'SYMBOL_NAME_EXPECTED': 'symbol name expected'
+}
+
+
+def parser_error(error, file=None, line_number=None, line_str=None):
+    if file:
+        print(f'{file}:', end='')
+        if line_number:
+            print(f'{line_number}:', end='')
+        print(' ', end='')
+
+    print('error:', parser_errors[error['name']].format(*error['info']))
+
+    if line_str:
+        print('', line_str.strip())
+
 
 def parse_asm_line(line_str):
     symbol = None
     directive = None
     mnemonic = None
     operands = []
-    operand = None
+    operand = ''
     operand_expected = False
     errors = []
 
@@ -24,32 +42,32 @@ def parse_asm_line(line_str):
 
                     else:
                         errors.append({
-                            'name': '',  # unexpected ':'
-                            'info': []
+                            'name': 'UNEXPECTED',
+                            'info': [':']
                         })
 
                 else:
                     errors.append({
-                        'name': '',  # symbol name expected
+                        'name': 'SYMBOL_NAME_EXPECTED',
                         'info': []
                     })
 
             else:
                 errors.append({
-                    'name': '',  # unexpected ':'
-                    'info': []
+                    'name': 'UNEXPECTED',
+                    'info': [':']
                 })
 
         elif ',' == token:
             if not operand:
                 errors.append({
-                    'name': '',  # unexpected ','
-                    'info': []
+                    'name': 'UNEXPECTED',
+                    'info': [',']
                 })
 
             else:
                 operands.append(operand.strip())
-                operand = None
+                operand = ''
                 operand_expected = True
 
         else:
@@ -62,19 +80,19 @@ def parse_asm_line(line_str):
 
     # end of line
 
-    if '.' == mnemonic[0]:
+    if mnemonic and '.' == mnemonic[0]:
         directive = mnemonic[1:]
         mnemonic = None
 
     if operand:
         operands.append(operand.strip())
-        # operand = None
+        # operand = ''
         operand_expected = False
 
     if operand_expected:
         errors.append({
-            'name': '',  # unexpected ','
-            'info': []
+            'name': 'UNEXPECTED',
+            'info': [',']
         })
 
     return {
@@ -94,6 +112,9 @@ def parse_asm_file(file):
             line_number += 1
 
             line = parse_asm_line(line_str)
+
+            for error in line['errors']:
+                parser_error(error, file, line_number, line_str)
 
         # end of file
 
