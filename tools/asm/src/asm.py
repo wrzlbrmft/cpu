@@ -301,12 +301,12 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
 
     if validate_operands_count(operands, 1, errors):
         operand = operands[0].lower()
-        if is_valid_register(operand):
+        if 'm' == operand:
+            opcode = 0b00001100
+        elif is_valid_register(operand):
             if validate_operand_register_size(operand, 8, errors):
                 register_opcode = get_register_opcode(operand)
                 opcode = (register_opcode << 1)
-        elif 'm' == operand:
-            opcode = 0b00001100
         else:
             pass
 
