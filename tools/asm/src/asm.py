@@ -19,7 +19,10 @@ parser_errors = {
     'INSTRUCTION_OUTSIDE_SYMBOL': 'instruction outside of a symbol',
     'INVALID_MNEMONIC': "invalid mnemonic '{}'",
     'INSUFFICIENT_OPERANDS': "insufficient operands (given: {}, required: {})",
-    'TOO_MANY_OPERANDS': "too many operands (given: {}, required: {})"
+    'TOO_MANY_OPERANDS': "too many operands (given: {}, required: {})",
+    'UNSUPPORTED_OPERAND': "unsupported operand '{}'",
+    'INVALID_OPERAND': "invalid operand '{}'",
+    'INCOMPATIBLE_REGISTER_SIZE': 'incompatible register size (given: {}-bits, required: {}-bits)'
 }
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
@@ -37,8 +40,15 @@ valid_mnemonics = ['nop', 'hlt', 'rst',
                    'db', 'dw']
 
 valid_registers = {
-    'a': 8, 'b': 8, 'c': 8, 'd': 8, 'h': 8, 'l': 8,
-    'hl': 16, 'ip': 16, 'sp': 16
+    'a': {'size': 8, 'opcode': 0b000},
+    'b': {'size': 8, 'opcode': 0b001},
+    'c': {'size': 8, 'opcode': 0b010},
+    'd': {'size': 8, 'opcode': 0b011},
+    'h': {'size': 8, 'opcode': 0b100},
+    'l': {'size': 8, 'opcode': 0b101},
+    'hl': {'size': 16, 'opcode': 0b000},
+    'ip': {'size': 16, 'opcode': 0b001},
+    'sp': {'size': 16, 'opcode': 0b010}
 }
 
 valid_operands = list(valid_registers) + ['m']
@@ -60,9 +70,16 @@ def is_valid_register(register):
     return register in valid_registers
 
 
-def get_register_bits(register):
+def get_register_size(register):
     if is_valid_register(register):
-        return valid_registers[register]
+        return valid_registers[register]['size']
+    else:
+        return None
+
+
+def get_register_opcode(register):
+    if is_valid_register(register):
+        return valid_registers[register]['opcode']
     else:
         return None
 
@@ -190,6 +207,37 @@ def validate_operands_count(operands, count_valid, errors):
         return True
 
 
+def validate_operand_register(operand, errors):
+    if is_valid_register(operand):
+        return True
+    elif is_valid_operand(operand):
+        errors.append({
+            'name': 'UNSUPPORTED_OPERAND',
+            'info': [operand]
+        })
+        return False
+    else:
+        errors.append({
+            'name': 'INVALID_OPERAND',
+            'info': [operand]
+        })
+        return False
+
+
+def validate_operand_register_size(operand, size_valid, errors):
+    is_valid = validate_operand_register(operand, errors)
+    if is_valid:
+        size = get_register_size(operand)
+        if size == size_valid:
+            return True
+        else:
+            errors.append({
+                'name': 'INCOMPATIBLE_REGISTER_SIZE',
+                'info': [size, size_valid]
+            })
+            return False
+
+
 def mnemonics_nop_hlt_rst(mnemonic, operands):
     opcode = None
     errors = []
@@ -212,11 +260,14 @@ def mnemonics_push_pop(mnemonic, operands):
     opcode = None
     errors = []
 
-    if validate_operands_count(operands, 0, errors):
-        if 'push' == mnemonic:
-            opcode = 0b0
-        elif 'pop' == mnemonic:
-            opcode = 0b0
+    if validate_operands_count(operands, 1, errors):
+        register = operands[0].lower()
+        if validate_operand_register_size(register, 8, errors):
+            register_opcode = get_register_opcode(register)
+            if 'push' == mnemonic:
+                opcode = 0b10000000 | (register_opcode << 4) | (register_opcode << 1)
+            elif 'pop' == mnemonic:
+                opcode = 0b10000001 | (register_opcode << 4) | (register_opcode << 1)
 
     return {
         'opcode': opcode,
