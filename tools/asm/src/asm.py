@@ -97,19 +97,16 @@ def parse_asm_line(line_str):
                     if not operand and not operand_expected:
                         symbol = mnemonic
                         mnemonic = None
-
                     else:
                         errors.append({
                             'name': 'UNEXPECTED',
                             'info': [':']
                         })
-
                 else:
                     errors.append({
                         'name': 'SYMBOL_NAME_EXPECTED',
                         'info': []
                     })
-
             else:
                 errors.append({
                     'name': 'UNEXPECTED',
@@ -122,7 +119,6 @@ def parse_asm_line(line_str):
                     'name': 'UNEXPECTED',
                     'info': [',']
                 })
-
             else:
                 operands.append(operand.strip())
                 operand = ''
@@ -131,7 +127,6 @@ def parse_asm_line(line_str):
         else:
             if not mnemonic:
                 mnemonic = token
-
             else:
                 operand += ' ' + token
                 operand_expected = False
@@ -145,9 +140,8 @@ def parse_asm_line(line_str):
     if operand:
         operands.append(operand.strip())
         # operand = ''
-        operand_expected = False
-
-    if operand_expected:
+        # operand_expected = False
+    elif operand_expected:
         errors.append({
             'name': 'UNEXPECTED',
             'info': [',']
@@ -179,13 +173,11 @@ def parse_asm_file(file):
                         'name': 'DUPLICATE_SYMBOL',
                         'info': [symbol]
                     }, file, line_number, line_str)
-
                 elif not is_valid_name(symbol):
                     parser_error({
                         'name': 'INVALID_SYMBOL_NAME',
                         'info': [symbol]
                     }, file, line_number, line_str)
-
                 else:
                     symbol_table.append(symbol)
                     symbols[symbol] = {
