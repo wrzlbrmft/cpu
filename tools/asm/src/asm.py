@@ -30,6 +30,7 @@ valid_data_dec_regex = re.compile('[1-9][0-9]*')
 valid_data_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
 valid_data_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
 valid_data_oct_regex = re.compile('0[0-7]+')
+valid_data_chr_regex = re.compile('(\'.\'|\".\")')
 
 valid_directives = ['include',
                     'define', 'undef', 'ifdef', 'ifndef', 'else', 'endif',
@@ -78,12 +79,48 @@ def is_valid_data_oct(data):
     return valid_data_oct_regex.fullmatch(data)
 
 
+def is_valid_data_chr(data):
+    return valid_data_chr_regex.fullmatch(data)
+
+
 def is_valid_data(data):
     return \
         is_valid_data_dec(data) or \
         is_valid_data_hex(data) or \
         is_valid_data_bin(data) or \
-        is_valid_data_oct(data)
+        is_valid_data_oct(data) or \
+        is_valid_data_chr(data)
+
+
+def get_data_value(data):
+    if is_valid_data_dec(data):
+        return int(data, 10)
+    elif is_valid_data_hex(data):
+        return int(data[2:], 16)
+    elif is_valid_data_bin(data):
+        return int(data[2:], 2)
+    elif is_valid_data_oct(data):
+        return int(data[1:], 8)
+    elif is_valid_data_chr(data):
+        return ord(data[1])
+    else:
+        return None
+
+
+def get_data_size(data):
+    value = get_data_value(data)
+    if value is not None:
+        return value.bit_length()
+    else:
+        return None
+
+
+def get_data_value_lo(value):
+    return divmod(value, 256)[1]
+
+
+def get_data_value_hi(value):
+    return divmod(value, 256)[0]
 
 
 def is_valid_directive(directive):
