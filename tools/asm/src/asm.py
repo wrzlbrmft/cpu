@@ -3,6 +3,7 @@ import shlex
 
 current_file = None
 current_line_num = 0
+current_line_str = None
 current_symbol = None
 current_symbol_errors_count = 0
 
@@ -61,7 +62,7 @@ def is_valid_operand(operand):
     return operand in valid_operands
 
 
-def parser_error(error, line_str=None):
+def parser_error(error):
     global current_symbol_errors_count
 
     if current_symbol and not current_symbol_errors_count:
@@ -78,8 +79,8 @@ def parser_error(error, line_str=None):
 
     print('error:', parser_errors[error['name']].format(*error['info']))
 
-    if line_str:
-        print('', line_str.strip())
+    if current_line_str:
+        print('', current_line_str.strip())
 
     print()
 
@@ -163,12 +164,12 @@ def parse_asm_line(line_str):
     }
 
 
-def mnemonic_nop(operands, line_str=None):
+def mnemonic_nop(operands):
     pass
 
 
 def parse_asm_file(file):
-    global current_file, current_line_num, current_symbol, current_symbol_errors_count
+    global current_file, current_line_num, current_line_str, current_symbol, current_symbol_errors_count
 
     with open(file) as asm:
         current_file = file
@@ -176,10 +177,11 @@ def parse_asm_file(file):
         current_line_num = line_num
 
         for line_str in asm.readlines():
+            current_line_str = line_str
             line_num += 1
             current_line_num = line_num
 
-            line = parse_asm_line(line_str)
+            line = parse_asm_line(current_line_str)
 
             if line['symbol']:
                 symbol = line['symbol']
@@ -188,12 +190,12 @@ def parse_asm_file(file):
                     parser_error({
                         'name': 'DUPLICATE_SYMBOL',
                         'info': [symbol]
-                    }, line_str)
+                    })
                 elif not is_valid_name(symbol):
                     parser_error({
                         'name': 'INVALID_SYMBOL_NAME',
                         'info': [symbol]
-                    }, line_str)
+                    })
                 else:
                     current_symbol = symbol
                     current_symbol_errors_count = 0
@@ -205,7 +207,7 @@ def parse_asm_file(file):
                     }
 
             for error in line['errors']:
-                parser_error(error, line_str)
+                parser_error(error)
 
             if line['directive']:
                 directive = line['directive']
@@ -215,7 +217,7 @@ def parse_asm_file(file):
                     parser_error({
                         'name': 'INVALID_DIRECTIVE',
                         'info': [directive]
-                    }, line_str)
+                    })
                 else:
                     pass
 
@@ -227,15 +229,15 @@ def parse_asm_file(file):
                     parser_error({
                         'name': 'INSTRUCTION_OUTSIDE_SYMBOL',
                         'info': []
-                    }, line_str)
+                    })
 
                 if not is_valid_mnemonic(mnemonic_lower):
                     parser_error({
                         'name': 'INVALID_MNEMONIC',
                         'info': [mnemonic]
-                    }, line_str)
+                    })
                 elif 'nop' == mnemonic_lower:
-                    mnemonic_nop(line['operands'], line_str)
+                    mnemonic_nop(line['operands'])
 
         # end of file
 
