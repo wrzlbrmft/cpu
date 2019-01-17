@@ -60,6 +60,13 @@ def is_valid_register(register):
     return register in valid_registers
 
 
+def get_register_bits(register):
+    if is_valid_register(register):
+        return valid_registers[register]
+    else:
+        return None
+
+
 def is_valid_operand(operand):
     return operand in valid_operands
 
