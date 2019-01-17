@@ -266,9 +266,9 @@ def mnemonics_push_pop(mnemonic, operands):
     errors = []
 
     if validate_operands_count(operands, 1, errors):
-        register = operands[0].lower()
-        if validate_operand_register_size(register, 8, errors):
-            register_opcode = get_register_opcode(register)
+        operand = operands[0].lower()
+        if validate_operand_register_size(operand, 8, errors):
+            register_opcode = get_register_opcode(operand)
             if 'push' == mnemonic:
                 opcode = 0b10000000 | (register_opcode << 4) | (register_opcode << 1)
             elif 'pop' == mnemonic:
