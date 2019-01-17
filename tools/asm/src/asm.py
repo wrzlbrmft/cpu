@@ -17,7 +17,9 @@ parser_errors = {
     'INVALID_SYMBOL_NAME': "invalid symbol name '{}'",
     'INVALID_DIRECTIVE': "invalid directive '{}'",
     'INSTRUCTION_OUTSIDE_SYMBOL': 'instruction outside of a symbol',
-    'INVALID_MNEMONIC': "invalid mnemonic '{}'"
+    'INVALID_MNEMONIC': "invalid mnemonic '{}'",
+    'INSUFFICIENT_OPERANDS': "insufficient operands (given: {}, required: {})",
+    'TOO_MANY_OPERANDS': "too many operands (given: {}, required: {})"
 }
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
@@ -164,9 +166,29 @@ def parse_asm_line_str(line_str):
     }
 
 
+def validate_operands_count(operands, count_valid, errors):
+    if len(operands) < count_valid:
+        errors.append({
+            'name': 'INSUFFICIENT_OPERANDS',
+            'info': [len(operands), count_valid]
+        })
+        return False
+    elif len(operands) > count_valid:
+        errors.append({
+            'name': 'TOO_MANY_OPERANDS',
+            'info': [len(operands), count_valid]
+        })
+        return False
+    else:
+        return True
+
+
 def mnemonic_nop(operands):
-    opcode = 0b00000000
+    opcode = None
     errors = []
+
+    if validate_operands_count(operands, 0, errors):
+        opcode = 0b00000000
 
     return {
         'opcode': opcode,
