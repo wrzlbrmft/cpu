@@ -26,6 +26,10 @@ parser_errors = {
 }
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
+valid_data_dec_regex = re.compile('[1-9][0-9]*')
+valid_data_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
+valid_data_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
+valid_data_oct_regex = re.compile('0[0-7]+')
 
 valid_directives = ['include',
                     'define', 'undef', 'ifdef', 'ifndef', 'else', 'endif',
