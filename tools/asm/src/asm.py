@@ -159,6 +159,10 @@ def parse_asm_line(line_str):
     }
 
 
+def mnemonic_nop(operands, file=None, line_num=None, line_str=None):
+    pass
+
+
 def parse_asm_file(file):
     with open(file) as asm:
         line_num = 0
@@ -221,8 +225,8 @@ def parse_asm_file(file):
                         'name': 'INVALID_MNEMONIC',
                         'info': [mnemonic]
                     }, file, line_num, line_str)
-                else:
-                    pass
+                elif 'nop' == mnemonic_lower:
+                    mnemonic_nop(line['operands'], file, line_num, line_str)
 
         # end of file
 
