@@ -269,8 +269,8 @@ def parse_asm_file(file):
                         'name': 'INVALID_DIRECTIVE',
                         'info': [directive]
                     })
-                else:
-                    pass
+                elif 'end' == directive_lower:
+                    break
 
             elif line['mnemonic']:
                 if not current_symbol:
@@ -283,6 +283,8 @@ def parse_asm_file(file):
 
                 for error in assembly['errors']:
                     parser_error(error)
+
+            # end of line
 
         # end of file
 
