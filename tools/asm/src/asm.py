@@ -268,6 +268,36 @@ def mnemonic_mov(operands):
     if validate_operands_count(operands, 2, errors):
         operand1 = operands[0].lower()
         operand2 = operands[1].lower()
+        if 'm' == operand1:
+            register1_opcode = 0b110
+            if validate_operand_register_size(operand2, 8, errors):
+                register2_opcode = get_register_opcode(operand2)
+                opcode = 0b10000000 | (register1_opcode << 4) | (register2_opcode << 1)
+        elif validate_operand_register(operand1, errors):
+            register1_size = get_register_size(operand1)
+            register1_opcode = get_register_opcode(operand1)
+            if 8 == register1_size:
+                register2_opcode = None
+                if 'm' == operand2:
+                    register2_opcode = 0b110
+                elif is_valid_register(operand2):
+                    if validate_operand_register_size(operand2, register1_size, errors):
+                        register2_opcode = get_register_opcode(operand2)
+                else:
+                    pass  # todo: data
+
+                if register2_opcode is not None:
+                    opcode = 0b10000000 | (register1_opcode << 4) | (register2_opcode << 1)
+            elif 16 == register1_size:
+                register2_opcode = None
+                if is_valid_register(operand2):
+                    if validate_operand_register_size(operand2, register1_size, errors):
+                        register2_opcode = get_register_opcode(operand2)
+                else:
+                    pass  # todo: data
+
+                if register2_opcode is not None:
+                    opcode = (register1_opcode << 4) | (register2_opcode << 1)
 
     return {
         'opcode': opcode,
@@ -308,7 +338,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
                 register_opcode = get_register_opcode(operand)
                 opcode = (register_opcode << 1)
         else:
-            pass
+            pass  # todo: data
 
         if opcode is not None:
             if 'add' == mnemonic:
@@ -441,6 +471,13 @@ def parse_asm_file(file):
 
                 for error in assembly['errors']:
                     parser_error(error)
+
+                if 'opcode' in assembly:
+                    print(current_line_str.strip())
+                    i = assembly['opcode']
+                    print(' ' + hex(i)[2:].upper().zfill(2), end='')
+                    print()
+                    print()
 
             # end of line
 
