@@ -208,6 +208,22 @@ def mnemonics_nop_hlt_rst(mnemonic, operands):
     }
 
 
+def mnemonics_push_pop(mnemonic, operands):
+    opcode = None
+    errors = []
+
+    if validate_operands_count(operands, 0, errors):
+        if 'push' == mnemonic:
+            opcode = 0b0
+        elif 'pop' == mnemonic:
+            opcode = 0b0
+
+    return {
+        'opcode': opcode,
+        'errors': errors
+    }
+
+
 def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands):
     opcode = None
     errors = []
@@ -244,6 +260,8 @@ def assemble_asm_line(line):
         })
     elif mnemonic_lower in ['nop', 'hlt', 'rst']:
         assembly = mnemonics_nop_hlt_rst(mnemonic_lower, line['operands'])
+    elif mnemonic_lower in ['push', 'pop']:
+        assembly = mnemonics_push_pop(mnemonic_lower, line['operands'])
     elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz']:
         assembly = mnemonics_ret_rc_rnc_rz_rnz(mnemonic_lower, line['operands'])
 
