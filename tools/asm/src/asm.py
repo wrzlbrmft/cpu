@@ -12,6 +12,7 @@ parser_errors = {
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
     'INVALID_SYMBOL_NAME': "invalid symbol name '{}'",
     'INVALID_DIRECTIVE': "invalid directive '{}'",
+    'INSTRUCTION_OUTSIDE_SYMBOL': 'instruction outside of a symbol',
     'INVALID_MNEMONIC': "invalid mnemonic '{}'"
 }
 
@@ -208,6 +209,12 @@ def parse_asm_file(file):
             elif line['mnemonic']:
                 mnemonic = line['mnemonic']
                 mnemonic_lower = mnemonic.lower()
+
+                if not current_symbol:
+                    parser_error({
+                        'name': 'INSTRUCTION_OUTSIDE_SYMBOL',
+                        'info': []
+                    }, file, line_number, line_str)
 
                 if not is_valid_mnemonic(mnemonic_lower):
                     parser_error({
