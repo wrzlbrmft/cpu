@@ -85,7 +85,7 @@ def parser_error(error):
     print()
 
 
-def parse_asm_line(line_str):
+def parse_asm_line_str(line_str):
     symbol = None
     directive = None
     mnemonic = None
@@ -181,7 +181,7 @@ def parse_asm_file(file):
             line_num += 1
             current_line_num = line_num
 
-            line = parse_asm_line(current_line_str)
+            line = parse_asm_line_str(current_line_str)
 
             if line['symbol']:
                 symbol = line['symbol']
