@@ -23,7 +23,7 @@ parser_errors = {
     'UNSUPPORTED_OPERAND': "unsupported operand '{}'",
     'INVALID_OPERAND': "invalid operand '{}'",
     'INCOMPATIBLE_REGISTER_SIZE': 'incompatible register size (given: {}-bits, required: {}-bits)',
-    'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bits, required: {}-bits)'
+    'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bits, max: {}-bits)'
 }
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
@@ -230,7 +230,7 @@ def validate_operand_data_size(operand, size_valid, errors=None):
     is_valid = validate_operand_data(operand, errors)
     if is_valid:
         size = get_data_size(operand)
-        if size == size_valid:
+        if size <= size_valid:
             return True
         else:
             if errors is not None:
@@ -265,6 +265,7 @@ def mnemonics_nop_hlt_rst(mnemonic, operands):
 
 def mnemonic_mov(operands):
     opcode = None
+    opcode_operands = bytearray()
     errors = []
 
     if validate_operands_count(operands, 2, errors):
@@ -285,8 +286,10 @@ def mnemonic_mov(operands):
                 elif is_valid_register(operand2):
                     if validate_operand_register_size(operand2, register1_size, errors):
                         register2_opcode = get_register_opcode(operand2)
-                else:
-                    pass  # todo: data
+                elif validate_operand_data_size(operand2, register1_size, errors):
+                    register2_opcode = 0b111
+                    data_value = get_data_value(operand2)
+                    opcode_operands.append(data_value)
 
                 if register2_opcode is not None:
                     opcode = 0b10000000 | (register1_opcode << 4) | (register2_opcode << 1)
@@ -295,8 +298,11 @@ def mnemonic_mov(operands):
                 if is_valid_register(operand2):
                     if validate_operand_register_size(operand2, register1_size, errors):
                         register2_opcode = get_register_opcode(operand2)
-                else:
-                    pass  # todo: data
+                elif validate_operand_data_size(operand2, register1_size, errors):
+                    register2_opcode = 0b111
+                    data_value = get_data_value(operand2)
+                    opcode_operands.append(get_data_value_lo(data_value))  # little-endian
+                    opcode_operands.append(get_data_value_hi(data_value))
 
                 if register2_opcode is not None:
                     opcode = (register1_opcode << 4) | (register2_opcode << 1)
@@ -304,6 +310,7 @@ def mnemonic_mov(operands):
     machine_code = bytearray()
     if opcode is not None:
         machine_code.append(opcode)
+    machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
         'references': [],
@@ -598,7 +605,7 @@ def parse_asm_file(file):
                     print(current_line_str.strip())
                     for i in assembly['machine_code']:
                         print(' ' + hex(i)[2:].upper().zfill(2), end='')
-                        print()
+                    print()
                     print()
 
             # end of line
