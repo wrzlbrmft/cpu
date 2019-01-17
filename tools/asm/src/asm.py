@@ -344,6 +344,7 @@ def mnemonics_push_pop(mnemonic, operands):
 
 def mnemonics_add_sub_cmp(mnemonic, operands):
     opcode = None
+    opcode_operands = bytearray()
     errors = []
 
     if validate_operands_count(operands, 1, errors):
@@ -354,8 +355,10 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
             if validate_operand_register_size(operand, 8, errors):
                 register_opcode = get_register_opcode(operand)
                 opcode = (register_opcode << 1)
-        else:
-            pass  # todo: data
+        elif validate_operand_data_size(operand, 8, errors):
+            opcode = 0b00001110
+            data_value = get_data_value(operand)
+            opcode_operands.append(data_value)
 
         if opcode is not None:
             if 'add' == mnemonic:
@@ -368,6 +371,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
     machine_code = bytearray()
     if opcode is not None:
         machine_code.append(opcode)
+    machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
         'references': [],
