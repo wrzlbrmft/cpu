@@ -61,6 +61,7 @@ def is_valid_operand(operand):
 
 def parser_error(error, file=None, line_num=None, line_str=None):
     global current_symbol_errors_count
+
     if current_symbol and not current_symbol_errors_count:
         if file:
             print(f'{file}: ', end='')
@@ -165,6 +166,8 @@ def mnemonic_nop(operands, file=None, line_num=None, line_str=None):
 
 
 def parse_asm_file(file):
+    global current_symbol, current_symbol_errors_count
+
     with open(file) as asm:
         line_num = 0
 
@@ -187,7 +190,6 @@ def parse_asm_file(file):
                         'info': [symbol]
                     }, file, line_num, line_str)
                 else:
-                    global current_symbol, current_symbol_errors_count
                     current_symbol = symbol
                     current_symbol_errors_count = 0
 
