@@ -165,10 +165,17 @@ def parse_asm_line_str(line_str):
 
 
 def mnemonic_nop(operands):
-    pass
+    opcode = 0b00000000
+    errors = []
+
+    return {
+        'opcode': opcode,
+        'errors': errors
+    }
 
 
 def assemble_asm_line(line):
+    assembly = None
     errors = []
 
     mnemonic = line['mnemonic']
@@ -180,11 +187,14 @@ def assemble_asm_line(line):
             'info': [mnemonic]
         })
     elif 'nop' == mnemonic_lower:
-        mnemonic_nop(line['operands'])
+        assembly = mnemonic_nop(line['operands'])
 
-    return {
-        'errors': errors
-    }
+    if assembly:
+        return assembly
+    else:
+        return {
+            'errors': errors
+        }
 
 
 def parse_asm_file(file):
