@@ -154,108 +154,6 @@ def is_valid_operand(operand):
     return operand in valid_operands
 
 
-def parser_error(error):
-    global current_symbol_errors_count
-
-    if current_symbol and not current_symbol_errors_count:
-        if current_file:
-            print(f'{current_file}: ', end='')
-        print(f"in symbol '{current_symbol}':")
-        current_symbol_errors_count += 1
-
-    if current_file:
-        print(f'{current_file}:', end='')
-        if current_line_num:
-            print(f'{current_line_num}:', end='')
-        print(' ', end='')
-
-    print('error:', parser_errors[error['name']].format(*error['info']))
-
-    if current_line_str:
-        print('', current_line_str.strip())
-
-    print()
-
-
-def parse_asm_line_str(line_str):
-    symbol = None
-    directive = None
-    mnemonic = None
-    operands = []
-    operand = ''
-    operand_expected = False
-    errors = []
-
-    parser = shlex.shlex(line_str)
-    parser.commenters = ';'
-    parser.wordchars += '.'
-
-    for token in parser:
-        if ':' == token:
-            if symbol:
-                errors.append({
-                    'name': 'UNEXPECTED',
-                    'info': [':']
-                })
-            else:
-                if mnemonic:
-                    if operand or operand_expected:
-                        errors.append({
-                            'name': 'UNEXPECTED',
-                            'info': [':']
-                        })
-                    else:
-                        symbol = mnemonic
-                        mnemonic = None
-                else:
-                    errors.append({
-                        'name': 'SYMBOL_NAME_EXPECTED',
-                        'info': []
-                    })
-
-        elif ',' == token:
-            if operand:
-                operands.append(operand.strip())
-                operand = ''
-                operand_expected = True
-            else:
-                errors.append({
-                    'name': 'UNEXPECTED',
-                    'info': [',']
-                })
-
-        else:
-            if mnemonic:
-                operand += ' ' + token
-                operand_expected = False
-            else:
-                mnemonic = token
-
-    # end of line
-
-    if mnemonic and '.' == mnemonic[0]:
-        directive = mnemonic[1:]
-        mnemonic = None
-
-    if operand:
-        operands.append(operand.strip())
-        # operand = ''
-        # operand_expected = False
-    elif operand_expected:
-        errors.append({
-            'name': 'UNEXPECTED',
-            'info': [',']
-        })
-
-    return {
-        'symbol': symbol,
-        'directive': directive,
-        'mnemonic': mnemonic,
-        'operands': operands,
-        'errors': errors
-    }
-
-
 def validate_operands_count(operands, count_valid, errors=None):
     if len(operands) < count_valid:
         if errors is not None:
@@ -505,6 +403,108 @@ def assemble_asm_line(line):
         return {
             'errors': errors
         }
+
+
+def parser_error(error):
+    global current_symbol_errors_count
+
+    if current_symbol and not current_symbol_errors_count:
+        if current_file:
+            print(f'{current_file}: ', end='')
+        print(f"in symbol '{current_symbol}':")
+        current_symbol_errors_count += 1
+
+    if current_file:
+        print(f'{current_file}:', end='')
+        if current_line_num:
+            print(f'{current_line_num}:', end='')
+        print(' ', end='')
+
+    print('error:', parser_errors[error['name']].format(*error['info']))
+
+    if current_line_str:
+        print('', current_line_str.strip())
+
+    print()
+
+
+def parse_asm_line_str(line_str):
+    symbol = None
+    directive = None
+    mnemonic = None
+    operands = []
+    operand = ''
+    operand_expected = False
+    errors = []
+
+    parser = shlex.shlex(line_str)
+    parser.commenters = ';'
+    parser.wordchars += '.'
+
+    for token in parser:
+        if ':' == token:
+            if symbol:
+                errors.append({
+                    'name': 'UNEXPECTED',
+                    'info': [':']
+                })
+            else:
+                if mnemonic:
+                    if operand or operand_expected:
+                        errors.append({
+                            'name': 'UNEXPECTED',
+                            'info': [':']
+                        })
+                    else:
+                        symbol = mnemonic
+                        mnemonic = None
+                else:
+                    errors.append({
+                        'name': 'SYMBOL_NAME_EXPECTED',
+                        'info': []
+                    })
+
+        elif ',' == token:
+            if operand:
+                operands.append(operand.strip())
+                operand = ''
+                operand_expected = True
+            else:
+                errors.append({
+                    'name': 'UNEXPECTED',
+                    'info': [',']
+                })
+
+        else:
+            if mnemonic:
+                operand += ' ' + token
+                operand_expected = False
+            else:
+                mnemonic = token
+
+    # end of line
+
+    if mnemonic and '.' == mnemonic[0]:
+        directive = mnemonic[1:]
+        mnemonic = None
+
+    if operand:
+        operands.append(operand.strip())
+        # operand = ''
+        # operand_expected = False
+    elif operand_expected:
+        errors.append({
+            'name': 'UNEXPECTED',
+            'info': [',']
+        })
+
+    return {
+        'symbol': symbol,
+        'directive': directive,
+        'mnemonic': mnemonic,
+        'operands': operands,
+        'errors': errors
+    }
 
 
 def parse_asm_file(file):
