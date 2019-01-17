@@ -10,7 +10,9 @@ parser_errors = {
     'UNEXPECTED': "unexpected '{}'",
     'SYMBOL_NAME_EXPECTED': 'symbol name expected',
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
-    'INVALID_SYMBOL_NAME': "invalid symbol name '{}'"
+    'INVALID_SYMBOL_NAME': "invalid symbol name '{}'",
+    'INVALID_DIRECTIVE': "invalid directive '{}'",
+    'INVALID_MNEMONIC': "invalid mnemonic '{}'"
 }
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
@@ -195,9 +197,25 @@ def parse_asm_file(file):
                 directive = line['directive']
                 directive_lower = directive.lower()
 
+                if not is_valid_directive(directive_lower):
+                    parser_error({
+                        'name': 'INVALID_DIRECTIVE',
+                        'info': [directive]
+                    }, file, line_number, line_str)
+                else:
+                    pass
+
             elif line['mnemonic']:
                 mnemonic = line['mnemonic']
                 mnemonic_lower = mnemonic.lower()
+
+                if not is_valid_mnemonic(mnemonic_lower):
+                    parser_error({
+                        'name': 'INVALID_MNEMONIC',
+                        'info': [mnemonic]
+                    }, file, line_number, line_str)
+                else:
+                    pass
 
         # end of file
 
