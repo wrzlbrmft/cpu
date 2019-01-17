@@ -191,6 +191,14 @@ def parse_asm_file(file):
             for error in line['errors']:
                 parser_error(error, file, line_number, line_str)
 
+            if line['directive']:
+                directive = line['directive']
+                directive_lower = directive.lower()
+
+            elif line['mnemonic']:
+                mnemonic = line['mnemonic']
+                mnemonic_lower = mnemonic.lower()
+
         # end of file
 
 
