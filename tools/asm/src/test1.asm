@@ -1,6 +1,7 @@
         nop
 
 foo:    mov a,0x10  ; ok
+        nop 0x10h
 
 ; here comes the error
 :       nop
