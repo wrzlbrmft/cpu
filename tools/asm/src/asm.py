@@ -193,8 +193,8 @@ def parse_asm_file(file):
                     current_symbol = symbol
                     current_symbol_errors_count = 0
 
-                    symbol_table.append(symbol)
-                    symbols[symbol] = {
+                    symbol_table.append(current_symbol)
+                    symbols[current_symbol] = {
                         'machine_code': bytearray(),
                         'references': []
                     }
