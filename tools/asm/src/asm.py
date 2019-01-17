@@ -22,7 +22,8 @@ parser_errors = {
     'TOO_MANY_OPERANDS': "too many operands (given: {}, required: {})",
     'UNSUPPORTED_OPERAND': "unsupported operand '{}'",
     'INVALID_OPERAND': "invalid operand '{}'",
-    'INCOMPATIBLE_REGISTER_SIZE': 'incompatible register size (given: {}-bits, required: {}-bits)'
+    'INCOMPATIBLE_REGISTER_SIZE': 'incompatible register size (given: {}-bits, required: {}-bits)',
+    'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bits, required: {}-bits)'
 }
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
@@ -303,6 +304,40 @@ def validate_operand_register_size(operand, size_valid, errors=None):
             if errors is not None:
                 errors.append({
                     'name': 'INCOMPATIBLE_REGISTER_SIZE',
+                    'info': [size, size_valid]
+                })
+            return False
+
+
+def validate_operand_data(operand, errors=None):
+    if is_valid_data(operand):
+        return True
+    elif is_valid_operand(operand):
+        if errors is not None:
+            errors.append({
+                'name': 'UNSUPPORTED_OPERAND',
+                'info': [operand]
+            })
+        return False
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'INVALID_OPERAND',
+                'info': [operand]
+            })
+        return False
+
+
+def validate_operand_data_size(operand, size_valid, errors=None):
+    is_valid = validate_operand_data(operand, errors)
+    if is_valid:
+        size = get_data_size(operand)
+        if size == size_valid:
+            return True
+        else:
+            if errors is not None:
+                errors.append({
+                    'name': 'INCOMPATIBLE_DATA_SIZE',
                     'info': [size, size_valid]
                 })
             return False
