@@ -253,8 +253,12 @@ def mnemonics_nop_hlt_rst(mnemonic, operands):
         elif 'rst' == mnemonic:
             opcode = 0b11111110
 
+    machine_code = bytearray()
+    if opcode is not None:
+        machine_code.append(opcode)
     return {
-        'opcode': opcode,
+        'machine_code': machine_code,
+        'references': [],
         'errors': errors
     }
 
@@ -297,8 +301,12 @@ def mnemonic_mov(operands):
                 if register2_opcode is not None:
                     opcode = (register1_opcode << 4) | (register2_opcode << 1)
 
+    machine_code = bytearray()
+    if opcode is not None:
+        machine_code.append(opcode)
     return {
-        'opcode': opcode,
+        'machine_code': machine_code,
+        'references': [],
         'errors': errors
     }
 
@@ -317,8 +325,12 @@ def mnemonics_push_pop(mnemonic, operands):
             elif 'pop' == mnemonic:
                 opcode = 0b10000001 | opcode
 
+    machine_code = bytearray()
+    if opcode is not None:
+        machine_code.append(opcode)
     return {
-        'opcode': opcode,
+        'machine_code': machine_code,
+        'references': [],
         'errors': errors
     }
 
@@ -346,8 +358,12 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
             elif 'cmp' == mnemonic:
                 opcode = 0b01110000 | opcode
 
+    machine_code = bytearray()
+    if opcode is not None:
+        machine_code.append(opcode)
     return {
-        'opcode': opcode,
+        'machine_code': machine_code,
+        'references': [],
         'errors': errors
     }
 
@@ -368,8 +384,12 @@ def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands):
         elif 'rnz' == mnemonic:
             opcode = 0b11001011
 
+    machine_code = bytearray()
+    if opcode is not None:
+        machine_code.append(opcode)
     return {
-        'opcode': opcode,
+        'machine_code': machine_code,
+        'references': [],
         'errors': errors
     }
 
@@ -401,6 +421,8 @@ def assemble_asm_line(line):
         return assembly
     else:
         return {
+            'machine_code': bytearray(),
+            'references': [],
             'errors': errors
         }
 
@@ -572,11 +594,11 @@ def parse_asm_file(file):
                 for error in assembly['errors']:
                     parser_error(error)
 
-                if 'opcode' in assembly and assembly['opcode'] is not None:
+                if assembly['machine_code']:
                     print(current_line_str.strip())
-                    i = assembly['opcode']
-                    print(' ' + hex(i)[2:].upper().zfill(2), end='')
-                    print()
+                    for i in assembly['machine_code']:
+                        print(' ' + hex(i)[2:].upper().zfill(2), end='')
+                        print()
                     print()
 
             # end of line
