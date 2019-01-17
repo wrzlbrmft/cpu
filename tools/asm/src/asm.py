@@ -4,7 +4,7 @@ import shlex
 symbol_table = []
 symbols = {}
 current_symbol = None
-current_symbol_has_errors = False
+current_symbol_errors_count = 0
 
 parser_errors = {
     'UNEXPECTED': "unexpected '{}'",
@@ -59,12 +59,12 @@ def is_valid_operand(operand):
 
 
 def parser_error(error, file=None, line_num=None, line_str=None):
-    global current_symbol_has_errors
-    if current_symbol and not current_symbol_has_errors:
+    global current_symbol_errors_count
+    if current_symbol and not current_symbol_errors_count:
         if file:
             print(f'{file}: ', end='')
         print(f"in symbol '{current_symbol}':")
-        current_symbol_has_errors = True
+        current_symbol_errors_count += 1
 
     if file:
         print(f'{file}:', end='')
@@ -187,9 +187,9 @@ def parse_asm_file(file):
                         'machine_code': bytearray(),
                         'references': []
                     }
-                    global current_symbol, current_symbol_has_errors
+                    global current_symbol, current_symbol_errors_count
                     current_symbol = symbol
-                    current_symbol_has_errors = False
+                    current_symbol_errors_count = 0
 
             for error in line['errors']:
                 parser_error(error, file, line_num, line_str)
