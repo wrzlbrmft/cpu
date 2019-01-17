@@ -183,12 +183,17 @@ def validate_operands_count(operands, count_valid, errors):
         return True
 
 
-def mnemonic_nop(operands):
+def mnemonics_nop_hlt_rst(mnemonic, operands):
     opcode = None
     errors = []
 
     if validate_operands_count(operands, 0, errors):
-        opcode = 0b00000000
+        if 'nop' == mnemonic:
+            opcode = 0b00000000
+        elif 'hlt' == mnemonic:
+            opcode = 0b11111111
+        elif 'rst' == mnemonic:
+            opcode = 0b11111110
 
     return {
         'opcode': opcode,
@@ -208,8 +213,8 @@ def assemble_asm_line(line):
             'name': 'INVALID_MNEMONIC',
             'info': [mnemonic]
         })
-    elif 'nop' == mnemonic_lower:
-        assembly = mnemonic_nop(line['operands'])
+    elif mnemonic_lower in ['nop', 'hlt', 'rst']:
+        assembly = mnemonics_nop_hlt_rst(mnemonic_lower, line['operands'])
 
     if assembly:
         return assembly
