@@ -168,6 +168,25 @@ def mnemonic_nop(operands):
     pass
 
 
+def assemble_asm_line(line):
+    errors = []
+
+    mnemonic = line['mnemonic']
+    mnemonic_lower = mnemonic.lower()
+
+    if not is_valid_mnemonic(mnemonic_lower):
+        errors.append({
+            'name': 'INVALID_MNEMONIC',
+            'info': [mnemonic]
+        })
+    elif 'nop' == mnemonic_lower:
+        mnemonic_nop(line['operands'])
+
+    return {
+        'errors': errors
+    }
+
+
 def parse_asm_file(file):
     global current_file, current_line_num, current_line_str, current_symbol, current_symbol_errors_count
 
@@ -222,22 +241,16 @@ def parse_asm_file(file):
                     pass
 
             elif line['mnemonic']:
-                mnemonic = line['mnemonic']
-                mnemonic_lower = mnemonic.lower()
-
                 if not current_symbol:
                     parser_error({
                         'name': 'INSTRUCTION_OUTSIDE_SYMBOL',
                         'info': []
                     })
 
-                if not is_valid_mnemonic(mnemonic_lower):
-                    parser_error({
-                        'name': 'INVALID_MNEMONIC',
-                        'info': [mnemonic]
-                    })
-                elif 'nop' == mnemonic_lower:
-                    mnemonic_nop(line['operands'])
+                assembly = assemble_asm_line(line)
+
+                for error in assembly['errors']:
+                    parser_error(error)
 
         # end of file
 
