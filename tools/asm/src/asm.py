@@ -92,44 +92,44 @@ def parse_asm_line(line_str):
 
     for token in parser:
         if ':' == token:
-            if not symbol:
+            if symbol:
+                errors.append({
+                    'name': 'UNEXPECTED',
+                    'info': [':']
+                })
+            else:
                 if mnemonic:
-                    if not operand and not operand_expected:
-                        symbol = mnemonic
-                        mnemonic = None
-                    else:
+                    if operand or operand_expected:
                         errors.append({
                             'name': 'UNEXPECTED',
                             'info': [':']
                         })
+                    else:
+                        symbol = mnemonic
+                        mnemonic = None
                 else:
                     errors.append({
                         'name': 'SYMBOL_NAME_EXPECTED',
                         'info': []
                     })
-            else:
-                errors.append({
-                    'name': 'UNEXPECTED',
-                    'info': [':']
-                })
 
         elif ',' == token:
-            if not operand:
+            if operand:
+                operands.append(operand.strip())
+                operand = ''
+                operand_expected = True
+            else:
                 errors.append({
                     'name': 'UNEXPECTED',
                     'info': [',']
                 })
-            else:
-                operands.append(operand.strip())
-                operand = ''
-                operand_expected = True
 
         else:
-            if not mnemonic:
-                mnemonic = token
-            else:
+            if mnemonic:
                 operand += ' ' + token
                 operand_expected = False
+            else:
+                mnemonic = token
 
     # end of line
 
