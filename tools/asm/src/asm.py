@@ -58,7 +58,7 @@ def is_valid_operand(operand):
     return operand in valid_operands
 
 
-def parser_error(error, file=None, line_number=None, line_str=None):
+def parser_error(error, file=None, line_num=None, line_str=None):
     global current_symbol_has_errors
     if current_symbol and not current_symbol_has_errors:
         if file:
@@ -68,8 +68,8 @@ def parser_error(error, file=None, line_number=None, line_str=None):
 
     if file:
         print(f'{file}:', end='')
-        if line_number:
-            print(f'{line_number}:', end='')
+        if line_num:
+            print(f'{line_num}:', end='')
         print(' ', end='')
 
     print('error:', parser_errors[error['name']].format(*error['info']))
@@ -161,10 +161,10 @@ def parse_asm_line(line_str):
 
 def parse_asm_file(file):
     with open(file) as asm:
-        line_number = 0
+        line_num = 0
 
         for line_str in asm.readlines():
-            line_number += 1
+            line_num += 1
 
             line = parse_asm_line(line_str)
 
@@ -175,12 +175,12 @@ def parse_asm_file(file):
                     parser_error({
                         'name': 'DUPLICATE_SYMBOL',
                         'info': [symbol]
-                    }, file, line_number, line_str)
+                    }, file, line_num, line_str)
                 elif not is_valid_name(symbol):
                     parser_error({
                         'name': 'INVALID_SYMBOL_NAME',
                         'info': [symbol]
-                    }, file, line_number, line_str)
+                    }, file, line_num, line_str)
                 else:
                     symbol_table.append(symbol)
                     symbols[symbol] = {
@@ -192,7 +192,7 @@ def parse_asm_file(file):
                     current_symbol_has_errors = False
 
             for error in line['errors']:
-                parser_error(error, file, line_number, line_str)
+                parser_error(error, file, line_num, line_str)
 
             if line['directive']:
                 directive = line['directive']
@@ -202,7 +202,7 @@ def parse_asm_file(file):
                     parser_error({
                         'name': 'INVALID_DIRECTIVE',
                         'info': [directive]
-                    }, file, line_number, line_str)
+                    }, file, line_num, line_str)
                 else:
                     pass
 
@@ -214,13 +214,13 @@ def parse_asm_file(file):
                     parser_error({
                         'name': 'INSTRUCTION_OUTSIDE_SYMBOL',
                         'info': []
-                    }, file, line_number, line_str)
+                    }, file, line_num, line_str)
 
                 if not is_valid_mnemonic(mnemonic_lower):
                     parser_error({
                         'name': 'INVALID_MNEMONIC',
                         'info': [mnemonic]
-                    }, file, line_number, line_str)
+                    }, file, line_num, line_str)
                 else:
                     pass
 
