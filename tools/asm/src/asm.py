@@ -62,6 +62,30 @@ def is_valid_name(name):
     return valid_name_regex.fullmatch(name)
 
 
+def is_valid_data_dec(data):
+    return valid_data_dec_regex.fullmatch(data)
+
+
+def is_valid_data_hex(data):
+    return valid_data_hex_regex.fullmatch(data)
+
+
+def is_valid_data_bin(data):
+    return valid_data_bin_regex.fullmatch(data)
+
+
+def is_valid_data_oct(data):
+    return valid_data_oct_regex.fullmatch(data)
+
+
+def is_valid_data(data):
+    return \
+        is_valid_data_dec(data) or \
+        is_valid_data_hex(data) or \
+        is_valid_data_bin(data) or \
+        is_valid_data_oct(data)
+
+
 def is_valid_directive(directive):
     return directive in valid_directives
 
