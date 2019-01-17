@@ -190,51 +190,56 @@ def parse_asm_line_str(line_str):
     }
 
 
-def validate_operands_count(operands, count_valid, errors):
+def validate_operands_count(operands, count_valid, errors=None):
     if len(operands) < count_valid:
-        errors.append({
-            'name': 'INSUFFICIENT_OPERANDS',
-            'info': [len(operands), count_valid]
-        })
+        if errors is not None:
+            errors.append({
+                'name': 'INSUFFICIENT_OPERANDS',
+                'info': [len(operands), count_valid]
+            })
         return False
     elif len(operands) > count_valid:
-        errors.append({
-            'name': 'TOO_MANY_OPERANDS',
-            'info': [len(operands), count_valid]
-        })
+        if errors is not None:
+            errors.append({
+                'name': 'TOO_MANY_OPERANDS',
+                'info': [len(operands), count_valid]
+            })
         return False
     else:
         return True
 
 
-def validate_operand_register(operand, errors):
+def validate_operand_register(operand, errors=None):
     if is_valid_register(operand):
         return True
     elif is_valid_operand(operand):
-        errors.append({
-            'name': 'UNSUPPORTED_OPERAND',
-            'info': [operand]
-        })
+        if errors is not None:
+            errors.append({
+                'name': 'UNSUPPORTED_OPERAND',
+                'info': [operand]
+            })
         return False
     else:
-        errors.append({
-            'name': 'INVALID_OPERAND',
-            'info': [operand]
-        })
+        if errors is not None:
+            errors.append({
+                'name': 'INVALID_OPERAND',
+                'info': [operand]
+            })
         return False
 
 
-def validate_operand_register_size(operand, size_valid, errors):
+def validate_operand_register_size(operand, size_valid, errors=None):
     is_valid = validate_operand_register(operand, errors)
     if is_valid:
         size = get_register_size(operand)
         if size == size_valid:
             return True
         else:
-            errors.append({
-                'name': 'INCOMPATIBLE_REGISTER_SIZE',
-                'info': [size, size_valid]
-            })
+            if errors is not None:
+                errors.append({
+                    'name': 'INCOMPATIBLE_REGISTER_SIZE',
+                    'info': [size, size_valid]
+                })
             return False
 
 
