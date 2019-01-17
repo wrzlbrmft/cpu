@@ -1,10 +1,11 @@
 import re
 import shlex
 
-symbol_table = []
-symbols = {}
 current_symbol = None
 current_symbol_errors_count = 0
+
+symbol_table = []
+symbols = {}
 
 parser_errors = {
     'UNEXPECTED': "unexpected '{}'",
@@ -186,14 +187,15 @@ def parse_asm_file(file):
                         'info': [symbol]
                     }, file, line_num, line_str)
                 else:
+                    global current_symbol, current_symbol_errors_count
+                    current_symbol = symbol
+                    current_symbol_errors_count = 0
+
                     symbol_table.append(symbol)
                     symbols[symbol] = {
                         'machine_code': bytearray(),
                         'references': []
                     }
-                    global current_symbol, current_symbol_errors_count
-                    current_symbol = symbol
-                    current_symbol_errors_count = 0
 
             for error in line['errors']:
                 parser_error(error, file, line_num, line_str)
