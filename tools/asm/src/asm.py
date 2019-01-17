@@ -537,7 +537,7 @@ def parse_asm_file(file):
                 for error in assembly['errors']:
                     parser_error(error)
 
-                if 'opcode' in assembly:
+                if 'opcode' in assembly and assembly['opcode'] is not None:
                     print(current_line_str.strip())
                     i = assembly['opcode']
                     print(' ' + hex(i)[2:].upper().zfill(2), end='')
