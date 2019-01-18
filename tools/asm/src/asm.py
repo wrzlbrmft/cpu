@@ -96,8 +96,7 @@ def is_valid_data(data):
         is_valid_data_hex(data) or \
         is_valid_data_bin(data) or \
         is_valid_data_oct(data) or \
-        is_valid_data_chr(data) or \
-        is_valid_data_str(data)
+        is_valid_data_chr(data)
 
 
 def get_data_value(data):
@@ -113,24 +112,13 @@ def get_data_value(data):
         return int(data[1:], 8)
     elif is_valid_data_chr(data):
         return ord(data[1])
-    elif is_valid_data_str(data):
-        values = []
-        for value in data[1:-1]:
-            values.append(ord(value))
-        return values
     else:
         return None
 
 
 def get_data_size(data):
     value = get_data_value(data)
-    if isinstance(value, list):
-        values = value
-        size = 0
-        for value in values:
-            size += value.bit_length()
-        return size
-    elif value is not None:
+    if value is not None:
         return value.bit_length()
     else:
         return None
