@@ -33,7 +33,7 @@ valid_data_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
 valid_data_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
 valid_data_oct_regex = re.compile('0[0-7]+')
 valid_data_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
-valid_data_str_regex = re.compile('(\'.+\'|\".+\")', re.IGNORECASE)
+valid_data_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
 
 valid_directives = ['include',
                     'define', 'undef', 'ifdef', 'ifndef', 'else', 'endif',
@@ -96,7 +96,8 @@ def is_valid_data(data):
         is_valid_data_hex(data) or \
         is_valid_data_bin(data) or \
         is_valid_data_oct(data) or \
-        is_valid_data_str(data)  # str covers chr
+        is_valid_data_chr(data) or \
+        is_valid_data_str(data)
 
 
 def get_data_value(data):
