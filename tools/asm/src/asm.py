@@ -60,7 +60,7 @@ valid_registers = {
     'sp': {'size': 16, 'opcode': 0b010}
 }
 
-valid_operands = list(valid_registers) + ['m']
+valid_operands = list(valid_registers.keys()) + ['m']
 
 
 def is_valid_name(name):
@@ -372,7 +372,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
     if validate_operands_count(operands, 1, errors):
         operand = operands[0].lower()
         if 'm' == operand:
-            opcode = 0b00001100
+            opcode = 0b1100
         elif is_valid_register(operand):
             if validate_operand_register_size(operand, 8, errors):
                 register_opcode = get_register_opcode(operand)
@@ -383,7 +383,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
                 'info': []
             })
         elif validate_operand_data_size(operand, 8, errors):
-            opcode = 0b00001110
+            opcode = 0b1110
             data_value = get_data_value(operand)
             opcode_operands.append(data_value)
 
@@ -482,7 +482,6 @@ def assemble_asm_line(line):
 
     mnemonic = line['mnemonic']
     mnemonic_lower = mnemonic.lower()
-
     if not is_valid_mnemonic(mnemonic_lower):
         errors.append({
             'name': 'INVALID_MNEMONIC',
@@ -572,7 +571,7 @@ def parse_asm_line_str(line_str):
 
         elif ',' == token:
             if operand:
-                operands.append(operand.strip())
+                operands.append(operand[1:])
                 operand = ''
                 operand_expected = True
             else:
@@ -595,7 +594,7 @@ def parse_asm_line_str(line_str):
         mnemonic = None
 
     if operand:
-        operands.append(operand.strip())
+        operands.append(operand[1:])
         # operand = ''
         # operand_expected = False
     elif operand_expected:
@@ -680,8 +679,8 @@ def parse_asm_file(file):
 
                 if assembly['machine_code']:
                     print(current_line_str.strip())
-                    for i in assembly['machine_code']:
-                        print(' ' + hex(i)[2:].upper().zfill(2), end='')
+                    for byte in assembly['machine_code']:
+                        print('', hex(byte)[2:].upper().zfill(2), end='')
                     print()
                     print()
 
