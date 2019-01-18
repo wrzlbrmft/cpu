@@ -136,14 +136,6 @@ def get_data_size(data):
         return None
 
 
-def get_data_value_lo(value):
-    return divmod(value, 256)[1]
-
-
-def get_data_value_hi(value):
-    return divmod(value, 256)[0]
-
-
 def is_valid_directive(directive):
     return directive in valid_directives
 
@@ -319,8 +311,7 @@ def mnemonic_mov(operands):
                 elif validate_operand_data_size(operand2, register1_size, errors):
                     register2_opcode = 0b111
                     data_value = get_data_value(operand2)
-                    opcode_operands.append(get_data_value_lo(data_value))  # little-endian
-                    opcode_operands.append(get_data_value_hi(data_value))
+                    opcode_operands.extend(data_value.to_bytes(2, 'little'))
 
                 if register2_opcode is not None:
                     opcode = (register1_opcode << 4) | (register2_opcode << 1)
@@ -440,8 +431,7 @@ def mnemonics_db_dw(mnemonic, operands):
             for operand in operands:
                 if validate_operand_data_size(operand, 16, errors):
                     data_value = get_data_value(operand)
-                    opcode_operands.append(get_data_value_lo(data_value))  # little-endian
-                    opcode_operands.append(get_data_value_hi(data_value))
+                    opcode_operands.extend(data_value.to_bytes(2, 'little'))
                 else:
                     opcode_operands.clear()
                     break
