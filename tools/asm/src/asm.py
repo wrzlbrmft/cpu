@@ -23,7 +23,8 @@ parser_errors = {
     'UNSUPPORTED_OPERAND': "unsupported operand '{}'",
     'INVALID_OPERAND': "invalid operand '{}'",
     'INCOMPATIBLE_REGISTER_SIZE': 'incompatible register size (given: {}-bits, required: {}-bits)',
-    'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bits, max: {}-bits)'
+    'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bits, max: {}-bits)',
+    'NO_DATA': 'no data'
 }
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
@@ -405,6 +406,28 @@ def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands):
     }
 
 
+def mnemonics_db_dw(mnemonic, operands):
+    opcode_operands = bytearray()
+    errors = []
+
+    if not operands:
+        if 'db' == mnemonic:
+            pass
+        elif 'dw' == mnemonic:
+            pass
+    else:
+        errors.append({
+            'name': 'NO_DATA',
+            'info': []
+        })
+
+    return {
+        'machine_code': opcode_operands,
+        'references': [],
+        'errors': errors
+    }
+
+
 def assemble_asm_line(line):
     assembly = None
     errors = []
@@ -427,6 +450,8 @@ def assemble_asm_line(line):
         assembly = mnemonics_add_sub_cmp(mnemonic_lower, line['operands'])
     elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz']:
         assembly = mnemonics_ret_rc_rnc_rz_rnz(mnemonic_lower, line['operands'])
+    elif mnemonic_lower in ['db', 'dw']:
+        assembly = mnemonics_db_dw(mnemonic_lower, line['operands'])
 
     if assembly:
         return assembly
