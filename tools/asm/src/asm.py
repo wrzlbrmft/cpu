@@ -630,7 +630,7 @@ def parse_asm_file(file):
             if line['symbol']:
                 symbol = line['symbol']
 
-                if symbol in symbol_table:
+                if symbol in symbols:
                     parser_error({
                         'name': 'DUPLICATE_SYMBOL',
                         'info': [symbol]
