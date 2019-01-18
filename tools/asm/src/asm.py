@@ -23,6 +23,7 @@ parser_errors = {
     'UNSUPPORTED_OPERAND': "unsupported operand '{}'",
     'INVALID_OPERAND': "invalid operand '{}'",
     'INCOMPATIBLE_REGISTER_SIZE': 'incompatible register size (given: {}-bits, required: {}-bits)',
+    'INCOMPATIBLE_DATA_TYPE': 'incompatible data type',
     'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bits, max: {}-bits)',
     'NO_DATA': 'no data'
 }
@@ -300,6 +301,11 @@ def mnemonic_mov(operands):
                 elif is_valid_register(operand2):
                     if validate_operand_register_size(operand2, register1_size, errors):
                         register2_opcode = get_register_opcode(operand2)
+                elif is_valid_data_str(operand2):
+                    errors.append({
+                        'name': 'INCOMPATIBLE_DATA_TYPE',
+                        'info': []
+                    })
                 elif validate_operand_data_size(operand2, register1_size, errors):
                     register2_opcode = 0b111
                     data_value = get_data_value(operand2)
@@ -312,6 +318,11 @@ def mnemonic_mov(operands):
                 if is_valid_register(operand2):
                     if validate_operand_register_size(operand2, register1_size, errors):
                         register2_opcode = get_register_opcode(operand2)
+                elif is_valid_data_str(operand2):
+                    errors.append({
+                        'name': 'INCOMPATIBLE_DATA_TYPE',
+                        'info': []
+                    })
                 elif validate_operand_data_size(operand2, register1_size, errors):
                     register2_opcode = 0b111
                     data_value = get_data_value(operand2)
@@ -368,6 +379,11 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
             if validate_operand_register_size(operand, 8, errors):
                 register_opcode = get_register_opcode(operand)
                 opcode = (register_opcode << 1)
+        elif is_valid_data_str(operand):
+            errors.append({
+                'name': 'INCOMPATIBLE_DATA_TYPE',
+                'info': []
+            })
         elif validate_operand_data_size(operand, 8, errors):
             opcode = 0b00001110
             data_value = get_data_value(operand)
