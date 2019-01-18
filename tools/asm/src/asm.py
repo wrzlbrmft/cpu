@@ -113,13 +113,24 @@ def get_data_value(data):
         return int(data[1:], 8)
     elif is_valid_data_chr(data):
         return ord(data[1])
+    elif is_valid_data_str(data):
+        values = []
+        for value in data[1:-1]:
+            values.append(ord(value))
+        return values
     else:
         return None
 
 
 def get_data_size(data):
     value = get_data_value(data)
-    if value is not None:
+    if isinstance(value, list):
+        values = value
+        size = 0
+        for value in values:
+            size += value.bit_length()
+        return size
+    elif value is not None:
         return value.bit_length()
     else:
         return None
@@ -202,8 +213,7 @@ def validate_operand_register(operand, errors=None):
 
 
 def validate_operand_register_size(operand, size_valid, errors=None):
-    is_valid = validate_operand_register(operand, errors)
-    if is_valid:
+    if validate_operand_register(operand, errors):
         size = get_register_size(operand)
         if size == size_valid:
             return True
@@ -236,8 +246,7 @@ def validate_operand_data(operand, errors=None):
 
 
 def validate_operand_data_size(operand, size_valid, errors=None):
-    is_valid = validate_operand_data(operand, errors)
-    if is_valid:
+    if validate_operand_data(operand, errors):
         size = get_data_size(operand)
         if size <= size_valid:
             return True
