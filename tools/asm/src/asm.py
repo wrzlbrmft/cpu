@@ -123,20 +123,18 @@ def get_data_value(data):
         return None
 
 
-def bits2bytes(bits):
-    return int(bits / 8) + (bits % 8 > 0)
-
-
 def get_data_size(data):
     value = get_data_value(data)
     if isinstance(value, list):
         values = value
         size = 0
         for value in values:
-            size += bits2bytes(value.bit_length()) * 8
+            bits = value.bit_length()
+            size = max(size, bits + (8 - bits) % 8)
         return size
     elif value is not None:
-        return bits2bytes(value.bit_length()) * 8
+        bits = value.bit_length()
+        return bits + (8 - bits) % 8
     else:
         return None
 
@@ -442,16 +440,26 @@ def mnemonics_db_dw(mnemonic, operands):
         if 'db' == mnemonic:
             for operand in operands:
                 if validate_operand_data_size(operand, 8, errors):
-                    data_value = get_data_value(operand)
-                    opcode_operands.append(data_value)
+                    if is_valid_data_str(operand):
+                        data_values = get_data_value(operand)
+                        for data_value in data_values:
+                            opcode_operands.append(data_value)
+                    else:
+                        data_value = get_data_value(operand)
+                        opcode_operands.append(data_value)
                 else:
                     opcode_operands.clear()
                     break
         elif 'dw' == mnemonic:
             for operand in operands:
                 if validate_operand_data_size(operand, 16, errors):
-                    data_value = get_data_value(operand)
-                    opcode_operands.extend(data_value.to_bytes(2, 'little'))
+                    if is_valid_data_str(operand):
+                        data_values = get_data_value(operand)
+                        for data_value in data_values:
+                            opcode_operands.extend(data_value.to_bytes(2, 'little'))
+                    else:
+                        data_value = get_data_value(operand)
+                        opcode_operands.extend(data_value.to_bytes(2, 'little'))
                 else:
                     opcode_operands.clear()
                     break
