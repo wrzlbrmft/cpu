@@ -410,11 +410,24 @@ def mnemonics_db_dw(mnemonic, operands):
     opcode_operands = bytearray()
     errors = []
 
-    if not operands:
+    if operands:
         if 'db' == mnemonic:
-            pass
+            for operand in operands:
+                if validate_operand_data_size(operand, 8, errors):
+                    data_value = get_data_value(operand)
+                    opcode_operands.append(data_value)
+                else:
+                    opcode_operands.clear()
+                    break
         elif 'dw' == mnemonic:
-            pass
+            for operand in operands:
+                if validate_operand_data_size(operand, 16, errors):
+                    data_value = get_data_value(operand)
+                    opcode_operands.append(get_data_value_lo(data_value))  # little-endian
+                    opcode_operands.append(get_data_value_hi(data_value))
+                else:
+                    opcode_operands.clear()
+                    break
     else:
         errors.append({
             'name': 'NO_DATA',
