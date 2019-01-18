@@ -86,7 +86,7 @@ def is_valid_data_chr(data):
 
 
 def is_valid_data(data):
-    return \
+    return '0' == data or \
         is_valid_data_dec(data) or \
         is_valid_data_hex(data) or \
         is_valid_data_bin(data) or \
@@ -95,7 +95,9 @@ def is_valid_data(data):
 
 
 def get_data_value(data):
-    if is_valid_data_dec(data):
+    if '0' == data:
+        return 0
+    elif is_valid_data_dec(data):
         return int(data, 10)
     elif is_valid_data_hex(data):
         return int(data[2:], 16)
