@@ -276,6 +276,14 @@ def validate_operand_data_size(operand, size_valid, errors=None):
             return False
 
 
+def little_endian(value):
+    return value.to_bytes(2, 'little')
+
+
+def big_endian(value):
+    return value.to_bytes(2, 'big')
+
+
 def mnemonics_nop_hlt_rst(mnemonic, operands):
     opcode = None
     errors = []
@@ -346,7 +354,7 @@ def mnemonic_mov(operands):
                 elif validate_operand_data_size(operand2, register1_size, errors):
                     register2_opcode = 0b111
                     data_value = get_data_value(operand2)
-                    opcode_operands.extend(data_value.to_bytes(2, 'little'))
+                    opcode_operands.extend(little_endian(data_value))
 
                 if register2_opcode is not None:
                     opcode = (register1_opcode << 4) | (register2_opcode << 1)
@@ -518,10 +526,10 @@ def mnemonics_db_dw(mnemonic, operands):
                     if is_valid_data_str(operand):
                         data_values = get_data_value(operand)
                         for data_value in data_values:
-                            opcode_operands.extend(data_value.to_bytes(2, 'little'))
+                            opcode_operands.extend(little_endian(data_value))
                     else:
                         data_value = get_data_value(operand)
-                        opcode_operands.extend(data_value.to_bytes(2, 'little'))
+                        opcode_operands.extend(little_endian(data_value))
                 else:
                     opcode_operands.clear()
                     break
