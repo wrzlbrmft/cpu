@@ -412,6 +412,18 @@ def mnemonic_lda(operands):
     if validate_operands_count(operands, 2, errors):
         operand1 = operands[0].lower()
         operand2 = operands[1].lower()
+        if validate_operand_register_size(operand1, 8, errors):
+            register_opcode = get_register_opcode(operand1)
+            opcode = 0b10001101 | (register_opcode << 4)
+            if validate_operand_addr_size(operand2, 16, errors):
+                addr_value = get_addr_value(operand2)
+                if addr_value is None:
+                    opcode_operands.extend([0, 0])
+                    # todo: symbol reference
+                else:
+                    opcode_operands.extend(little_endian(addr_value))
+            else:
+                opcode = None
 
     machine_code = bytearray()
     if opcode is not None:
@@ -432,6 +444,18 @@ def mnemonic_sta(operands):
     if validate_operands_count(operands, 2, errors):
         operand1 = operands[0].lower()
         operand2 = operands[1].lower()
+        if validate_operand_addr_size(operand1, 16, errors):
+            addr_value = get_addr_value(operand1)
+            if addr_value is None:
+                opcode_operands.extend([0, 0])
+                # todo: symbol reference
+            else:
+                opcode_operands.extend(little_endian(addr_value))
+            if validate_operand_register_size(operand2, 8, errors):
+                register_opcode = get_register_opcode(operand2)
+                opcode = 0b11100001 | (register_opcode << 1)
+            else:
+                opcode_operands.clear()
 
     machine_code = bytearray()
     if opcode is not None:
