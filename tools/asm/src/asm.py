@@ -540,7 +540,39 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
     errors = []
 
     if validate_operands_count(operands, 1, errors):
-        pass
+        operand = operands[0].lower()
+        if 'm' == operand:
+            opcode = 0b0
+        elif validate_operand_addr_size(operand, 16, errors):
+            opcode = 0b1
+            addr_value = get_addr_value(operand)
+            if addr_value is None:
+                opcode_operands.extend([0, 0])
+                # todo: symbol reference
+            else:
+                opcode_operands.extend(little_endian(addr_value))
+
+        if opcode is not None:
+            if 'jmp' == mnemonic:
+                opcode = 0b01110101 | (opcode << 1)
+            elif 'jc' == mnemonic:
+                opcode = 0b01111001 | (opcode << 1)
+            elif 'jnc' == mnemonic:
+                opcode = 0b01111101 | (opcode << 1)
+            elif 'jz' == mnemonic:
+                opcode = 0b10001111 | (opcode << 4)
+            elif 'jnz' == mnemonic:
+                opcode = 0b10101111 | (opcode << 4)
+            elif 'call' == mnemonic:
+                opcode = 0b11000001 | (opcode << 1)
+            elif 'cc' == mnemonic:
+                opcode = 0b11000101 | (opcode << 1)
+            elif 'cnc' == mnemonic:
+                opcode = 0b11001011 | (opcode << 2)
+            elif 'cz' == mnemonic:
+                opcode = 0b11010001 | (opcode << 1)
+            elif 'cnz' == mnemonic:
+                opcode = 0b11010101 | (opcode << 1)
 
     machine_code = bytearray()
     if opcode is not None:
