@@ -540,15 +540,15 @@ def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands):
 
     if validate_operands_count(operands, 0, errors):
         if 'ret' == mnemonic:
-            opcode = 0b11000001
+            opcode = 0b00000101
         elif 'rc' == mnemonic:
-            opcode = 0b11000011
+            opcode = 0b00001111
         elif 'rnc' == mnemonic:
-            opcode = 0b11000101
+            opcode = 0b00010001
         elif 'rz' == mnemonic:
-            opcode = 0b11000111
+            opcode = 0b00010101
         elif 'rnz' == mnemonic:
-            opcode = 0b11001011
+            opcode = 0b00011111
 
     machine_code = bytearray()
     if opcode is not None:
