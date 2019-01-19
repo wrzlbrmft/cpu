@@ -29,14 +29,6 @@ parser_errors = {
     'INCOMPATIBLE_ADDR_SIZE': 'incompatible address size (given: {}-bits, max: {}-bits)'
 }
 
-valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
-valid_data_dec_regex = re.compile('[1-9][0-9]*')
-valid_data_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
-valid_data_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
-valid_data_oct_regex = re.compile('0[0-7]+')
-valid_data_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
-valid_data_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
-
 valid_directives = ['include',
                     'define', 'undef', 'ifdef', 'ifndef', 'else', 'endif',
                     'end']
@@ -63,9 +55,47 @@ valid_registers = {
 
 valid_operands = list(valid_registers.keys()) + ['m']
 
+valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
+valid_data_dec_regex = re.compile('[1-9][0-9]*')
+valid_data_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
+valid_data_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
+valid_data_oct_regex = re.compile('0[0-7]+')
+valid_data_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
+valid_data_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
+
+
+def is_valid_directive(directive):
+    return directive in valid_directives
+
+
+def is_valid_mnemonic(mnemonic):
+    return mnemonic in valid_mnemonics
+
+
+def is_valid_register(register):
+    return register in valid_registers
+
+
+def get_register_size(register):
+    if is_valid_register(register):
+        return valid_registers[register]['size']
+    else:
+        return None
+
+
+def get_register_opcode(register):
+    if is_valid_register(register):
+        return valid_registers[register]['opcode']
+    else:
+        return None
+
+
+def is_valid_operand(operand):
+    return operand in valid_operands
+
 
 def is_valid_name(name):
-    return valid_name_regex.fullmatch(name)
+    return not is_valid_operand(name) and valid_name_regex.fullmatch(name)
 
 
 def is_valid_data_dec(data):
@@ -160,36 +190,6 @@ def get_addr_size(addr):
         return get_data_size(addr)
     else:
         return None
-
-
-def is_valid_directive(directive):
-    return directive in valid_directives
-
-
-def is_valid_mnemonic(mnemonic):
-    return mnemonic in valid_mnemonics
-
-
-def is_valid_register(register):
-    return register in valid_registers
-
-
-def get_register_size(register):
-    if is_valid_register(register):
-        return valid_registers[register]['size']
-    else:
-        return None
-
-
-def get_register_opcode(register):
-    if is_valid_register(register):
-        return valid_registers[register]['opcode']
-    else:
-        return None
-
-
-def is_valid_operand(operand):
-    return operand in valid_operands
 
 
 def validate_operands_count(operands, count_valid, errors=None):
