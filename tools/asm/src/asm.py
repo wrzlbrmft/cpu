@@ -25,7 +25,8 @@ parser_errors = {
     'INCOMPATIBLE_REGISTER_SIZE': 'incompatible register size (given: {}-bits, required: {}-bits)',
     'INCOMPATIBLE_DATA_TYPE': 'incompatible data type',
     'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bits, max: {}-bits)',
-    'NO_DATA': 'no data'
+    'NO_DATA': 'no data',
+    'INCOMPATIBLE_ADDR_SIZE': 'incompatible address size (given: {}-bits, max: {}-bits)'
 }
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
@@ -271,6 +272,39 @@ def validate_operand_data_size(operand, size_valid, errors=None):
             if errors is not None:
                 errors.append({
                     'name': 'INCOMPATIBLE_DATA_SIZE',
+                    'info': [size, size_valid]
+                })
+            return False
+
+
+def validate_operand_addr(operand, errors=None):
+    if is_valid_addr(operand):
+        return True
+    elif is_valid_operand(operand):
+        if errors is not None:
+            errors.append({
+                'name': 'UNSUPPORTED_OPERAND',
+                'info': [operand]
+            })
+        return False
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'INVALID_OPERAND',
+                'info': [operand]
+            })
+        return False
+
+
+def validate_operand_addr_size(operand, size_valid, errors=None):
+    if validate_operand_addr(operand, errors):
+        size = get_addr_size(operand)
+        if size <= size_valid:
+            return True
+        else:
+            if errors is not None:
+                errors.append({
+                    'name': 'INCOMPATIBLE_ADDR_SIZE',
                     'info': [size, size_valid]
                 })
             return False
