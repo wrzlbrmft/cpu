@@ -534,6 +534,25 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
     }
 
 
+def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
+    opcode = None
+    opcode_operands = bytearray()
+    errors = []
+
+    if validate_operands_count(operands, 1, errors):
+        pass
+
+    machine_code = bytearray()
+    if opcode is not None:
+        machine_code.append(opcode)
+    machine_code.extend(opcode_operands)
+    return {
+        'machine_code': machine_code,
+        'references': [],
+        'errors': errors
+    }
+
+
 def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands):
     opcode = None
     errors = []
@@ -627,6 +646,8 @@ def assemble_asm_line(line):
         assembly = mnemonics_push_pop(mnemonic_lower, line['operands'])
     elif mnemonic_lower in ['add', 'sub', 'cmp']:
         assembly = mnemonics_add_sub_cmp(mnemonic_lower, line['operands'])
+    elif mnemonic_lower in ['jmp', 'jc', 'jnc', 'jz', 'jnz', 'call', 'cc', 'cnc', 'cz', 'cnz']:
+        assembly = mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic_lower, line['operands'])
     elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz']:
         assembly = mnemonics_ret_rc_rnc_rz_rnz(mnemonic_lower, line['operands'])
     elif mnemonic_lower in ['db', 'dw']:
