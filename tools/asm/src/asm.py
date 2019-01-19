@@ -340,6 +340,46 @@ def mnemonic_mov(operands):
     }
 
 
+def mnemonic_lda(operands):
+    opcode = None
+    opcode_operands = bytearray()
+    errors = []
+
+    if validate_operands_count(operands, 2, errors):
+        operand1 = operands[0].lower()
+        operand2 = operands[1].lower()
+
+    machine_code = bytearray()
+    if opcode is not None:
+        machine_code.append(opcode)
+    machine_code.extend(opcode_operands)
+    return {
+        'machine_code': machine_code,
+        'references': [],
+        'errors': errors
+    }
+
+
+def mnemonic_sta(operands):
+    opcode = None
+    opcode_operands = bytearray()
+    errors = []
+
+    if validate_operands_count(operands, 2, errors):
+        operand1 = operands[0].lower()
+        operand2 = operands[1].lower()
+
+    machine_code = bytearray()
+    if opcode is not None:
+        machine_code.append(opcode)
+    machine_code.extend(opcode_operands)
+    return {
+        'machine_code': machine_code,
+        'references': [],
+        'errors': errors
+    }
+
+
 def mnemonics_push_pop(mnemonic, operands):
     opcode = None
     errors = []
@@ -491,6 +531,10 @@ def assemble_asm_line(line):
         assembly = mnemonics_nop_hlt_rst(mnemonic_lower, line['operands'])
     elif 'mov' == mnemonic_lower:
         assembly = mnemonic_mov(line['operands'])
+    elif 'lda' == mnemonic_lower:
+        assembly = mnemonic_lda(line['operands'])
+    elif 'sta' == mnemonic_lower:
+        assembly = mnemonic_sta(line['operands'])
     elif mnemonic_lower in ['push', 'pop']:
         assembly = mnemonics_push_pop(mnemonic_lower, line['operands'])
     elif mnemonic_lower in ['add', 'sub', 'cmp']:
