@@ -64,6 +64,10 @@ valid_data_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
 valid_data_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
 
 
+def symbol_exists(symbol):
+    return symbol in symbols
+
+
 def is_valid_directive(directive):
     return directive in valid_directives
 
@@ -815,7 +819,7 @@ def parse_asm_file(file):
             if line['symbol']:
                 symbol = line['symbol']
 
-                if symbol in symbols:
+                if symbol_exists(symbol):
                     parser_error({
                         'name': 'DUPLICATE_SYMBOL',
                         'info': [symbol]
