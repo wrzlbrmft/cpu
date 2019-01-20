@@ -4,7 +4,7 @@ import shlex
 current_file_name = None
 current_line_num = 0
 current_line_str = None
-current_symbol = None
+current_symbol_name = None
 current_symbol_errors_count = 0
 
 symbol_table = []
@@ -729,10 +729,10 @@ def assemble_asm_line(line):
 def parser_error(error):
     global current_symbol_errors_count
 
-    if current_symbol and not current_symbol_errors_count:
+    if current_symbol_name and not current_symbol_errors_count:
         if current_file_name:
             print(f'{current_file_name}: ', end='')
-        print(f"in symbol '{current_symbol}':")
+        print(f"in symbol '{current_symbol_name}':")
         current_symbol_errors_count += 1
 
     if current_file_name:
@@ -829,7 +829,7 @@ def parse_asm_line_str(line_str):
 
 
 def parse_asm_file(file_name):
-    global current_file_name, current_line_num, current_line_str, current_symbol, current_symbol_errors_count
+    global current_file_name, current_line_num, current_line_str, current_symbol_name, current_symbol_errors_count
 
     with open(file_name) as asm:
         current_file_name = file_name
@@ -844,23 +844,23 @@ def parse_asm_file(file_name):
             line = parse_asm_line_str(current_line_str)
 
             if line['symbol']:
-                symbol = line['symbol']
+                symbol_name = line['symbol']
 
-                if symbol_exists(symbol):
+                if symbol_exists(symbol_name):
                     parser_error({
                         'name': 'DUPLICATE_SYMBOL',
-                        'info': [symbol]
+                        'info': [symbol_name]
                     })
-                elif not is_valid_name(symbol):
+                elif not is_valid_name(symbol_name):
                     parser_error({
                         'name': 'INVALID_SYMBOL_NAME',
-                        'info': [symbol]
+                        'info': [symbol_name]
                     })
                 else:
-                    current_symbol = symbol
+                    current_symbol_name = symbol_name
                     current_symbol_errors_count = 0
 
-                    add_symbol(current_symbol)
+                    add_symbol(current_symbol_name)
 
             for error in line['errors']:
                 parser_error(error)
@@ -878,7 +878,7 @@ def parse_asm_file(file_name):
                     break
 
             elif line['mnemonic']:
-                if not current_symbol:
+                if not current_symbol_name:
                     parser_error({
                         'name': 'INSTRUCTION_OUTSIDE_SYMBOL',
                         'info': []
