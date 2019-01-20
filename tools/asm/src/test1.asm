@@ -1,17 +1,14 @@
-        nop
+main:   mov a,0
 
-foo:    mov a,0x10  ; ok
-        nop 0x10h
+up:     nop     ; print
+        add 1
+        cmp 100
+        jnz up
 
-.end ---------------------------
+down:   nop     ; print
+        sub 1
+        jnz down
 
-; here comes the error
-:       nop
-        push a,
+        jmp up
 
-foo:    ; foo again?
-
-bar:    pop :
-
-.bar
-        bar
+.end
