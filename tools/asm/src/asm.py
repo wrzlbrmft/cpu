@@ -362,6 +362,7 @@ def mnemonics_nop_hlt_rst(mnemonic, operands):
 def mnemonic_mov(operands):
     opcode = None
     opcode_operands = bytearray()
+    references = []
     errors = []
 
     if validate_operands_count(operands, 2, errors):
@@ -396,7 +397,14 @@ def mnemonic_mov(operands):
                     opcode = 0b10000000 | (register1_opcode << 4) | (register2_opcode << 1)
             elif 16 == register1_size:
                 register2_opcode = None
-                if is_valid_register(operand2):
+                if is_valid_name(operand2):
+                    register2_opcode = 0b111
+                    opcode_operands.extend([0, 0])
+                    references.append({
+                        'machine_code_byte': 1,
+                        'symbol_index': get_symbol_index(operand2)
+                    })
+                elif is_valid_register(operand2):
                     if validate_operand_register_size(operand2, register1_size, errors):
                         register2_opcode = get_register_opcode(operand2)
                 elif is_valid_data_str(operand2):
@@ -418,7 +426,7 @@ def mnemonic_mov(operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': [],
+        'references': references,
         'errors': errors
     }
 
