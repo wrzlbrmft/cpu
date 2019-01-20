@@ -87,6 +87,15 @@ def add_symbol(name):
         }
 
 
+def get_symbol(name):
+    if symbol_exists(name):
+        return symbols[name]
+
+
+def get_current_symbol():
+    return get_symbol(current_symbol_name)
+
+
 def is_valid_directive(directive):
     return directive in valid_directives
 
@@ -910,6 +919,13 @@ def parse_asm_file(file_name):
                         print('', '   ' * reference['machine_code_byte'], end='')
                         print(f"^ {reference['symbol_index']}: {get_symbol_name(reference['symbol_index'])}")
                     print()
+
+                    symbol = get_current_symbol()
+                    if assembly['references']:
+                        for reference in assembly['references']:
+                            reference['machine_code_byte'] += len(symbol['machine_code'])
+                        symbol['references'].extend(assembly['references'])
+                    symbol['machine_code'].extend(assembly['machine_code'])
 
             # end of line
 
