@@ -1,6 +1,7 @@
 import re
 import shlex
 
+total_errors_count = 0
 current_file_name = None
 current_file_errors_count = 0
 current_file_line_num = 0
@@ -749,7 +750,9 @@ def assemble_asm_line(line):
 
 
 def parser_error(error):
-    global current_file_errors_count, current_symbol_errors_count
+    global total_errors_count, current_file_errors_count, current_symbol_errors_count
+
+    total_errors_count += 1
 
     if current_symbol_name and not current_symbol_errors_count:
         current_symbol_errors_count += 1
@@ -939,7 +942,11 @@ def parse_asm_file(file_name):
         if current_file_errors_count:
             print(f'{current_file_name}:', end='')
             print(' ', end='')
+
             print(f'{current_file_errors_count} error(s)')
 
 
 parse_asm_file('test1.asm')
+
+if total_errors_count:
+    print(f'{total_errors_count} total error(s)')
