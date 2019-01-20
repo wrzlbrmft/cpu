@@ -64,20 +64,24 @@ valid_data_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
 valid_data_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
 
 
-def get_symbol_index(symbol):
-    if symbol not in symbol_table:
-        symbol_table.append(symbol)
-    return symbol_table.index(symbol)
+def get_symbol_index(name):
+    if name not in symbol_table:
+        symbol_table.append(name)
+    return symbol_table.index(name)
 
 
-def symbol_exists(symbol):
-    return symbol in symbols.keys()
+def get_symbol_name(index):
+    return symbol_table[index]
 
 
-def add_symbol(symbol):
-    if not symbol_exists(symbol):
-        get_symbol_index(symbol)
-        symbols[symbol] = {
+def symbol_exists(name):
+    return name in symbols.keys()
+
+
+def add_symbol(name):
+    if not symbol_exists(name):
+        get_symbol_index(name)
+        symbols[name] = {
             'machine_code': bytearray(),
             'references': []
         }
