@@ -906,6 +906,9 @@ def parse_asm_file(file_name):
                     for byte in assembly['machine_code']:
                         print('', hex(byte)[2:].upper().zfill(2), end='')
                     print()
+                    for reference in assembly['references']:
+                        print('', '   ' * reference['machine_code_byte'], end='')
+                        print(f"^ {reference['symbol_index']}: {get_symbol_name(reference['symbol_index'])}")
                     print()
 
             # end of line
