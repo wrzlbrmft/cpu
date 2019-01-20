@@ -1,7 +1,7 @@
 import re
 import shlex
 
-current_file = None
+current_file_name = None
 current_line_num = 0
 current_line_str = None
 current_symbol = None
@@ -730,13 +730,13 @@ def parser_error(error):
     global current_symbol_errors_count
 
     if current_symbol and not current_symbol_errors_count:
-        if current_file:
-            print(f'{current_file}: ', end='')
+        if current_file_name:
+            print(f'{current_file_name}: ', end='')
         print(f"in symbol '{current_symbol}':")
         current_symbol_errors_count += 1
 
-    if current_file:
-        print(f'{current_file}:', end='')
+    if current_file_name:
+        print(f'{current_file_name}:', end='')
         if current_line_num:
             print(f'{current_line_num}:', end='')
         print(' ', end='')
@@ -828,11 +828,11 @@ def parse_asm_line_str(line_str):
     }
 
 
-def parse_asm_file(file):
-    global current_file, current_line_num, current_line_str, current_symbol, current_symbol_errors_count
+def parse_asm_file(file_name):
+    global current_file_name, current_line_num, current_line_str, current_symbol, current_symbol_errors_count
 
-    with open(file) as asm:
-        current_file = file
+    with open(file_name) as asm:
+        current_file_name = file_name
         line_num = 0
         current_line_num = line_num
 
