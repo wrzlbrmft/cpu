@@ -426,6 +426,7 @@ def mnemonic_mov(operands):
 def mnemonic_lda(operands):
     opcode = None
     opcode_operands = bytearray()
+    references = []
     errors = []
 
     if validate_operands_count(operands, 2, errors):
@@ -438,7 +439,10 @@ def mnemonic_lda(operands):
                 addr_value = get_addr_value(operand2)
                 if addr_value is None:
                     opcode_operands.extend([0, 0])
-                    # todo: symbol reference
+                    references.append({
+                        'machine_code_byte': 1,
+                        'symbol_index': get_symbol_index(operand2)
+                    })
                 else:
                     opcode_operands.extend(little_endian(addr_value))
             else:
@@ -450,7 +454,7 @@ def mnemonic_lda(operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': [],
+        'references': references,
         'errors': errors
     }
 
@@ -458,6 +462,7 @@ def mnemonic_lda(operands):
 def mnemonic_sta(operands):
     opcode = None
     opcode_operands = bytearray()
+    references = []
     errors = []
 
     if validate_operands_count(operands, 2, errors):
@@ -467,7 +472,10 @@ def mnemonic_sta(operands):
             addr_value = get_addr_value(operand1)
             if addr_value is None:
                 opcode_operands.extend([0, 0])
-                # todo: symbol reference
+                references.append({
+                    'machine_code_byte': 1,
+                    'symbol_index': get_symbol_index(operand1)
+                })
             else:
                 opcode_operands.extend(little_endian(addr_value))
             if validate_operand_register_size(operand2, 8, errors):
@@ -482,7 +490,7 @@ def mnemonic_sta(operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': [],
+        'references': references,
         'errors': errors
     }
 
@@ -556,6 +564,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
 def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
     opcode = None
     opcode_operands = bytearray()
+    references = []
     errors = []
 
     if validate_operands_count(operands, 1, errors):
@@ -567,7 +576,10 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
             addr_value = get_addr_value(operand)
             if addr_value is None:
                 opcode_operands.extend([0, 0])
-                # todo: symbol reference
+                references.append({
+                    'machine_code_byte': 1,
+                    'symbol_index': get_symbol_index(operand)
+                })
             else:
                 opcode_operands.extend(little_endian(addr_value))
 
@@ -599,7 +611,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': [],
+        'references': references,
         'errors': errors
     }
 
