@@ -2,7 +2,7 @@ import re
 import shlex
 
 current_file_name = None
-current_line_num = 0
+current_file_line_num = 0
 current_line_str = None
 current_symbol_name = None
 current_symbol_errors_count = 0
@@ -758,8 +758,8 @@ def parser_error(error):
 
     if current_file_name:
         print(f'{current_file_name}:', end='')
-        if current_line_num:
-            print(f'{current_line_num}:', end='')
+        if current_file_line_num:
+            print(f'{current_file_line_num}:', end='')
         print(' ', end='')
 
     print('error:', parser_errors[error['name']].format(*error['info']))
@@ -850,17 +850,17 @@ def parse_asm_line_str(line_str):
 
 
 def parse_asm_file(file_name):
-    global current_file_name, current_line_num, current_line_str, current_symbol_name, current_symbol_errors_count
+    global current_file_name, current_file_line_num, current_line_str, current_symbol_name, current_symbol_errors_count
 
     with open(file_name) as asm:
         current_file_name = file_name
-        line_num = 0
-        current_line_num = line_num
+        file_line_num = 0
+        current_file_line_num = file_line_num
 
         for line_str in asm.readlines():
             current_line_str = line_str
-            line_num += 1
-            current_line_num = line_num
+            file_line_num += 1
+            current_file_line_num = file_line_num
 
             line = parse_asm_line_str(current_line_str)
 
