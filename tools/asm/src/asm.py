@@ -915,8 +915,7 @@ def parse_asm_file(file_name):
                 if assembly['errors']:
                     for error in assembly['errors']:
                         parser_error(error)
-
-                if assembly['machine_code']:
+                elif current_symbol_name and assembly['machine_code']:
                     print(current_line_str.strip())
                     for byte in assembly['machine_code']:
                         print('', hex(byte)[2:].upper().zfill(2), end='')
@@ -927,12 +926,11 @@ def parse_asm_file(file_name):
                     print()
 
                     symbol = get_current_symbol()
-                    if symbol:
-                        if assembly['references']:
-                            for reference in assembly['references']:
-                                reference['machine_code_byte'] += len(symbol['machine_code'])
-                            symbol['references'].extend(assembly['references'])
-                        symbol['machine_code'].extend(assembly['machine_code'])
+                    if assembly['references']:
+                        for reference in assembly['references']:
+                            reference['machine_code_byte'] += len(symbol['machine_code'])
+                        symbol['references'].extend(assembly['references'])
+                    symbol['machine_code'].extend(assembly['machine_code'])
 
             # end of line
 
