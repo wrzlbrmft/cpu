@@ -907,10 +907,10 @@ def parse_asm_file(file_name):
 
                 assembly = assemble_asm_line(line)
 
-                for error in assembly['errors']:
-                    parser_error(error)
-
-                if assembly['machine_code']:
+                if assembly['errors']:
+                    for error in assembly['errors']:
+                        parser_error(error)
+                elif assembly['machine_code']:
                     print(current_line_str.strip())
                     for byte in assembly['machine_code']:
                         print('', hex(byte)[2:].upper().zfill(2), end='')
