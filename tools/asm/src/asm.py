@@ -750,7 +750,7 @@ def parser_error(error):
 
 
 def parse_asm_line_str(line_str):
-    symbol = None
+    symbol_name = None
     directive = None
     mnemonic = None
     operands = []
@@ -764,7 +764,7 @@ def parse_asm_line_str(line_str):
 
     for token in parser:
         if ':' == token:
-            if symbol:
+            if symbol_name:
                 errors.append({
                     'name': 'UNEXPECTED',
                     'info': [':']
@@ -777,7 +777,7 @@ def parse_asm_line_str(line_str):
                             'info': [':']
                         })
                     else:
-                        symbol = mnemonic
+                        symbol_name = mnemonic
                         mnemonic = None
                 else:
                     errors.append({
@@ -820,7 +820,7 @@ def parse_asm_line_str(line_str):
         })
 
     return {
-        'symbol': symbol,
+        'symbol_name': symbol_name,
         'directive': directive,
         'mnemonic': mnemonic,
         'operands': operands,
@@ -843,8 +843,8 @@ def parse_asm_file(file_name):
 
             line = parse_asm_line_str(current_line_str)
 
-            if line['symbol']:
-                symbol_name = line['symbol']
+            if line['symbol_name']:
+                symbol_name = line['symbol_name']
 
                 if symbol_exists(symbol_name):
                     parser_error({
