@@ -2,6 +2,7 @@ import re
 import shlex
 
 current_file_name = None
+current_file_errors_count = 0
 current_file_line_num = 0
 current_line_str = None
 current_symbol_name = None
@@ -748,12 +749,13 @@ def assemble_asm_line(line):
 
 
 def parser_error(error):
-    global current_symbol_errors_count
+    global current_file_errors_count, current_symbol_errors_count
 
     if current_symbol_name and not current_symbol_errors_count:
         if current_file_name:
             print(f'{current_file_name}: ', end='')
         print(f"in symbol '{current_symbol_name}':")
+        current_file_errors_count += 1
         current_symbol_errors_count += 1
 
     if current_file_name:
@@ -850,7 +852,8 @@ def parse_asm_line_str(line_str):
 
 
 def parse_asm_file(file_name):
-    global current_file_name, current_file_line_num, current_line_str, current_symbol_name, current_symbol_errors_count
+    global current_file_name, current_file_errors_count, current_file_line_num, current_line_str, current_symbol_name, \
+        current_symbol_errors_count
 
     with open(file_name) as asm:
         current_file_name = file_name
@@ -859,6 +862,8 @@ def parse_asm_file(file_name):
 
         for line_str in asm.readlines():
             current_line_str = line_str
+            file_errors_count = 0
+            current_file_errors_count = file_errors_count
             file_line_num += 1
             current_file_line_num = file_line_num
 
