@@ -64,8 +64,23 @@ valid_data_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
 valid_data_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
 
 
+def get_symbol_index(symbol):
+    if symbol not in symbol_table:
+        symbol_table.append(symbol)
+    return symbol_table.index(symbol)
+
+
 def symbol_exists(symbol):
-    return symbol in symbols
+    return symbol in symbols.keys()
+
+
+def add_symbol(symbol):
+    if not symbol_exists(symbol):
+        get_symbol_index(symbol)
+        symbols[symbol] = {
+            'machine_code': bytearray(),
+            'references': []
+        }
 
 
 def is_valid_directive(directive):
@@ -833,11 +848,7 @@ def parse_asm_file(file):
                     current_symbol = symbol
                     current_symbol_errors_count = 0
 
-                    symbol_table.append(current_symbol)
-                    symbols[current_symbol] = {
-                        'machine_code': bytearray(),
-                        'references': []
-                    }
+                    add_symbol(current_symbol)
 
             for error in line['errors']:
                 parser_error(error)
