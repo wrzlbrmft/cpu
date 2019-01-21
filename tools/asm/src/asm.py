@@ -92,6 +92,8 @@ def add_symbol(name):
 def get_symbol(name):
     if symbol_exists(name):
         return symbols[name]
+    else:
+        return None
 
 
 def get_current_symbol():
@@ -276,6 +278,8 @@ def validate_operand_register_size(operand, size_valid, errors=None):
                     'info': [size, size_valid]
                 })
             return False
+    else:
+        return False
 
 
 def validate_operand_data(operand, errors=None):
@@ -309,6 +313,8 @@ def validate_operand_data_size(operand, size_valid, errors=None):
                     'info': [size, size_valid]
                 })
             return False
+    else:
+        return False
 
 
 def validate_operand_addr(operand, errors=None):
@@ -342,6 +348,8 @@ def validate_operand_addr_size(operand, size_valid, errors=None):
                     'info': [size, size_valid]
                 })
             return False
+    else:
+        return False
 
 
 def little_endian(value):
@@ -940,10 +948,7 @@ def parse_asm_file(file_name):
         # end of file
 
         if current_file_errors_count:
-            print(f'{current_file_name}:', end='')
-            print(' ', end='')
-
-            print(f'{current_file_errors_count} error(s)')
+            print(f'{current_file_name}: {current_file_errors_count} error(s)')
 
 
 # main
