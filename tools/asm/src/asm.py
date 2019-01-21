@@ -85,7 +85,7 @@ def add_symbol(name):
         get_symbol_index(name)
         symbols[name] = {
             'machine_code': bytearray(),
-            'references': []
+            'relocations': []
         }
 
 
@@ -377,7 +377,7 @@ def mnemonics_nop_hlt_rst(mnemonic, operands):
         machine_code.append(opcode)
     return {
         'machine_code': machine_code,
-        'references': [],
+        'relocations': [],
         'errors': errors
     }
 
@@ -385,7 +385,7 @@ def mnemonics_nop_hlt_rst(mnemonic, operands):
 def mnemonic_mov(operands):
     opcode = None
     opcode_operands = bytearray()
-    references = []
+    relocations = []
     errors = []
 
     if validate_operands_count(operands, 2, errors):
@@ -423,7 +423,7 @@ def mnemonic_mov(operands):
                 if is_valid_name(operand2):
                     register2_opcode = 0b111
                     opcode_operands.extend([0, 0])
-                    references.append({
+                    relocations.append({
                         'machine_code_offset': 1,
                         'symbol_index': get_symbol_index(operand2)
                     })
@@ -449,7 +449,7 @@ def mnemonic_mov(operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': references,
+        'relocations': relocations,
         'errors': errors
     }
 
@@ -457,7 +457,7 @@ def mnemonic_mov(operands):
 def mnemonic_lda(operands):
     opcode = None
     opcode_operands = bytearray()
-    references = []
+    relocations = []
     errors = []
 
     if validate_operands_count(operands, 2, errors):
@@ -470,7 +470,7 @@ def mnemonic_lda(operands):
                 addr_value = get_addr_value(operand2)
                 if addr_value is None:
                     opcode_operands.extend([0, 0])
-                    references.append({
+                    relocations.append({
                         'machine_code_offset': 1,
                         'symbol_index': get_symbol_index(operand2)
                     })
@@ -485,7 +485,7 @@ def mnemonic_lda(operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': references,
+        'relocations': relocations,
         'errors': errors
     }
 
@@ -493,7 +493,7 @@ def mnemonic_lda(operands):
 def mnemonic_sta(operands):
     opcode = None
     opcode_operands = bytearray()
-    references = []
+    relocations = []
     errors = []
 
     if validate_operands_count(operands, 2, errors):
@@ -503,7 +503,7 @@ def mnemonic_sta(operands):
             addr_value = get_addr_value(operand1)
             if addr_value is None:
                 opcode_operands.extend([0, 0])
-                references.append({
+                relocations.append({
                     'machine_code_offset': 1,
                     'symbol_index': get_symbol_index(operand1)
                 })
@@ -521,7 +521,7 @@ def mnemonic_sta(operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': references,
+        'relocations': relocations,
         'errors': errors
     }
 
@@ -545,7 +545,7 @@ def mnemonics_push_pop(mnemonic, operands):
         machine_code.append(opcode)
     return {
         'machine_code': machine_code,
-        'references': [],
+        'relocations': [],
         'errors': errors
     }
 
@@ -587,7 +587,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': [],
+        'relocations': [],
         'errors': errors
     }
 
@@ -595,7 +595,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands):
 def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
     opcode = None
     opcode_operands = bytearray()
-    references = []
+    relocations = []
     errors = []
 
     if validate_operands_count(operands, 1, errors):
@@ -607,7 +607,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
             addr_value = get_addr_value(operand)
             if addr_value is None:
                 opcode_operands.extend([0, 0])
-                references.append({
+                relocations.append({
                     'machine_code_offset': 1,
                     'symbol_index': get_symbol_index(operand)
                 })
@@ -642,7 +642,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
     machine_code.extend(opcode_operands)
     return {
         'machine_code': machine_code,
-        'references': references,
+        'relocations': relocations,
         'errors': errors
     }
 
@@ -668,7 +668,7 @@ def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands):
         machine_code.append(opcode)
     return {
         'machine_code': machine_code,
-        'references': [],
+        'relocations': [],
         'errors': errors
     }
 
@@ -712,7 +712,7 @@ def mnemonics_db_dw(mnemonic, operands):
 
     return {
         'machine_code': opcode_operands,
-        'references': [],
+        'relocations': [],
         'errors': errors
     }
 
@@ -752,7 +752,7 @@ def assemble_asm_line(line):
     else:
         return {
             'machine_code': bytearray(),
-            'references': [],
+            'relocations': [],
             'errors': errors
         }
 
@@ -867,9 +867,9 @@ def dump_assembly(assembly):
         print(hex(byte)[2:].upper().zfill(2), '', end='')
     print('   ' * (3 - len(assembly['machine_code'])), '  ', end='')
     print(current_line_str.strip())
-    for reference in assembly['references']:
-        print('   ' * reference['machine_code_offset'], end='')
-        print(f"^ {reference['symbol_index']}: {get_symbol_name(reference['symbol_index'])}")
+    for relocation in assembly['relocations']:
+        print('   ' * relocation['machine_code_offset'], end='')
+        print(f"^ {relocation['symbol_index']}: {get_symbol_name(relocation['symbol_index'])}")
 
 
 def dump_buffer(buffer):
@@ -964,10 +964,10 @@ def parse_asm_file(file_name):
                     dump_assembly(assembly)
 
                     symbol = get_current_symbol()
-                    if assembly['references']:
-                        for reference in assembly['references']:
-                            reference['machine_code_offset'] += len(symbol['machine_code'])
-                        symbol['references'].extend(assembly['references'])
+                    if assembly['relocations']:
+                        for relocation in assembly['relocations']:
+                            relocation['machine_code_offset'] += len(symbol['machine_code'])
+                        symbol['relocations'].extend(assembly['relocations'])
                     symbol['machine_code'].extend(assembly['machine_code'])
 
             # end of line
@@ -1003,10 +1003,10 @@ def build_obj_symbols():
     buffer = bytearray()
 
     for symbol_name, symbol in symbols.items():
-        buffer.extend(little_endian(len(symbol['references'])))
-        for reference in symbol['references']:
-            buffer.extend(little_endian(reference['machine_code_offset']))
-            buffer.extend(little_endian(reference['symbol_index']))
+        buffer.extend(little_endian(len(symbol['relocations'])))
+        for relocation in symbol['relocations']:
+            buffer.extend(little_endian(relocation['machine_code_offset']))
+            buffer.extend(little_endian(relocation['symbol_index']))
         buffer.extend(symbol['machine_code'])
     return buffer
 
