@@ -946,6 +946,9 @@ def parse_asm_file(file_name):
             print(f'{current_file_errors_count} error(s)')
 
 
+# main
+
+
 parse_asm_file('test1.asm')
 
 if total_errors_count:
