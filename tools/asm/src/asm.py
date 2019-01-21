@@ -863,16 +863,13 @@ def parse_asm_line_str(line_str):
 
 
 def dump_assembly(assembly):
-    if current_line_str:
-        print(current_line_str.strip())
-
     for byte in assembly['machine_code']:
         print(hex(byte)[2:].upper().zfill(2), '', end='')
-    print()
+    print('   ' * (3 - len(assembly['machine_code'])), '  ', end='')
+    print(current_line_str.strip())
     for reference in assembly['references']:
         print('   ' * reference['machine_code_byte'], end='')
         print(f"^ {reference['symbol_index']}: {get_symbol_name(reference['symbol_index'])}")
-    print()
 
 
 def dump_buffer(buffer):
