@@ -978,6 +978,12 @@ def parse_asm_file(file_name):
             print(f'{current_file_name}: {current_file_errors_count} error(s)')
 
 
+def build_obj_header():
+    buffer = bytearray()
+
+    return buffer
+
+
 def build_obj_symbol_table():
     buffer = bytearray()
 
@@ -1007,10 +1013,12 @@ def build_obj_symbols():
 
 def write_obj_file(file_name):
     with open(file_name, 'wb') as obj:
+        obj_header = build_obj_header()
         obj_symbol_table = build_obj_symbol_table()
         obj_symbols = build_obj_symbols()
 
         buffer = bytearray()
+        buffer.extend(obj_header)
         buffer.extend(obj_symbol_table)
         buffer.extend(obj_symbols)
         dump_buffer(buffer)
