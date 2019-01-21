@@ -424,7 +424,7 @@ def mnemonic_mov(operands):
                     register2_opcode = 0b111
                     opcode_operands.extend([0, 0])
                     references.append({
-                        'machine_code_byte': 1,
+                        'machine_code_offset': 1,
                         'symbol_index': get_symbol_index(operand2)
                     })
                 elif is_valid_register(operand2):
@@ -471,7 +471,7 @@ def mnemonic_lda(operands):
                 if addr_value is None:
                     opcode_operands.extend([0, 0])
                     references.append({
-                        'machine_code_byte': 1,
+                        'machine_code_offset': 1,
                         'symbol_index': get_symbol_index(operand2)
                     })
                 else:
@@ -504,7 +504,7 @@ def mnemonic_sta(operands):
             if addr_value is None:
                 opcode_operands.extend([0, 0])
                 references.append({
-                    'machine_code_byte': 1,
+                    'machine_code_offset': 1,
                     'symbol_index': get_symbol_index(operand1)
                 })
             else:
@@ -608,7 +608,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
             if addr_value is None:
                 opcode_operands.extend([0, 0])
                 references.append({
-                    'machine_code_byte': 1,
+                    'machine_code_offset': 1,
                     'symbol_index': get_symbol_index(operand)
                 })
             else:
@@ -868,7 +868,7 @@ def dump_assembly(assembly):
     print('   ' * (3 - len(assembly['machine_code'])), '  ', end='')
     print(current_line_str.strip())
     for reference in assembly['references']:
-        print('   ' * reference['machine_code_byte'], end='')
+        print('   ' * reference['machine_code_offset'], end='')
         print(f"^ {reference['symbol_index']}: {get_symbol_name(reference['symbol_index'])}")
 
 
@@ -966,7 +966,7 @@ def parse_asm_file(file_name):
                     symbol = get_current_symbol()
                     if assembly['references']:
                         for reference in assembly['references']:
-                            reference['machine_code_byte'] += len(symbol['machine_code'])
+                            reference['machine_code_offset'] += len(symbol['machine_code'])
                         symbol['references'].extend(assembly['references'])
                     symbol['machine_code'].extend(assembly['machine_code'])
 
@@ -1005,7 +1005,7 @@ def build_obj_symbols():
     for symbol_name, symbol in symbols.items():
         buffer.extend(little_endian(len(symbol['references'])))
         for reference in symbol['references']:
-            buffer.extend(little_endian(reference['machine_code_byte']))
+            buffer.extend(little_endian(reference['machine_code_offset']))
             buffer.extend(little_endian(reference['symbol_index']))
         buffer.extend(symbol['machine_code'])
     return buffer
