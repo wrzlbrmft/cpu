@@ -867,10 +867,10 @@ def dump_assembly(assembly):
         print(current_line_str.strip())
 
     for byte in assembly['machine_code']:
-        print('', hex(byte)[2:].upper().zfill(2), end='')
+        print(hex(byte)[2:].upper().zfill(2), '', end='')
     print()
     for reference in assembly['references']:
-        print('', '   ' * reference['machine_code_byte'], end='')
+        print('   ' * reference['machine_code_byte'], end='')
         print(f"^ {reference['symbol_index']}: {get_symbol_name(reference['symbol_index'])}")
     print()
 
@@ -881,14 +881,14 @@ def dump_buffer(buffer):
 
     for i in range(0, len(buffer)):
         if 0 == col:
-            print(hex(row)[2:].upper().zfill(4), '  ', end='')
+            print(hex(row)[2:].upper().zfill(4), '   ', end='')
 
         byte = buffer[i]
-        print('', hex(byte)[2:].upper().zfill(2), end='')
+        print(hex(byte)[2:].upper().zfill(2), '', end='')
         col += 1
 
         if 8 == col or i == len(buffer) - 1:
-            print('   ' * (8 - col), '   ', end='')
+            print('   ' * (8 - col), '  ', end='')
             for j in range(row, row + col):
                 byte = buffer[j]
                 if byte not in range(33, 126):
