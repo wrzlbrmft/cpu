@@ -862,6 +862,43 @@ def parse_asm_line_str(line_str):
     }
 
 
+def dump_assembly(assembly):
+    if current_line_str:
+        print(current_line_str.strip())
+
+    for byte in assembly['machine_code']:
+        print('', hex(byte)[2:].upper().zfill(2), end='')
+    print()
+    for reference in assembly['references']:
+        print('', '   ' * reference['machine_code_byte'], end='')
+        print(f"^ {reference['symbol_index']}: {get_symbol_name(reference['symbol_index'])}")
+    print()
+
+
+def dump_buffer(buffer):
+    row = 0
+    col = 0
+
+    for i in range(0, len(buffer)):
+        if 0 == col:
+            print(hex(row)[2:].upper().zfill(4), '  ', end='')
+
+        byte = buffer[i]
+        print('', hex(byte)[2:].upper().zfill(2), end='')
+        col += 1
+
+        if 8 == col or i == len(buffer) - 1:
+            print('   ' * (8 - col), '   ', end='')
+            for j in range(row, row + col):
+                byte = buffer[j]
+                if byte not in range(33, 126):
+                    byte = 46  # .
+                print(chr(byte), end='')
+            print('')
+            row += col
+            col = 0
+
+
 def parse_asm_file(file_name):
     global current_file_name, current_file_errors_count, current_file_line_num, current_line_str, current_symbol_name, \
         current_symbol_errors_count
@@ -927,14 +964,7 @@ def parse_asm_file(file_name):
                     for error in assembly['errors']:
                         parser_error(error)
                 elif current_symbol_name and assembly['machine_code']:
-                    print(current_line_str.strip())
-                    for byte in assembly['machine_code']:
-                        print('', hex(byte)[2:].upper().zfill(2), end='')
-                    print()
-                    for reference in assembly['references']:
-                        print('', '   ' * reference['machine_code_byte'], end='')
-                        print(f"^ {reference['symbol_index']}: {get_symbol_name(reference['symbol_index'])}")
-                    print()
+                    dump_assembly(assembly)
 
                     symbol = get_current_symbol()
                     if assembly['references']:
@@ -949,30 +979,6 @@ def parse_asm_file(file_name):
 
         if current_file_errors_count:
             print(f'{current_file_name}: {current_file_errors_count} error(s)')
-
-
-def hexdump(buffer):
-    row = 0
-    col = 0
-
-    for i in range(0, len(buffer)):
-        if 0 == col:
-            print(hex(row)[2:].upper().zfill(4), '  ', end='')
-
-        byte = buffer[i]
-        print('', hex(byte)[2:].upper().zfill(2), end='')
-        col += 1
-
-        if 8 == col or i == len(buffer) - 1:
-            print('   ' * (8 - col), '   ', end='')
-            for j in range(row, row + col):
-                byte = buffer[j]
-                if byte not in range(33, 126):
-                    byte = 46  # .
-                print(chr(byte), end='')
-            print('')
-            row += col
-            col = 0
 
 
 def build_obj_symbol_table():
@@ -999,4 +1005,4 @@ if total_errors_count:
     print(f'{total_errors_count} total error(s)')
 else:
     obj_symbol_table = build_obj_symbol_table()
-    hexdump(obj_symbol_table)
+    dump_buffer(obj_symbol_table)
