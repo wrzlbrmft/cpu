@@ -951,6 +951,40 @@ def parse_asm_file(file_name):
             print(f'{current_file_name}: {current_file_errors_count} error(s)')
 
 
+def hexdump(buffer):
+    row = 0
+    col = 0
+
+    for i in range(0, len(buffer)):
+        if 0 == col:
+            print(hex(row)[2:].upper().zfill(4), '  ', end='')
+
+        byte = buffer[i]
+        print('', hex(byte)[2:].upper().zfill(2), end='')
+        col += 1
+
+        if 8 == col or i == len(buffer) - 1:
+            print('   ' * (8 - col), '   ', end='')
+            for j in range(row, row + col):
+                byte = buffer[j]
+                if byte not in range(33, 126):
+                    byte = 46  # .
+                print(chr(byte), end='')
+            print('')
+            row += col
+            col = 0
+
+
+def build_obj_symbol_table():
+    buffer = bytearray()
+    buffer.extend(little_endian(len(symbol_table)))
+    for symbol_name in symbol_table:
+        buffer.append(len(symbol_name))
+        buffer.extend(map(ord, symbol_name))
+        buffer.extend(little_endian(len(get_symbol(symbol_name)['machine_code'])))
+    return buffer
+
+
 # main
 
 
@@ -958,3 +992,6 @@ parse_asm_file('test1.asm')
 
 if total_errors_count:
     print(f'{total_errors_count} total error(s)')
+else:
+    obj_symbol_table = build_obj_symbol_table()
+    hexdump(obj_symbol_table)
