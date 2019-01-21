@@ -993,6 +993,18 @@ def build_obj_symbol_table():
     return buffer
 
 
+def build_obj_symbols():
+    buffer = bytearray()
+
+    for symbol_name, symbol in symbols.items():
+        buffer.extend(little_endian(len(symbol['references'])))
+        for reference in symbol['references']:
+            buffer.extend(little_endian(reference['machine_code_byte']))
+            buffer.extend(little_endian(reference['symbol_index']))
+        buffer.extend(symbol['machine_code'])
+    return buffer
+
+
 # main
 
 
@@ -1002,4 +1014,9 @@ if total_errors_count:
     print(f'{total_errors_count} total error(s)')
 else:
     obj_symbol_table = build_obj_symbol_table()
-    dump_buffer(obj_symbol_table)
+    obj_symbols = build_obj_symbols()
+
+    obj_buffer = bytearray()
+    obj_buffer.extend(obj_symbol_table)
+    obj_buffer.extend(obj_symbols)
+    dump_buffer(obj_buffer)
