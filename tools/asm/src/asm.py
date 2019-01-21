@@ -977,11 +977,16 @@ def hexdump(buffer):
 
 def build_obj_symbol_table():
     buffer = bytearray()
+
     buffer.extend(little_endian(len(symbol_table)))
     for symbol_name in symbol_table:
         buffer.append(len(symbol_name))
         buffer.extend(map(ord, symbol_name))
-        buffer.extend(little_endian(len(get_symbol(symbol_name)['machine_code'])))
+        if symbol_exists(symbol_name):
+            buffer.extend(little_endian(len(get_symbol(symbol_name)['machine_code'])))
+        else:
+            buffer.extend([0, 0])
+
     return buffer
 
 
