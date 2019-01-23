@@ -900,7 +900,7 @@ def parse_asm_file(file_name):
     global current_file_name, current_file_errors_count, current_file_line_num, current_line_str, current_symbol_name, \
         current_symbol_errors_count
 
-    with open(file_name) as asm:
+    with open(file_name, 'r') as asm:
         current_file_name = file_name
         file_errors_count = 0
         current_file_errors_count = file_errors_count
