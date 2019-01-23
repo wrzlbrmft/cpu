@@ -352,11 +352,11 @@ def validate_operand_addr_size(operand, size_valid, errors=None):
         return False
 
 
-def little_endian(value):
+def to_little_endian(value):
     return value.to_bytes(2, 'little')
 
 
-def big_endian(value):
+def to_big_endian(value):
     return value.to_bytes(2, 'big')
 
 
@@ -438,7 +438,7 @@ def mnemonic_mov(operands):
                 elif validate_operand_data_size(operand2, register1_size, errors):
                     register2_opcode = 0b111
                     data_value = get_data_value(operand2)
-                    opcode_operands.extend(little_endian(data_value))
+                    opcode_operands.extend(to_little_endian(data_value))
 
                 if register2_opcode is not None:
                     opcode = (register1_opcode << 4) | (register2_opcode << 1)
@@ -475,7 +475,7 @@ def mnemonic_lda(operands):
                         'symbol_index': get_symbol_index(operand2)
                     })
                 else:
-                    opcode_operands.extend(little_endian(addr_value))
+                    opcode_operands.extend(to_little_endian(addr_value))
             else:
                 opcode = None
 
@@ -508,7 +508,7 @@ def mnemonic_sta(operands):
                     'symbol_index': get_symbol_index(operand1)
                 })
             else:
-                opcode_operands.extend(little_endian(addr_value))
+                opcode_operands.extend(to_little_endian(addr_value))
             if validate_operand_register_size(operand2, 8, errors):
                 register_opcode = get_register_opcode(operand2)
                 opcode = 0b11100001 | (register_opcode << 1)
@@ -612,7 +612,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands):
                     'symbol_index': get_symbol_index(operand)
                 })
             else:
-                opcode_operands.extend(little_endian(addr_value))
+                opcode_operands.extend(to_little_endian(addr_value))
 
         if opcode is not None:
             if 'jmp' == mnemonic:
@@ -697,10 +697,10 @@ def mnemonics_db_dw(mnemonic, operands):
                     if is_valid_data_str(operand):
                         data_values = get_data_value(operand)
                         for data_value in data_values:
-                            opcode_operands.extend(little_endian(data_value))
+                            opcode_operands.extend(to_little_endian(data_value))
                     else:
                         data_value = get_data_value(operand)
-                        opcode_operands.extend(little_endian(data_value))
+                        opcode_operands.extend(to_little_endian(data_value))
                 else:
                     opcode_operands.clear()
                     break
@@ -987,12 +987,12 @@ def build_obj_header():
 def build_obj_symbol_table():
     buffer = bytearray()
 
-    buffer.extend(little_endian(len(symbol_table)))
+    buffer.extend(to_little_endian(len(symbol_table)))
     for symbol_name in symbol_table:
         buffer.append(len(symbol_name))
         buffer.extend(map(ord, symbol_name))
         if symbol_exists(symbol_name):
-            buffer.extend(little_endian(len(get_symbol(symbol_name)['machine_code'])))
+            buffer.extend(to_little_endian(len(get_symbol(symbol_name)['machine_code'])))
         else:
             buffer.extend([0, 0])
 
@@ -1003,10 +1003,10 @@ def build_obj_symbols():
     buffer = bytearray()
 
     for symbol_name, symbol in symbols.items():
-        buffer.extend(little_endian(len(symbol['relocations'])))
+        buffer.extend(to_little_endian(len(symbol['relocations'])))
         for relocation in symbol['relocations']:
-            buffer.extend(little_endian(relocation['machine_code_offset']))
-            buffer.extend(little_endian(relocation['symbol_index']))
+            buffer.extend(to_little_endian(relocation['machine_code_offset']))
+            buffer.extend(to_little_endian(relocation['symbol_index']))
         buffer.extend(symbol['machine_code'])
     return buffer
 
