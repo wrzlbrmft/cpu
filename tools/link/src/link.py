@@ -1,3 +1,5 @@
+import struct
+
 obj_files = []
 
 
@@ -11,6 +13,14 @@ def add_obj_file(file_name):
             'symbol_table': [],
             'symbols': {}
         }
+
+
+def from_little_endian(values):
+    return struct.unpack('<H', values)[0]
+
+
+def from_big_endian(values):
+    return struct.unpack('>H', values)[0]
 
 
 def read_obj_header(obj, errors=None):
