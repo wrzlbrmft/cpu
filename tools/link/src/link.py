@@ -211,4 +211,4 @@ def read_obj_files(file_names):
 # main
 
 
-read_obj_files(['corrupt.obj'])
+read_obj_files(['test1.obj'])
