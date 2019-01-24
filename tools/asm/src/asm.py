@@ -993,7 +993,8 @@ def build_obj_symbol_table():
         buffer.append(len(symbol_name))
         buffer.extend(map(ord, symbol_name))
         if symbol_exists(symbol_name):
-            buffer.extend(to_little_endian(len(get_symbol(symbol_name)['machine_code'])))
+            machine_code_size = len(get_symbol(symbol_name)['machine_code'])
+            buffer.extend(to_little_endian(machine_code_size))
         else:
             buffer.extend([0, 0])
 
