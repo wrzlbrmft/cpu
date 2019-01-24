@@ -76,7 +76,7 @@ def read_str(file):
     if str_len > 0:
         values = file.read(str_len)
         if len(values) == str_len:
-            return str(values)
+            return values.decode('ascii')
         else:
             return None
     else:
