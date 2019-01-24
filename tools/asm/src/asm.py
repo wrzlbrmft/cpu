@@ -1005,7 +1005,8 @@ def build_obj_symbols():
     buffer = bytearray()
 
     for symbol_name, symbol in symbols.items():
-        buffer.extend(to_little_endian(len(symbol['relocations'])))
+        relocations_size = len(symbol['relocations'])
+        buffer.extend(to_little_endian(relocations_size))
         for relocation in symbol['relocations']:
             buffer.extend(to_little_endian(relocation['machine_code_offset']))
             buffer.extend(to_little_endian(relocation['symbol_index']))
