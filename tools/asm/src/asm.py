@@ -1,5 +1,6 @@
 import re
 import shlex
+import struct
 
 total_errors_count = 0
 current_file_name = None
@@ -353,11 +354,11 @@ def validate_operand_addr_size(operand, size_valid, errors=None):
 
 
 def to_little_endian(value):
-    return value.to_bytes(2, 'little')
+    return struct.pack('<H', value)
 
 
 def to_big_endian(value):
-    return value.to_bytes(2, 'big')
+    return struct.pack('>H', value)
 
 
 def mnemonics_nop_hlt_rst(mnemonic, operands):
