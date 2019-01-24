@@ -82,7 +82,7 @@ def read_obj_symbol_table(obj, errors=None):
         for i in range(0, symbol_table_size):
             symbol_name = read_str(obj)
             machine_code_size = read_value_little_endian(obj)
-            if symbol_name and machine_code_size is not None:
+            if symbol_name is not None and machine_code_size is not None:
                 obj_file = get_obj_file(current_file_name)
                 obj_file['symbol_table'].append(symbol_name)
                 obj_file['symbols'][symbol_name] = {
@@ -99,7 +99,33 @@ def read_obj_symbol_table(obj, errors=None):
 
 
 def read_obj_symbols(obj, errors=None):
-    return True
+    errors = []
+
+    obj_file = get_obj_file(current_file_name)
+    for symbol_name, symbol in obj_file['symbols'].items():
+        relocations_size = read_value_little_endian(obj)
+        if relocations_size is not None:
+            for i in range(0, relocations_size):
+                machine_code_offset = read_value_little_endian(obj)
+                symbol_index = read_value_little_endian(obj)
+                if machine_code_offset is not None and symbol_index is not None:
+                    symbol['relocations'].append({
+                        'machine_code_offset': machine_code_offset,
+                        'symbol_index': symbol_index
+                    })
+                else:
+                    pass
+
+            if not errors:
+                machine_code = obj.read(symbol['machine_code_size'])
+                if len(machine_code) == symbol['machine_code_size']:
+                    symbol['machine_code'].extend(machine_code)
+                else:
+                    pass
+        else:
+            pass
+
+    return not errors
 
 
 def read_obj_file(file_name):
