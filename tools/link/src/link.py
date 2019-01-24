@@ -23,6 +23,22 @@ def from_big_endian(values):
     return struct.unpack('>H', values)[0]
 
 
+def read_little_endian(file):
+    values = file.read(2)
+    if 2 == len(values):
+        return from_little_endian(values)
+    else:
+        return None
+
+
+def read_big_endian(file):
+    values = file.read(2)
+    if 2 == len(values):
+        return from_big_endian(values)
+    else:
+        return None
+
+
 def read_obj_header(obj, errors=None):
     return True
 
