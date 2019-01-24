@@ -1,6 +1,10 @@
 import struct
 
-obj_files = []
+total_errors_count = 0
+current_file_name = None
+current_file_errors_count = 0
+
+obj_files = {}
 
 
 def obj_file_exists(file_name):
@@ -13,6 +17,13 @@ def add_obj_file(file_name):
             'symbol_table': [],
             'symbols': {}
         }
+
+
+def get_obj_file(file_name):
+    if obj_file_exists(file_name):
+        return obj_files[file_name]
+    else:
+        return None
 
 
 def from_little_endian(values):
@@ -64,15 +75,45 @@ def read_obj_header(obj, errors=None):
 
 
 def read_obj_symbol_table(obj, errors=None):
-    return True
+    errors = []
+
+    symbol_table_size = read_value_little_endian(obj)
+    if symbol_table_size > 0:
+        for i in range(0, symbol_table_size):
+            symbol_name = read_str(obj)
+            machine_code_size = read_value_little_endian(obj)
+            if symbol_name and machine_code_size is not None:
+                obj_file = get_obj_file(current_file_name)
+                obj_file['symbol_table'].append(symbol_name)
+                obj_file['symbols'][symbol_name] = {
+                    'machine_code_size': machine_code_size,
+                    'machine_code': bytearray(),
+                    'relocations': []
+                }
+            else:
+                pass
+    else:
+        pass
+
+    return not errors
 
 
 def read_obj_file(file_name):
+    global current_file_name, current_file_errors_count
+
     errors = []
 
     with open(file_name, 'rb') as obj:
-        read_obj_header(obj, errors)
-        read_obj_symbol_table(obj, errors)
+        if obj_file_exists(file_name):
+            pass
+        else:
+            current_file_name = file_name
+            current_file_errors_count = 0
+
+            add_obj_file(current_file_name)
+
+            read_obj_header(obj, errors)
+            read_obj_symbol_table(obj, errors)
 
 
 def read_obj_files(file_names):
