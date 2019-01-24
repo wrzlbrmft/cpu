@@ -39,6 +39,13 @@ def get_obj_file(file_name):
         return None
 
 
+def find_symbol(name):
+    for file_name, obj_file in obj_files.items():
+        if name in obj_file['symbol_table']:
+            return file_name
+    return None
+
+
 def from_little_endian(values):
     return struct.unpack('<H', values)[0]
 
