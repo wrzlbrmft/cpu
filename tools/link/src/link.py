@@ -98,6 +98,10 @@ def read_obj_symbol_table(obj, errors=None):
     return not errors
 
 
+def read_obj_symbols(obj, errors=None):
+    return True
+
+
 def read_obj_file(file_name):
     global current_file_name, current_file_errors_count
 
@@ -114,6 +118,7 @@ def read_obj_file(file_name):
 
             read_obj_header(obj, errors)
             read_obj_symbol_table(obj, errors)
+            read_obj_symbols(obj, errors)
 
 
 def read_obj_files(file_names):
