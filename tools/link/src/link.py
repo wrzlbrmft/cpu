@@ -41,7 +41,7 @@ def get_obj_file(file_name):
 
 def find_symbol(name):
     for file_name, obj_file in obj_files.items():
-        if name in obj_file['symbol_table']:
+        if name in obj_file['symbols'].keys():
             return file_name
     return None
 
