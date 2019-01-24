@@ -13,7 +13,7 @@ current_symbol_errors_count = 0
 symbol_table = []
 symbols = {}
 
-parser_errors = {
+error_messages = {
     'UNEXPECTED': "unexpected '{}'",
     'SYMBOL_NAME_EXPECTED': 'symbol name expected',
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
@@ -758,7 +758,7 @@ def assemble_asm_line(line):
         }
 
 
-def parser_error(error):
+def show_error(error):
     global total_errors_count, current_file_errors_count, current_symbol_errors_count
 
     total_errors_count += 1
@@ -776,7 +776,7 @@ def parser_error(error):
             print(f'{current_file_line_num}:', end='')
         print(' ', end='')
 
-    print('error:', parser_errors[error['name']].format(*error['info']))
+    print('error:', error_messages[error['name']].format(*error['info']))
 
     if current_line_str:
         print('', current_line_str.strip())
@@ -919,12 +919,12 @@ def parse_asm_file(file_name):
                 symbol_name = line['symbol_name']
 
                 if symbol_exists(symbol_name):
-                    parser_error({
+                    show_error({
                         'name': 'DUPLICATE_SYMBOL',
                         'info': [symbol_name]
                     })
                 elif not is_valid_name(symbol_name):
-                    parser_error({
+                    show_error({
                         'name': 'INVALID_SYMBOL_NAME',
                         'info': [symbol_name]
                     })
@@ -935,14 +935,14 @@ def parse_asm_file(file_name):
                     add_symbol(current_symbol_name)
 
             for error in line['errors']:
-                parser_error(error)
+                show_error(error)
 
             if line['directive']:
                 directive = line['directive']
                 directive_lower = directive.lower()
 
                 if not is_valid_directive(directive_lower):
-                    parser_error({
+                    show_error({
                         'name': 'INVALID_DIRECTIVE',
                         'info': [directive]
                     })
@@ -951,7 +951,7 @@ def parse_asm_file(file_name):
 
             elif line['mnemonic']:
                 if not current_symbol_name:
-                    parser_error({
+                    show_error({
                         'name': 'INSTRUCTION_OUTSIDE_SYMBOL',
                         'info': []
                     })
@@ -960,7 +960,7 @@ def parse_asm_file(file_name):
 
                 if assembly['errors']:
                     for error in assembly['errors']:
-                        parser_error(error)
+                        show_error(error)
                 elif current_symbol_name and assembly['machine_code']:
                     dump_assembly(assembly)
 
