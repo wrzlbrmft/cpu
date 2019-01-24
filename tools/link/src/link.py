@@ -47,6 +47,18 @@ def read_value(file):
         return None
 
 
+def read_str(file):
+    str_len = read_value(file)
+    if str_len > 0:
+        values = file.read(str_len)
+        if len(values) == str_len:
+            return str(values)
+        else:
+            return None
+    else:
+        return None
+
+
 def read_obj_header(obj, errors=None):
     return True
 
