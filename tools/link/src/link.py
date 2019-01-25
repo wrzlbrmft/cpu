@@ -8,8 +8,6 @@ current_symbol_errors_count = 0
 
 obj_files = {}
 
-symbol_table = []
-
 error_messages = {
     'DUPLICATE_OBJ_FILE': "duplicate object file '{}'",
     'UNEXPECTED_EOF': 'unexpected end of file',
