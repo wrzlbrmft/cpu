@@ -999,11 +999,6 @@ def build_obj_symbol_table():
     for symbol_name in symbol_table:
         buffer.append(len(symbol_name))
         buffer.extend(map(ord, symbol_name))
-        if symbol_exists(symbol_name):
-            machine_code_size = len(get_symbol(symbol_name)['machine_code'])
-            buffer.extend(to_little_endian(machine_code_size))
-        else:
-            buffer.extend([0, 0])
 
     return buffer
 
@@ -1011,13 +1006,22 @@ def build_obj_symbol_table():
 def build_obj_symbols():
     buffer = bytearray()
 
-    for symbol_name, symbol in symbols.items():
-        relocations_size = len(symbol['relocations'])
-        buffer.extend(to_little_endian(relocations_size))
-        for relocation in symbol['relocations']:
-            buffer.extend(to_little_endian(relocation['machine_code_offset']))
-            buffer.extend(to_little_endian(relocation['symbol_index']))
-        buffer.extend(symbol['machine_code'])
+    for symbol_name in symbol_table:
+        if symbol_exists(symbol_name):
+            symbol = get_symbol(symbol_name)
+
+            machine_code_size = len(symbol['machine_code'])
+            buffer.extend(to_little_endian(machine_code_size))
+            buffer.extend(symbol['machine_code'])
+
+            relocations_size = len(symbol['relocations'])
+            buffer.extend(to_little_endian(relocations_size))
+            for relocation in symbol['relocations']:
+                buffer.extend(to_little_endian(relocation['machine_code_offset']))
+                buffer.extend(to_little_endian(relocation['symbol_index']))
+        else:
+            buffer.extend([0, 0])
+
     return buffer
 
 
