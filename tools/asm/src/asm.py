@@ -9,8 +9,6 @@ current_file_line_num = 0
 current_line_str = None
 current_symbol_name = None
 current_symbol_errors_count = 0
-current_symbol_file_line_num = 0
-current_symbol_line_str = None
 
 symbol_table = []
 symbols = {}
@@ -20,7 +18,7 @@ error_messages = {
     'SYMBOL_NAME_EXPECTED': 'symbol name expected',
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
     'INVALID_SYMBOL_NAME': "invalid symbol name '{}'",
-    'SYMBOL_WITHOUT_INSTRUCTIONS': "symbol without instructions",
+    'SYMBOL_WITHOUT_INSTRUCTION': 'symbol without instruction',
     'INVALID_DIRECTIVE': "invalid directive '{}'",
     'INSTRUCTION_WITHOUT_SYMBOL': 'instruction without symbol',
     'INVALID_MNEMONIC': "invalid mnemonic '{}'",
@@ -901,7 +899,7 @@ def dump_buffer(buffer):
 
 def parse_asm_file(file_name):
     global current_file_name, current_file_errors_count, current_file_line_num, current_line_str, current_symbol_name, \
-        current_symbol_errors_count, current_symbol_file_line_num, current_symbol_line_str
+        current_symbol_errors_count
 
     with open(file_name, 'r') as asm:
         current_file_name = file_name
@@ -930,19 +928,14 @@ def parse_asm_file(file_name):
                         'name': 'INVALID_SYMBOL_NAME',
                         'info': [symbol_name]
                     })
+                elif not line['mnemonic']:
+                    show_error({
+                        'name': 'SYMBOL_WITHOUT_INSTRUCTION',
+                        'info': []
+                    })
                 else:
-                    if current_symbol_name and not symbol_exists(current_symbol_name):
-                        show_error({
-                            'name': 'SYMBOL_WITHOUT_INSTRUCTIONS',
-                            'info': [current_symbol_name],
-                            'file_line_num': current_symbol_file_line_num,
-                            'line_str': current_symbol_line_str
-                        })
-
                     current_symbol_name = symbol_name
                     current_symbol_errors_count = 0
-                    current_symbol_file_line_num = current_file_line_num
-                    current_symbol_line_str = current_line_str
 
                     get_symbol_index(current_symbol_name)
 
