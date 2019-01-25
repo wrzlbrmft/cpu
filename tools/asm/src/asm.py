@@ -82,14 +82,6 @@ def symbol_exists(name):
     return name in symbols.keys()
 
 
-def add_symbol(name):
-    if not symbol_exists(name):
-        symbols[name] = {
-            'machine_code': bytearray(),
-            'relocations': []
-        }
-
-
 def get_symbol(name):
     if symbol_exists(name):
         return symbols[name]
@@ -99,6 +91,16 @@ def get_symbol(name):
 
 def get_current_symbol():
     return get_symbol(current_symbol_name)
+
+
+def add_symbol(name):
+    if not symbol_exists(name):
+        symbols[name] = {
+            'machine_code': bytearray(),
+            'relocations': []
+        }
+
+    return get_symbol(name)
 
 
 def is_valid_directive(directive):
