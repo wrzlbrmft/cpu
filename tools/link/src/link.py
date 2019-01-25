@@ -127,8 +127,7 @@ def read_obj_symbol_table(obj, errors=None):
     else:
         for i in range(0, symbol_table_size):
             symbol_name = read_str(obj)
-            machine_code_size = read_value_little_endian(obj)
-            if symbol_name is None or machine_code_size is None:
+            if symbol_name is None:
                 errors.append({
                     'name': 'CORRUPT_SYMBOL_TABLE',
                     'info': []
@@ -137,11 +136,6 @@ def read_obj_symbol_table(obj, errors=None):
             else:
                 obj_file = get_obj_file(current_file_name)
                 obj_file['symbol_table'].append(symbol_name)
-                obj_file['symbols'][symbol_name] = {
-                    'machine_code_size': machine_code_size,
-                    'machine_code': bytearray(),
-                    'relocations': []
-                }
 
 
 def read_obj_symbols(obj, errors=None):
@@ -203,7 +197,7 @@ def read_obj_file(file_name):
 
             read_obj_header(obj, errors)
             read_obj_symbol_table(obj, errors)
-            read_obj_symbols(obj, errors)
+            # read_obj_symbols(obj, errors)
 
             for error in errors:
                 show_error(error)
