@@ -86,7 +86,6 @@ def symbol_exists(name):
 
 def add_symbol(name):
     if not symbol_exists(name):
-        get_symbol_index(name)
         symbols[name] = {
             'machine_code': bytearray(),
             'relocations': []
@@ -945,6 +944,8 @@ def parse_asm_file(file_name):
                     current_symbol_file_line_num = current_file_line_num
                     current_symbol_line_str = current_line_str
 
+                    get_symbol_index(current_symbol_name)
+
             for error in line['errors']:
                 show_error(error)
 
@@ -975,14 +976,14 @@ def parse_asm_file(file_name):
                     for error in assembly['errors']:
                         show_error(error)
                 elif current_symbol_name and assembly['machine_code']:
-                    dump_assembly(assembly)
-
                     symbol = get_current_symbol()
                     if assembly['relocations']:
                         for relocation in assembly['relocations']:
                             relocation['machine_code_offset'] += len(symbol['machine_code'])
                         symbol['relocations'].extend(assembly['relocations'])
                     symbol['machine_code'].extend(assembly['machine_code'])
+
+                    # dump_assembly(assembly)
 
             # end of line
 
@@ -1037,7 +1038,9 @@ def write_obj_file(file_name):
         buffer.extend(obj_header)
         buffer.extend(obj_symbol_table)
         buffer.extend(obj_symbols)
-        dump_buffer(buffer)
+
+        # dump_buffer(buffer)
+
         obj.write(buffer)
 
 
