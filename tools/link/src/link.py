@@ -174,15 +174,14 @@ def read_obj_symbols(obj, errors=None):
                         'symbol_index': symbol_index
                     })
 
-            if relocations_size is not None:
-                machine_code = obj.read(symbol['machine_code_size'])
-                if len(machine_code) == symbol['machine_code_size']:
-                    symbol['machine_code'].extend(machine_code)
-                else:
-                    errors.append({
-                        'name': 'CORRUPT_MACHINE_CODE',
-                        'info': []
-                    })
+            machine_code = obj.read(symbol['machine_code_size'])
+            if len(machine_code) == symbol['machine_code_size']:
+                symbol['machine_code'].extend(machine_code)
+            else:
+                errors.append({
+                    'name': 'CORRUPT_MACHINE_CODE',
+                    'info': []
+                })
 
 
 def read_obj_file(file_name):
