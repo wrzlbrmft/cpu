@@ -1,4 +1,6 @@
+import os
 import struct
+import sys
 
 total_errors_count = 0
 current_file_name = None
@@ -308,12 +310,29 @@ def read_obj_files(file_names):
         read_obj_file(file_name)
 
 
+def link_symbol(name):
+    pass
+
+
 # main
 
 
 read_obj_files(['bounce.obj'])
 
+if not total_errors_count:
+    current_file_name = None
+    current_file_errors_count = 0
+    current_symbol_name = None
+    current_symbol_errors_count = 0
+
+    # symbol_table.clear()
+    symbols.clear()
+
+    main_obj_file_name = find_symbol('main')
+    if main_obj_file_name:
+        link_symbol('main')
+    else:
+        pass
+
 if total_errors_count:
     print(f'{total_errors_count} total error(s)')
-else:
-    symbols.clear()
