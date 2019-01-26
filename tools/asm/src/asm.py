@@ -1039,15 +1039,16 @@ def write_obj_file(file_name):
     obj_symbol_table = build_obj_symbol_table()
     obj_symbols = build_obj_symbols()
 
-    buffer = bytearray()
-    buffer.extend(obj_header)
-    buffer.extend(obj_symbol_table)
-    buffer.extend(obj_symbols)
+    if not total_errors_count:
+        buffer = bytearray()
+        buffer.extend(obj_header)
+        buffer.extend(obj_symbol_table)
+        buffer.extend(obj_symbols)
 
-    # dump_buffer(buffer)
+        # dump_buffer(buffer)
 
-    with open(file_name, 'wb') as obj:
-        obj.write(buffer)
+        with open(file_name, 'wb') as obj:
+            obj.write(buffer)
 
 
 # main

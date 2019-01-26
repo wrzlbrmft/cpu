@@ -381,6 +381,30 @@ def read_obj_files(file_names):
         read_obj_file(file_name)
 
 
+def dump_buffer(buffer):
+    row = 0
+    col = 0
+
+    for i in range(0, len(buffer)):
+        if 0 == col:
+            print(hex(row)[2:].upper().zfill(4), '   ', end='')
+
+        byte = buffer[i]
+        print(hex(byte)[2:].upper().zfill(2), '', end='')
+        col += 1
+
+        if 8 == col or i == len(buffer) - 1:
+            print('   ' * (8 - col), '  ', end='')
+            for j in range(row, row + col):
+                byte = buffer[j]
+                if byte not in range(33, 126):
+                    byte = 46  # .
+                print(chr(byte), end='')
+            print('')
+            row += col
+            col = 0
+
+
 def link_symbol(name):
     global link_offset
 
@@ -472,15 +496,16 @@ def write_obj_file(file_name):
     obj_symbol_table = build_obj_symbol_table()
     obj_symbols = build_obj_symbols()
 
-    buffer = bytearray()
-    buffer.extend(obj_header)
-    buffer.extend(obj_symbol_table)
-    buffer.extend(obj_symbols)
+    if not total_errors_count:
+        buffer = bytearray()
+        buffer.extend(obj_header)
+        buffer.extend(obj_symbol_table)
+        buffer.extend(obj_symbols)
 
-    # dump_buffer(buffer)
+        # dump_buffer(buffer)
 
-    with open(file_name, 'wb') as obj:
-        obj.write(buffer)
+        with open(file_name, 'wb') as obj:
+            obj.write(buffer)
 
 
 def build_cpu_symbols():
@@ -494,7 +519,7 @@ def build_cpu_symbols():
             relocation_symbol_name = get_symbol_name(relocation['symbol_index'])
             if symbol_exists(relocation_symbol_name):
                 relocation_symbol = get_symbol(relocation_symbol_name)
-                relocation_addr = relocation_symbol['machine_code_base']
+                relocation_addr = link_base + relocation_symbol['machine_code_base']
                 machine_code[relocation['machine_code_offset']] = to_little_endian(relocation_addr)[0]
                 machine_code[relocation['machine_code_offset'] + 1] = to_little_endian(relocation_addr)[1]
             else:
@@ -511,13 +536,14 @@ def build_cpu_symbols():
 def write_cpu_file(file_name):
     cpu_symbols = build_cpu_symbols()
 
-    buffer = bytearray()
-    buffer.extend(cpu_symbols)
+    if not total_errors_count:
+        buffer = bytearray()
+        buffer.extend(cpu_symbols)
 
-    # dump_buffer(buffer)
+        # dump_buffer(buffer)
 
-    with open(file_name, 'wb') as obj:
-        obj.write(buffer)
+        with open(file_name, 'wb') as cpu:
+            cpu.write(buffer)
 
 
 # main
