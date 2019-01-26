@@ -174,13 +174,15 @@ def read_value(file):
         return None
 
 
-def read_str(file):
-    str_len = read_value(file)
-    if 0 == str_len:
+def read_str(file, length=None):
+    if length is None:
+        length = read_value(file)
+
+    if 0 == length:
         return ''
-    elif str_len > 0:
-        values = file.read(str_len)
-        if len(values) == str_len:
+    elif length > 0:
+        values = file.read(length)
+        if len(values) == length:
             return values.decode('ascii')
         else:
             return None
