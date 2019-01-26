@@ -84,6 +84,24 @@ def add_obj_file(file_name):
     return get_obj_file(file_name)
 
 
+def obj_file_get_symbol_index(name, file_name=None):
+    if file_name is None:
+        file_name = current_file_name
+
+    obj_file = get_obj_file(file_name)
+    if name not in obj_file['symbol_table']:
+        obj_file['symbol_table'].append(name)
+    return obj_file['symbol_table'].index(name)
+
+
+def obj_file_get_symbol_name(index, file_name=None):
+    if file_name is None:
+        file_name = current_file_name
+
+    obj_file = get_obj_file(file_name)
+    return obj_file['symbol_table'][index]
+
+
 def obj_file_symbol_exists(name, file_name=None):
     if file_name is None:
         file_name = current_file_name
