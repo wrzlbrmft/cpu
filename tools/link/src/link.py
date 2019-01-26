@@ -6,6 +6,9 @@ current_file_errors_count = 0
 current_symbol_name = None
 current_symbol_errors_count = 0
 
+symbol_table = []
+symbols = {}
+
 obj_files = {}
 
 error_messages = {
@@ -13,9 +16,45 @@ error_messages = {
     'UNEXPECTED_EOF': 'unexpected end of file',
     'INVALID_SYMBOL_TABLE_SIZE': 'invalid symbol table size',
     'CORRUPT_SYMBOL_TABLE': 'corrupt symbol table',
-    'CORRUPT_RELOCATIONS': 'corrupt relocations',
-    'CORRUPT_MACHINE_CODE': 'corrupt machine code'
+    'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
+    'CORRUPT_MACHINE_CODE': 'corrupt machine code',
+    'CORRUPT_RELOCATIONS': 'corrupt relocations'
 }
+
+
+def get_symbol_index(name):
+    if name not in symbol_table:
+        symbol_table.append(name)
+    return symbol_table.index(name)
+
+
+def get_symbol_name(index):
+    return symbol_table[index]
+
+
+def symbol_exists(name):
+    return name in symbols.keys()
+
+
+def get_symbol(name):
+    if symbol_exists(name):
+        return symbols[name]
+    else:
+        return None
+
+
+def get_current_symbol():
+    return get_symbol(current_symbol_name)
+
+
+def add_symbol(name):
+    if not symbol_exists(name):
+        symbols[name] = {
+            'machine_code': bytearray(),
+            'relocations': []
+        }
+
+    return get_symbol(name)
 
 
 def obj_file_exists(file_name):
@@ -194,38 +233,45 @@ def read_obj_symbols(obj, errors=None):
                 'info': []
             })
         elif machine_code_size:
-            symbol = obj_file_add_symbol(symbol_name)
-
-            machine_code = obj.read(machine_code_size)
-            if len(machine_code) == machine_code_size:
-                symbol['machine_code'].extend(machine_code)
-            else:
+            if symbol_exists(symbol_name):
                 errors.append({
-                    'name': 'CORRUPT_MACHINE_CODE',
-                    'info': []
-                })
-
-            relocations_size = read_value_little_endian(obj)
-            if relocations_size is None:
-                errors.append({
-                    'name': 'UNEXPECTED_EOF',
-                    'info': []
+                    'name': 'DUPLICATE_SYMBOL',
+                    'info': [symbol_name]
                 })
             else:
-                for i in range(0, relocations_size):
-                    machine_code_offset = read_value_little_endian(obj)
-                    symbol_index = read_value_little_endian(obj)
-                    if machine_code_offset is None or symbol_index is None:
-                        errors.append({
-                            'name': 'CORRUPT_RELOCATIONS',
-                            'info': []
-                        })
-                        break
-                    else:
-                        symbol['relocations'].append({
-                            'machine_code_offset': machine_code_offset,
-                            'symbol_index': symbol_index
-                        })
+                add_symbol(symbol_name)
+                symbol = obj_file_add_symbol(symbol_name)
+
+                machine_code = obj.read(machine_code_size)
+                if len(machine_code) == machine_code_size:
+                    symbol['machine_code'].extend(machine_code)
+                else:
+                    errors.append({
+                        'name': 'CORRUPT_MACHINE_CODE',
+                        'info': []
+                    })
+
+                relocations_size = read_value_little_endian(obj)
+                if relocations_size is None:
+                    errors.append({
+                        'name': 'UNEXPECTED_EOF',
+                        'info': []
+                    })
+                else:
+                    for i in range(0, relocations_size):
+                        machine_code_offset = read_value_little_endian(obj)
+                        symbol_index = read_value_little_endian(obj)
+                        if machine_code_offset is None or symbol_index is None:
+                            errors.append({
+                                'name': 'CORRUPT_RELOCATIONS',
+                                'info': []
+                            })
+                            break
+                        else:
+                            symbol['relocations'].append({
+                                'machine_code_offset': machine_code_offset,
+                                'symbol_index': symbol_index
+                            })
 
 
 def read_obj_file(file_name):
@@ -260,4 +306,4 @@ def read_obj_files(file_names):
 # main
 
 
-read_obj_files(['test1.obj'])
+read_obj_files(['bounce.obj'])
