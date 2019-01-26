@@ -22,6 +22,17 @@ def obj_file_exists(file_name):
     return file_name in obj_files
 
 
+def get_obj_file(file_name):
+    if obj_file_exists(file_name):
+        return obj_files[file_name]
+    else:
+        return None
+
+
+def get_current_obj_file():
+    return get_obj_file(current_file_name)
+
+
 def add_obj_file(file_name):
     if not obj_file_exists(file_name):
         obj_files[file_name] = {
@@ -29,12 +40,40 @@ def add_obj_file(file_name):
             'symbols': {}
         }
 
+    return get_obj_file(file_name)
 
-def get_obj_file(file_name):
-    if obj_file_exists(file_name):
-        return obj_files[file_name]
+
+def obj_file_symbol_exists(name, file_name=None):
+    if file_name is None:
+        file_name = current_file_name
+
+    obj_file = get_obj_file(file_name)
+    return name in obj_file['symbols'].keys()
+
+
+def obj_file_get_symbol(name, file_name=None):
+    if file_name is None:
+        file_name = current_file_name
+
+    if obj_file_symbol_exists(name, file_name):
+        obj_file = get_obj_file(file_name)
+        return obj_file['symbols'][name]
     else:
         return None
+
+
+def obj_file_add_symbol(name, file_name=None):
+    if file_name is None:
+        file_name = current_file_name
+
+    if not obj_file_symbol_exists(name, file_name):
+        obj_file = get_obj_file(file_name)
+        obj_file['symbols'][name] = {
+            'machine_code': bytearray(),
+            'relocations': []
+        }
+
+    return obj_file_get_symbol(name, file_name)
 
 
 def find_symbol(name):
@@ -125,6 +164,7 @@ def read_obj_symbol_table(obj, errors=None):
             'info': []
         })
     else:
+        obj_file = get_current_obj_file()
         for i in range(0, symbol_table_size):
             symbol_name = read_str(obj)
             if symbol_name is None:
@@ -134,48 +174,56 @@ def read_obj_symbol_table(obj, errors=None):
                 })
                 break
             else:
-                obj_file = get_obj_file(current_file_name)
                 obj_file['symbol_table'].append(symbol_name)
 
 
 def read_obj_symbols(obj, errors=None):
     global current_symbol_name, current_symbol_errors_count
 
-    obj_file = get_obj_file(current_file_name)
-    for symbol_name, symbol in obj_file['symbols'].items():
+    obj_file = get_current_obj_file()
+    for symbol_name in obj_file['symbol_table']:
         current_symbol_name = symbol_name
         current_symbol_errors_count = 0
 
-        relocations_size = read_value_little_endian(obj)
-        if relocations_size is None:
+        machine_code_size = read_value_little_endian(obj)
+        if machine_code_size is None:
             errors.append({
                 'name': 'UNEXPECTED_EOF',
                 'info': []
             })
-        else:
-            for i in range(0, relocations_size):
-                machine_code_offset = read_value_little_endian(obj)
-                symbol_index = read_value_little_endian(obj)
-                if machine_code_offset is None or symbol_index is None:
-                    errors.append({
-                        'name': 'CORRUPT_RELOCATIONS',
-                        'info': []
-                    })
-                    break
-                else:
-                    symbol['relocations'].append({
-                        'machine_code_offset': machine_code_offset,
-                        'symbol_index': symbol_index
-                    })
+        elif machine_code_size:
+            symbol = obj_file_add_symbol(symbol_name)
 
-            machine_code = obj.read(symbol['machine_code_size'])
-            if len(machine_code) == symbol['machine_code_size']:
+            machine_code = obj.read(machine_code_size)
+            if len(machine_code) == machine_code_size:
                 symbol['machine_code'].extend(machine_code)
             else:
                 errors.append({
                     'name': 'CORRUPT_MACHINE_CODE',
                     'info': []
                 })
+
+            relocations_size = read_value_little_endian(obj)
+            if relocations_size is None:
+                errors.append({
+                    'name': 'UNEXPECTED_EOF',
+                    'info': []
+                })
+            else:
+                for i in range(0, relocations_size):
+                    machine_code_offset = read_value_little_endian(obj)
+                    symbol_index = read_value_little_endian(obj)
+                    if machine_code_offset is None or symbol_index is None:
+                        errors.append({
+                            'name': 'CORRUPT_RELOCATIONS',
+                            'info': []
+                        })
+                        break
+                    else:
+                        symbol['relocations'].append({
+                            'machine_code_offset': machine_code_offset,
+                            'symbol_index': symbol_index
+                        })
 
 
 def read_obj_file(file_name):
@@ -197,7 +245,7 @@ def read_obj_file(file_name):
 
             read_obj_header(obj, errors)
             read_obj_symbol_table(obj, errors)
-            # read_obj_symbols(obj, errors)
+            read_obj_symbols(obj, errors)
 
             for error in errors:
                 show_error(error)
