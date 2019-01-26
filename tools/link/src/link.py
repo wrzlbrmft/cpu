@@ -23,13 +23,14 @@ link_offset = 0
 error_messages = {
     'DUPLICATE_OBJ_FILE': "duplicate object file '{}'",
     'UNEXPECTED_EOF': 'unexpected end of file',
-    'INCOMPATIBLE_OBJ_FILE_VERSION': "incompatible object file version (given: {}, max: {})",
+    'INCOMPATIBLE_OBJ_FILE_VERSION': 'incompatible object file version (given: {}, max: {})',
     'NOT_OBJ_FILE': 'not an object file',
     'INVALID_SYMBOL_TABLE_SIZE': 'invalid symbol table size',
     'CORRUPT_SYMBOL_TABLE': 'corrupt symbol table',
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
     'CORRUPT_MACHINE_CODE': 'corrupt machine code',
-    'CORRUPT_RELOCATIONS': 'corrupt relocations'
+    'CORRUPT_RELOCATIONS': 'corrupt relocations',
+    'UNKNOWN_SYMBOL': "unknown symbol '{}'"
 }
 
 
@@ -385,7 +386,10 @@ def link_symbol(name):
             symbol['machine_code_base'] = link_offset
             link_offset += len(symbol['machine_code'])
         else:
-            pass
+            show_error({
+                'name': 'UNKNOWN_SYMBOL',
+                'info': [name]
+            })
 
 
 # main
