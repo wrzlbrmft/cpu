@@ -1,6 +1,8 @@
+import os
 import re
 import shlex
 import struct
+import sys
 
 total_errors_count = 0
 current_file_name = None
@@ -14,6 +16,7 @@ symbol_table = []
 symbols = {}
 
 error_messages = {
+    'NO_ASM_FILE': 'no asm file',
     'UNEXPECTED': "unexpected '{}'",
     'SYMBOL_NAME_EXPECTED': 'symbol name expected',
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
@@ -1044,9 +1047,18 @@ def write_obj_file(file_name):
 # main
 
 
-parse_asm_file('fibonacci.asm')
-
-if total_errors_count:
-    print(f'{total_errors_count} total error(s)')
+if len(sys.argv) < 2:
+    show_error({
+        'name': 'NO_ASM_FILE',
+        'info': []
+    })
 else:
-    write_obj_file('fibonacci.obj')
+    asm_file_name = sys.argv[1]
+    obj_file_name = os.path.splitext(asm_file_name)[0] + '.obj'
+
+    parse_asm_file(asm_file_name)
+
+    if total_errors_count:
+        print(f'{total_errors_count} total error(s)')
+    else:
+        write_obj_file(obj_file_name)
