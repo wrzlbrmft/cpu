@@ -9,3 +9,5 @@ loop:   nop     ; print(b)
         jnc loop
 
         jmp main
+
+.end
