@@ -5,7 +5,7 @@ import struct
 import sys
 
 obj_file_signature = 'MPO'
-obj_file_version = 0
+max_obj_file_version = 0
 
 total_errors_count = 0
 current_file_name = None
@@ -996,7 +996,7 @@ def build_obj_header():
     buffer = bytearray()
 
     buffer.extend(map(ord, obj_file_signature))
-    buffer.append(obj_file_version)
+    buffer.append(max_obj_file_version)
 
     return buffer
 
