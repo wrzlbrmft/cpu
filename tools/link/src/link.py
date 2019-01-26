@@ -21,6 +21,7 @@ link_base = 0
 link_offset = 0
 
 error_messages = {
+    'NO_OBJ_FILES': 'no object file(s)',
     'DUPLICATE_OBJ_FILE': "duplicate object file '{}'",
     'UNEXPECTED_EOF': 'unexpected end of file',
     'INCOMPATIBLE_OBJ_FILE_VERSION': 'incompatible object file version (given: {}, max: {})',
@@ -418,22 +419,34 @@ def link_obj_files(file_names):
 # main
 
 
-read_obj_files(['bounce.obj', 'liba.obj', 'libb.obj'])
+if len(sys.argv) < 1:
+    show_error({
+        'name': 'NO_OBJ_FILES',
+        'info': []
+    })
+else:
+    obj_file_names = sys.argv[1:]
 
-if not total_errors_count:
-    main_obj_file_names = find_symbol('main')
-    if len(main_obj_file_names) > 1:
-        show_error({
-            'name': 'DUPLICATE_SYMBOL',
-            'info': ['main']
-        })
-    elif 1 == len(main_obj_file_names):
-        link_symbol('main')
-        link_obj_file(main_obj_file_names[0])
-        del obj_files[main_obj_file_names[0]]
-        link_obj_files(obj_files.keys())
-    else:
-        link_obj_files(obj_files.keys())
+    read_obj_files(obj_file_names)
 
-if total_errors_count:
-    print(f'{total_errors_count} total error(s)')
+    if not total_errors_count:
+        main_obj_file_names = find_symbol('main')
+        if len(main_obj_file_names) > 1:
+            show_error({
+                'name': 'DUPLICATE_SYMBOL',
+                'info': ['main']
+            })
+        elif 1 == len(main_obj_file_names):
+            link_symbol('main')
+            link_obj_file(main_obj_file_names[0])
+            del obj_files[main_obj_file_names[0]]
+            link_obj_files(obj_files.keys())
+
+            bin_file_name = os.path.splitext(main_obj_file_names[0])[0] + '.bin'
+        else:
+            link_obj_files(obj_files.keys())
+
+            obj_file_name = 'output.obj'
+
+    if total_errors_count:
+        print(f'{total_errors_count} total error(s)')
