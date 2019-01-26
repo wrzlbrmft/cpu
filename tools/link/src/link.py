@@ -19,7 +19,7 @@ error_messages = {
 
 
 def obj_file_exists(file_name):
-    return file_name in obj_files
+    return file_name in obj_files.keys()
 
 
 def get_obj_file(file_name):
@@ -117,7 +117,9 @@ def read_value(file):
 
 def read_str(file):
     str_len = read_value(file)
-    if str_len > 0:
+    if 0 == str_len:
+        return ''
+    elif str_len > 0:
         values = file.read(str_len)
         if len(values) == str_len:
             return values.decode('ascii')
@@ -229,20 +231,19 @@ def read_obj_symbols(obj, errors=None):
 def read_obj_file(file_name):
     global current_file_name, current_file_errors_count
 
-    errors = []
-
-    with open(file_name, 'rb') as obj:
-        if obj_file_exists(file_name):
-            show_error({
-                'name': 'DUPLICATE_OBJ_FILE',
-                'info': [file_name]
-            })
-        else:
+    if obj_file_exists(file_name):
+        show_error({
+            'name': 'DUPLICATE_OBJ_FILE',
+            'info': [file_name]
+        })
+    else:
+        with open(file_name, 'rb') as obj:
             current_file_name = file_name
             current_file_errors_count = 0
 
             add_obj_file(current_file_name)
 
+            errors = []
             read_obj_header(obj, errors)
             read_obj_symbol_table(obj, errors)
             read_obj_symbols(obj, errors)
