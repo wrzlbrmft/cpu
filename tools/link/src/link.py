@@ -17,6 +17,9 @@ symbols = {}
 
 obj_files = {}
 
+link_base = 0
+link_offset = 0
+
 error_messages = {
     'DUPLICATE_OBJ_FILE': "duplicate object file '{}'",
     'UNEXPECTED_EOF': 'unexpected end of file',
@@ -363,6 +366,8 @@ def read_obj_files(file_names):
 
 
 def link_symbol(name):
+    global link_offset
+
     if not symbol_exists(name):
         file_name = find_symbol(name)
         if file_name:
@@ -376,6 +381,9 @@ def link_symbol(name):
                     'machine_code_offset': relocation['machine_code_offset'],
                     'symbol_index': get_symbol_index(obj_file_get_symbol_name(relocation['symbol_index'], file_name))
                 })
+
+            symbol['machine_code_base'] = link_offset
+            link_offset += len(symbol['machine_code'])
         else:
             pass
 
