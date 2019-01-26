@@ -2,4 +2,4 @@
 venv/
 .~lock.*#
 *.obj
-*.bin
+*.cpu
