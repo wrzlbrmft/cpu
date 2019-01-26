@@ -30,7 +30,8 @@ error_messages = {
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
     'CORRUPT_MACHINE_CODE': 'corrupt machine code',
     'CORRUPT_RELOCATIONS': 'corrupt relocations',
-    'UNKNOWN_SYMBOL': "unknown symbol '{}'"
+    'UNKNOWN_SYMBOL': "unknown symbol '{}'",
+    'AMBIGUOUS_SYMBOL': "ambiguous symbol '{}'"
 }
 
 
@@ -146,10 +147,11 @@ def obj_file_add_symbol(name, file_name=None):
 
 
 def find_symbol(name):
+    file_names = []
     for file_name, obj_file in obj_files.items():
         if name in obj_file['symbols'].keys():
-            return file_name
-    return None
+            file_names.append(file_name)
+    return file_names
 
 
 def from_little_endian(values):
@@ -368,10 +370,21 @@ def link_symbol(name):
     global link_offset
 
     if not symbol_exists(name):
-        file_name = find_symbol(name)
-        if file_name:
-            get_symbol_index(name)
+        file_names = find_symbol(name)
+        if not file_names:
+            show_error({
+                'name': 'UNKNOWN_SYMBOL',
+                'info': [name]
+            })
+        elif len(file_names) > 1:
+            show_error({
+                'name': 'AMBIGUOUS_SYMBOL',
+                'info': [name]
+            })
+        else:
+            file_name = file_names[0]
             obj_file_symbol = obj_file_get_symbol(name, file_name)
+            get_symbol_index(name)
             symbol = add_symbol(name)
 
             symbol['machine_code'] = obj_file_symbol['machine_code']
@@ -383,11 +396,6 @@ def link_symbol(name):
 
             symbol['machine_code_base'] = link_offset
             link_offset += len(symbol['machine_code'])
-        else:
-            show_error({
-                'name': 'UNKNOWN_SYMBOL',
-                'info': [name]
-            })
 
 
 # main
