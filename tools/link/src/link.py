@@ -30,8 +30,7 @@ error_messages = {
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
     'CORRUPT_MACHINE_CODE': 'corrupt machine code',
     'CORRUPT_RELOCATIONS': 'corrupt relocations',
-    'UNKNOWN_SYMBOL': "unknown symbol '{}'",
-    'AMBIGUOUS_SYMBOL': "ambiguous symbol '{}'"
+    'UNKNOWN_SYMBOL': "unknown symbol '{}'"
 }
 
 
@@ -378,7 +377,7 @@ def link_symbol(name):
             })
         elif len(file_names) > 1:
             show_error({
-                'name': 'AMBIGUOUS_SYMBOL',
+                'name': 'DUPLICATE_SYMBOL',
                 'info': [name]
             })
         else:
