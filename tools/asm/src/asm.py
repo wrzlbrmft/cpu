@@ -210,7 +210,7 @@ def get_data_size(data):
 
 
 def is_valid_addr(addr):
-    return is_valid_name(addr) or (not is_valid_data_str(addr) and get_data_value(addr) is not None)
+    return is_valid_name(addr) or (is_valid_data(addr) and not is_valid_data_str(addr))
 
 
 def get_addr_value(addr):
