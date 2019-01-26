@@ -2,9 +2,13 @@ import os
 import struct
 import sys
 
+obj_file_signature = 'MPO'
+max_obj_file_version = 0
+
 total_errors_count = 0
 current_file_name = None
 current_file_errors_count = 0
+current_file_version = None
 current_symbol_name = None
 current_symbol_errors_count = 0
 
@@ -16,6 +20,8 @@ obj_files = {}
 error_messages = {
     'DUPLICATE_OBJ_FILE': "duplicate object file '{}'",
     'UNEXPECTED_EOF': 'unexpected end of file',
+    'INCOMPATIBLE_OBJ_FILE_VERSION': "incompatible object file version (given: {}, max: {})",
+    'NOT_OBJ_FILE': 'not an object file',
     'INVALID_SYMBOL_TABLE_SIZE': 'invalid symbol table size',
     'CORRUPT_SYMBOL_TABLE': 'corrupt symbol table',
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
@@ -211,7 +217,33 @@ def show_error(error):
 
 
 def read_obj_header(obj, errors=None):
-    pass
+    global current_file_version
+
+    file_signature = read_str(obj, len(obj_file_signature))
+    if file_signature is None:
+        errors.append({
+            'name': 'UNEXPECTED_EOF',
+            'info': []
+        })
+    elif file_signature == obj_file_signature:
+        obj_file_version = read_value(obj)
+        if obj_file_version is None:
+            errors.append({
+                'name': 'UNEXPECTED_EOF',
+                'info': []
+            })
+        elif obj_file_version > max_obj_file_version:
+            errors.append({
+                'name': 'INCOMPATIBLE_OBJ_FILE_VERSION',
+                'info': [obj_file_version, max_obj_file_version]
+            })
+        else:
+            current_file_version = obj_file_version
+    else:
+        errors.append({
+            'name': 'NOT_OBJ_FILE',
+            'info': []
+        })
 
 
 def read_obj_symbol_table(obj, errors=None):
@@ -356,6 +388,7 @@ read_obj_files(['bounce.obj', 'lib.obj'])
 if not total_errors_count:
     current_file_name = None
     current_file_errors_count = 0
+    current_file_version = None
     current_symbol_name = None
     current_symbol_errors_count = 0
 
