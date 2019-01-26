@@ -404,9 +404,10 @@ def link_symbol(name):
 
             symbol['machine_code'] = obj_file_symbol['machine_code']
             for relocation in obj_file_symbol['relocations']:
+                relocation_symbol_name = obj_file_get_symbol_name(relocation['symbol_index'], file_name)
                 symbol['relocations'].append({
                     'machine_code_offset': relocation['machine_code_offset'],
-                    'symbol_index': get_symbol_index(obj_file_get_symbol_name(relocation['symbol_index'], file_name))
+                    'symbol_index': get_symbol_index(relocation_symbol_name)
                 })
 
             symbol['machine_code_base'] = link_offset
@@ -482,6 +483,43 @@ def write_obj_file(file_name):
         obj.write(buffer)
 
 
+def build_cpu_symbols():
+    buffer = bytearray()
+
+    for symbol_name, symbol in symbols.items():
+        symbol = get_symbol(symbol_name)
+
+        machine_code = symbol['machine_code']
+        for relocation in symbol['relocations']:
+            relocation_symbol_name = get_symbol_name(relocation['symbol_index'])
+            if symbol_exists(relocation_symbol_name):
+                relocation_symbol = get_symbol(relocation_symbol_name)
+                relocation_addr = relocation_symbol['machine_code_base']
+                machine_code[relocation['machine_code_offset']] = to_little_endian(relocation_addr)[0]
+                machine_code[relocation['machine_code_offset'] + 1] = to_little_endian(relocation_addr)[1]
+            else:
+                show_error({
+                    'name': 'UNKNOWN_SYMBOL',
+                    'info': [relocation_symbol_name]
+                })
+                return None
+        buffer.extend(machine_code)
+
+    return buffer
+
+
+def write_cpu_file(file_name):
+    cpu_symbols = build_cpu_symbols()
+
+    buffer = bytearray()
+    buffer.extend(cpu_symbols)
+
+    # dump_buffer(buffer)
+
+    with open(file_name, 'wb') as obj:
+        obj.write(buffer)
+
+
 # main
 
 
@@ -508,7 +546,8 @@ else:
             del obj_files[main_obj_file_names[0]]
             link_obj_files(obj_files.keys())
 
-            bin_file_name = os.path.splitext(main_obj_file_names[0])[0] + '.bin'
+            cpu_file_name = os.path.splitext(main_obj_file_names[0])[0] + '.cpu'
+            write_cpu_file(cpu_file_name)
         else:
             link_obj_files(obj_files.keys())
 
