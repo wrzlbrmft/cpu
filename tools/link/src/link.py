@@ -297,6 +297,11 @@ def read_obj_file(file_name):
             for error in errors:
                 show_error(error)
 
+            # end of file
+
+            if current_file_errors_count:
+                print(f'{current_file_name}: {current_file_errors_count} error(s)')
+
 
 def read_obj_files(file_names):
     for file_name in file_names:
@@ -307,3 +312,8 @@ def read_obj_files(file_names):
 
 
 read_obj_files(['bounce.obj'])
+
+if total_errors_count:
+    print(f'{total_errors_count} total error(s)')
+else:
+    symbols.clear()
