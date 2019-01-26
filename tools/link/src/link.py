@@ -332,7 +332,8 @@ def read_obj_symbols(obj, errors=None):
 
 
 def read_obj_file(file_name):
-    global current_file_name, current_file_errors_count
+    global current_file_name, current_file_errors_count, current_file_version, current_symbol_name, \
+        current_symbol_errors_count
 
     if obj_file_exists(file_name):
         show_error({
@@ -358,6 +359,12 @@ def read_obj_file(file_name):
 
             if current_file_errors_count:
                 print(f'{current_file_name}: {current_file_errors_count} error(s)')
+
+            current_file_name = None
+            current_file_errors_count = 0
+            current_file_version = None
+            current_symbol_name = None
+            current_symbol_errors_count = 0
 
 
 def read_obj_files(file_names):
@@ -400,15 +407,9 @@ def link_symbol(name):
 # main
 
 
-read_obj_files(['bounce.obj', 'lib.obj'])
+read_obj_files(['bounce.obj', 'liba.obj', 'libb.obj'])
 
 if not total_errors_count:
-    current_file_name = None
-    current_file_errors_count = 0
-    current_file_version = None
-    current_symbol_name = None
-    current_symbol_errors_count = 0
-
     if find_symbol('main'):
         link_symbol('main')
     else:
