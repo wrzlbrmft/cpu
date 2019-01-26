@@ -404,16 +404,36 @@ def link_symbol(name):
             link_offset += len(symbol['machine_code'])
 
 
+def link_obj_file(file_name):
+    obj_file = get_obj_file(file_name)
+    for symbol_name in obj_file['symbols'].keys():
+        link_symbol(symbol_name)
+
+
+def link_obj_files(file_names):
+    for file_name in file_names:
+        link_obj_file(file_name)
+
+
 # main
 
 
 read_obj_files(['bounce.obj', 'liba.obj', 'libb.obj'])
 
 if not total_errors_count:
-    if find_symbol('main'):
+    main_obj_file_names = find_symbol('main')
+    if len(main_obj_file_names) > 1:
+        show_error({
+            'name': 'DUPLICATE_SYMBOL',
+            'info': ['main']
+        })
+    elif 1 == len(main_obj_file_names):
         link_symbol('main')
+        link_obj_file(main_obj_file_names[0])
+        del obj_files[main_obj_file_names[0]]
+        link_obj_files(obj_files.keys())
     else:
-        pass
+        link_obj_files(obj_files.keys())
 
 if total_errors_count:
     print(f'{total_errors_count} total error(s)')
