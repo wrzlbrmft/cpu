@@ -328,8 +328,7 @@ if not total_errors_count:
     # symbol_table.clear()
     symbols.clear()
 
-    main_obj_file_name = find_symbol('main')
-    if main_obj_file_name:
+    if find_symbol('main'):
         link_symbol('main')
     else:
         pass
