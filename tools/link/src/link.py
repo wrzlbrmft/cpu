@@ -329,13 +329,27 @@ def read_obj_files(file_names):
 
 
 def link_symbol(name):
-    pass
+    if not symbol_exists(name):
+        file_name = find_symbol(name)
+        if file_name:
+            get_symbol_index(name)
+            obj_file_symbol = obj_file_get_symbol(name, file_name)
+            symbol = add_symbol(name)
+
+            symbol['machine_code'] = obj_file_symbol['machine_code']
+            for relocation in obj_file_symbol['relocations']:
+                symbol['relocations'].append({
+                    'machine_code_offset': relocation['machine_code_offset'],
+                    'symbol_index': get_symbol_index(obj_file_get_symbol_name(relocation['symbol_index'], file_name))
+                })
+        else:
+            pass
 
 
 # main
 
 
-read_obj_files(['bounce.obj'])
+read_obj_files(['bounce.obj', 'lib.obj'])
 
 if not total_errors_count:
     current_file_name = None
