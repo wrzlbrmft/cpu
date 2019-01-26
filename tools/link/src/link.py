@@ -154,6 +154,14 @@ def find_symbol(name):
     return file_names
 
 
+def to_little_endian(value):
+    return struct.pack('<H', value)
+
+
+def to_big_endian(value):
+    return struct.pack('>H', value)
+
+
 def from_little_endian(values):
     return struct.unpack('<H', values)[0]
 
@@ -416,6 +424,64 @@ def link_obj_files(file_names):
         link_obj_file(file_name)
 
 
+def build_obj_header():
+    buffer = bytearray()
+
+    buffer.extend(map(ord, obj_file_signature))
+    buffer.append(max_obj_file_version)
+
+    return buffer
+
+
+def build_obj_symbol_table():
+    buffer = bytearray()
+
+    buffer.extend(to_little_endian(len(symbol_table)))
+    for symbol_name in symbol_table:
+        buffer.append(len(symbol_name))
+        buffer.extend(map(ord, symbol_name))
+
+    return buffer
+
+
+def build_obj_symbols():
+    buffer = bytearray()
+
+    for symbol_name in symbol_table:
+        if symbol_exists(symbol_name):
+            symbol = get_symbol(symbol_name)
+
+            machine_code_size = len(symbol['machine_code'])
+            buffer.extend(to_little_endian(machine_code_size))
+            buffer.extend(symbol['machine_code'])
+
+            relocations_size = len(symbol['relocations'])
+            buffer.extend(to_little_endian(relocations_size))
+            for relocation in symbol['relocations']:
+                buffer.extend(to_little_endian(relocation['machine_code_offset']))
+                buffer.extend(to_little_endian(relocation['symbol_index']))
+        else:
+            buffer.extend([0, 0])
+
+    return buffer
+
+
+def write_obj_file(file_name):
+    with open(file_name, 'wb') as obj:
+        obj_header = build_obj_header()
+        obj_symbol_table = build_obj_symbol_table()
+        obj_symbols = build_obj_symbols()
+
+        buffer = bytearray()
+        buffer.extend(obj_header)
+        buffer.extend(obj_symbol_table)
+        buffer.extend(obj_symbols)
+
+        # dump_buffer(buffer)
+
+        obj.write(buffer)
+
+
 # main
 
 
@@ -447,6 +513,7 @@ else:
             link_obj_files(obj_files.keys())
 
             obj_file_name = 'output.obj'
+            write_obj_file(obj_file_name)
 
     if total_errors_count:
         print(f'{total_errors_count} total error(s)')
