@@ -1044,9 +1044,9 @@ def write_obj_file(file_name):
 # main
 
 
-parse_asm_file('bounce.asm')
+parse_asm_file('fibonacci.asm')
 
 if total_errors_count:
     print(f'{total_errors_count} total error(s)')
 else:
-    write_obj_file('bounce.obj')
+    write_obj_file('fibonacci.obj')
