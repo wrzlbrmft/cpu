@@ -971,10 +971,9 @@ def parse_asm_file(file_name):
                         for error in assembly['errors']:
                             show_error(error)
                     elif assembly['machine_code']:
-                        if assembly['relocations']:
-                            for relocation in assembly['relocations']:
-                                relocation['machine_code_offset'] += len(symbol['machine_code'])
-                            symbol['relocations'].extend(assembly['relocations'])
+                        for relocation in assembly['relocations']:
+                            relocation['machine_code_offset'] += len(symbol['machine_code'])
+                        symbol['relocations'].extend(assembly['relocations'])
                         symbol['machine_code'].extend(assembly['machine_code'])
 
                         # dump_assembly(assembly)
