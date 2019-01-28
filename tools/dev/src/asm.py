@@ -71,6 +71,116 @@ def is_valid_name(name):
     return not is_valid_operand(name) and valid_name_regex.fullmatch(name)
 
 
+def validate_operands_count(operands, count_valid, errors=None):
+    if len(operands) < count_valid:
+        if errors is not None:
+            errors.append({
+                'name': 'INSUFFICIENT_OPERANDS',
+                'info': [len(operands), count_valid]
+            })
+        return False
+    elif len(operands) > count_valid:
+        if errors is not None:
+            errors.append({
+                'name': 'TOO_MANY_OPERANDS',
+                'info': [len(operands), count_valid]
+            })
+        return False
+    else:
+        return True
+
+
+def mnemonics_nop_hlt_rst(mnemonic, operands, errors=None):
+    opcode = None
+
+    if validate_operands_count(operands, 0, errors):
+        if 'nop' == mnemonic:
+            opcode = 0b00000000
+        elif 'hlt' == mnemonic:
+            opcode = 0b11111111
+        elif 'rst' == mnemonic:
+            opcode = 0b11111110
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': []
+        }
+
+
+def mnemonic_mov(operands, errors=None):
+    return 0
+
+
+def mnemonic_lda(operands, errors=None):
+    return 0
+
+
+def mnemonic_sta(operands, errors=None):
+    return 0
+
+
+def mnemonics_push_pop(mnemonic, operands, errors=None):
+    return 0
+
+
+def mnemonics_add_sub_cmp(mnemonic, operands, errors=None):
+    return 0
+
+
+def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=None):
+    return 0
+
+
+def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands, errors=None):
+    return 0
+
+
+def mnemonics_db_dw(mnemonic, operands, errors=None):
+    return 0
+
+
+def assemble_asm_line(line, errors=None):
+    assembly = None
+
+    mnemonic = line['mnemonic']
+    mnemonic_lower = mnemonic.lower()
+
+    if not is_valid_mnemonic(mnemonic_lower):
+        if errors is not None:
+            errors.append({
+                'name': 'INVALID_MNEMONIC',
+                'info': [mnemonic]
+            })
+    elif mnemonic_lower in ['nop', 'hlt', 'rst']:
+        assembly = mnemonics_nop_hlt_rst(mnemonic_lower, line['operands'], errors)
+    elif 'mov' == mnemonic_lower:
+        assembly = mnemonic_mov(line['operands'], errors)
+    elif 'lda' == mnemonic_lower:
+        assembly = mnemonic_lda(line['operands'], errors)
+    elif 'sta' == mnemonic_lower:
+        assembly = mnemonic_sta(line['operands'], errors)
+    elif mnemonic_lower in ['push', 'pop']:
+        assembly = mnemonics_push_pop(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['add', 'sub', 'cmp']:
+        assembly = mnemonics_add_sub_cmp(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['jmp', 'jc', 'jnc', 'jz', 'jnz', 'call', 'cc', 'cnc', 'cz', 'cnz']:
+        assembly = mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz']:
+        assembly = mnemonics_ret_rc_rnc_rz_rnz(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['db', 'dw']:
+        assembly = mnemonics_db_dw(mnemonic_lower, line['operands'], errors)
+
+    if errors:
+        return None
+    else:
+        return assembly
+
+
 def parse_asm_line_str(line_str, errors=None):
     directive = None
     symbol_name = None
@@ -169,7 +279,7 @@ def parse_asm_line_str(line_str, errors=None):
                 })
 
     if errors:
-        return False
+        return None
     else:
         return {
             'directive': directive,
