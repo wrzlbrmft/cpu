@@ -1,6 +1,13 @@
 _symbol_table = []
 
 
+def get_symbol_table(symbol_table=None):
+    if symbol_table is None:
+        return _symbol_table
+    else:
+        return symbol_table
+
+
 def symbol_exists(symbol_name, symbol_table=None):
     if symbol_table is None:
         symbol_table = _symbol_table

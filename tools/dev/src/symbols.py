@@ -1,6 +1,13 @@
 _symbols = {}
 
 
+def get_symbols(symbols=None):
+    if symbols is None:
+        return _symbols
+    else:
+        return symbols
+
+
 def symbol_exists(symbol_name, symbols=None):
     if symbols is None:
         symbols = _symbols

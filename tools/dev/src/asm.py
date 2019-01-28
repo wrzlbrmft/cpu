@@ -1,4 +1,5 @@
 import endianness
+import obj_file
 import symbol_table
 import symbols
 
@@ -902,3 +903,4 @@ if '__main__' == __name__:
         assemble_asm_file(asm_file_name)
 
         obj_file_name = os.path.splitext(os.path.basename(asm_file_name))[0] + '.obj'
+        obj_file.write_obj_file(obj_file_name)
