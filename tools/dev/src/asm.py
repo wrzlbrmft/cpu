@@ -125,7 +125,20 @@ def assemble_asm_file(file_name):
             line_num += 1
             current_asm_line_num = line_num
 
-            line = parse_asm_line_str(current_asm_line_str)
+            errors = []
+
+            line = parse_asm_line_str(current_asm_line_str, errors)
+
+            if not errors:
+                if line['directive']:
+                    directive = line['directive']
+                    directive_lower = directive.lower()
+
+                if line['symbol_name']:
+                    symbol_name = line['symbol_name']
+
+                if line['mnemonic']:
+                    pass
 
 
 if '__main__' == __name__:
