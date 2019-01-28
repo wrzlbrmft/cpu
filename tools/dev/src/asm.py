@@ -18,7 +18,59 @@ def parse_asm_line_str(line_str, errors=None):
     parser.wordchars += '.:'
 
     for token in parser:
-        pass
+        if '.' == token[0]:
+            if 1 == len(token) or directive or symbol_name or mnemonic:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': ['.']
+                    })
+                break
+            else:
+                directive = token[1:]
+
+        elif ':' == token[-1]:
+            if 1 == len(token) or directive or symbol_name or mnemonic:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': [':']
+                    })
+                break
+            else:
+                symbol_name = token[:-1]
+
+        elif ',' == token:
+            if operand:
+                operands.append(operand[1:])
+                operand = ''
+                operand_expected = True
+            else:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': [',']
+                    })
+                break
+
+        else:
+            if directive or mnemonic:
+                operand += ' ' + token
+                operand_expected = False
+            else:
+                mnemonic = token
+
+    if not errors:
+        if operand:
+            operands.append(operand[1:])
+            # operand = ''
+            # operand_expected = False
+        elif operand_expected:
+            if errors is not None:
+                errors.append({
+                    'name': 'UNEXPECTED',
+                    'info': [',']
+                })
 
     if errors:
         return False
