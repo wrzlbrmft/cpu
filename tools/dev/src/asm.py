@@ -27,6 +27,13 @@ def parse_asm_line_str(line_str, errors=None):
                         'info': ['.']
                     })
                 break
+            elif ':' in token:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': [':']
+                    })
+                break
             else:
                 directive = token[1:]
 
@@ -36,6 +43,13 @@ def parse_asm_line_str(line_str, errors=None):
                     errors.append({
                         'name': 'UNEXPECTED',
                         'info': [':']
+                    })
+                break
+            elif '.' in token:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': ['.']
                     })
                 break
             else:
@@ -55,7 +69,21 @@ def parse_asm_line_str(line_str, errors=None):
                 break
 
         else:
-            if directive or mnemonic:
+            if '.' in token:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': ['.']
+                    })
+                break
+            elif ':' in token:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': [':']
+                    })
+                break
+            elif directive or mnemonic:
                 operand += ' ' + token
                 operand_expected = False
             else:
