@@ -35,6 +35,12 @@ valid_registers = {
 valid_operands = list(valid_registers.keys()) + ['m']
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]{,254}', re.IGNORECASE)
+valid_data_dec_regex = re.compile('[1-9][0-9]*')
+valid_data_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
+valid_data_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
+valid_data_oct_regex = re.compile('0[0-7]+')
+valid_data_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
+valid_data_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
 
 
 def is_valid_directive(directive):
@@ -71,6 +77,100 @@ def is_valid_name(name):
     return not is_valid_operand(name) and valid_name_regex.fullmatch(name)
 
 
+def is_valid_data_dec(data):
+    return valid_data_dec_regex.fullmatch(data)
+
+
+def is_valid_data_hex(data):
+    return valid_data_hex_regex.fullmatch(data)
+
+
+def is_valid_data_bin(data):
+    return valid_data_bin_regex.fullmatch(data)
+
+
+def is_valid_data_oct(data):
+    return valid_data_oct_regex.fullmatch(data)
+
+
+def is_valid_data_chr(data):
+    return valid_data_chr_regex.fullmatch(data)
+
+
+def is_valid_data_str(data):
+    return valid_data_str_regex.fullmatch(data)
+
+
+def is_valid_data(data):
+    return '0' == data or \
+        is_valid_data_dec(data) or \
+        is_valid_data_hex(data) or \
+        is_valid_data_bin(data) or \
+        is_valid_data_oct(data) or \
+        is_valid_data_chr(data) or \
+        is_valid_data_str(data)
+
+
+def get_data_value(data):
+    if '0' == data:
+        return 0
+    elif is_valid_data_dec(data):
+        return int(data)
+    elif is_valid_data_hex(data):
+        return int(data[2:], 16)
+    elif is_valid_data_bin(data):
+        return int(data[2:], 2)
+    elif is_valid_data_oct(data):
+        return int(data[1:], 8)
+    elif is_valid_data_chr(data):
+        return ord(data[1])
+    elif is_valid_data_str(data):
+        values = []
+        for value in data[1:-1]:
+            values.append(ord(value))
+        return values
+    else:
+        return None
+
+
+def get_data_size(data):
+    value = get_data_value(data)
+    if isinstance(value, list):
+        values = value
+        size = 0
+        for value in values:
+            bits = value.bit_length()
+            size = max(size, bits + (8 - bits) % 8)
+        return size
+    elif value is not None:
+        bits = value.bit_length()
+        return bits + (8 - bits) % 8
+    else:
+        return None
+
+
+def is_valid_addr(addr):
+    return is_valid_name(addr) or (is_valid_data(addr) and not is_valid_data_chr(addr) and not is_valid_data_str(addr))
+
+
+def get_addr_value(addr):
+    if is_valid_name(addr):
+        return None
+    elif is_valid_addr(addr):
+        return get_data_value(addr)
+    else:
+        return None
+
+
+def get_addr_size(addr):
+    if is_valid_name(addr):
+        return 16
+    elif is_valid_addr(addr):
+        return get_data_size(addr)
+    else:
+        return None
+
+
 def validate_operands_count(operands, count_valid, errors=None):
     if len(operands) < count_valid:
         if errors is not None:
@@ -88,6 +188,111 @@ def validate_operands_count(operands, count_valid, errors=None):
         return False
     else:
         return True
+
+
+def validate_operand_register(operand, errors=None):
+    if is_valid_register(operand):
+        return True
+    elif is_valid_operand(operand):
+        if errors is not None:
+            errors.append({
+                'name': 'UNSUPPORTED_OPERAND',
+                'info': [operand]
+            })
+        return False
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'INVALID_OPERAND',
+                'info': [operand]
+            })
+        return False
+
+
+def validate_operand_register_size(operand, size_valid, errors=None):
+    if validate_operand_register(operand, errors):
+        size = get_register_size(operand)
+        if size == size_valid:
+            return True
+        else:
+            if errors is not None:
+                errors.append({
+                    'name': 'INCOMPATIBLE_REGISTER_SIZE',
+                    'info': [size, size_valid]
+                })
+            return False
+    else:
+        return False
+
+
+def validate_operand_data(operand, errors=None):
+    if is_valid_data(operand):
+        return True
+    elif is_valid_operand(operand):
+        if errors is not None:
+            errors.append({
+                'name': 'UNSUPPORTED_OPERAND',
+                'info': [operand]
+            })
+        return False
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'INVALID_OPERAND',
+                'info': [operand]
+            })
+        return False
+
+
+def validate_operand_data_size(operand, size_valid, errors=None):
+    if validate_operand_data(operand, errors):
+        size = get_data_size(operand)
+        if size <= size_valid:
+            return True
+        else:
+            if errors is not None:
+                errors.append({
+                    'name': 'INCOMPATIBLE_DATA_SIZE',
+                    'info': [size, size_valid]
+                })
+            return False
+    else:
+        return False
+
+
+def validate_operand_addr(operand, errors=None):
+    if is_valid_addr(operand):
+        return True
+    elif is_valid_operand(operand):
+        if errors is not None:
+            errors.append({
+                'name': 'UNSUPPORTED_OPERAND',
+                'info': [operand]
+            })
+        return False
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'INVALID_OPERAND',
+                'info': [operand]
+            })
+        return False
+
+
+def validate_operand_addr_size(operand, size_valid, errors=None):
+    if validate_operand_addr(operand, errors):
+        size = get_addr_size(operand)
+        if size <= size_valid:
+            return True
+        else:
+            if errors is not None:
+                errors.append({
+                    'name': 'INCOMPATIBLE_ADDR_SIZE',
+                    'info': [size, size_valid]
+                })
+            return False
+    else:
+        return False
 
 
 def mnemonics_nop_hlt_rst(mnemonic, operands, errors=None):
