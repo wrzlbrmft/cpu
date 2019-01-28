@@ -895,6 +895,9 @@ def assemble_asm_file(file_name):
         # end of file
 
 
+# main
+
+
 if '__main__' == __name__:
     if len(sys.argv) < 2:
         pass
