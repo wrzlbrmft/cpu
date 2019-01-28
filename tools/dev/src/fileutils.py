@@ -1,3 +1,6 @@
+import endianness
+
+
 def dump_buffer(buffer):
     row = 0
     col = 0
@@ -20,3 +23,43 @@ def dump_buffer(buffer):
             print('')
             row += col
             col = 0
+
+
+def read_byte(file):
+    value = file.read(1)
+    if 1 == len(value):
+        return value[0]
+    else:
+        return None
+
+
+def read_word_le(file):
+    values = file.read(2)
+    if 2 == len(values):
+        return endianness.le_to_word(values)
+    else:
+        return None
+
+
+def read_word_be(file):
+    values = file.read(2)
+    if 2 == len(values):
+        return endianness.be_to_word(values)
+    else:
+        return None
+
+
+def read_str(file, length=None):
+    if length is None:
+        length = read_byte(file)
+
+    if 0 == length:
+        return ''
+    elif length > 0:
+        values = file.read(length)
+        if len(values) == length:
+            return values.decode('ascii')
+        else:
+            return None
+    else:
+        return None
