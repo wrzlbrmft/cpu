@@ -5,6 +5,12 @@ current_asm_file_name = None
 current_asm_line_num = 0
 current_asm_line_str = None
 
+valid_directives = ['end']
+
+
+def is_valid_directive(directive):
+    return directive in valid_directives
+
 
 def parse_asm_line_str(line_str, errors=None):
     directive = None
@@ -89,6 +95,8 @@ def parse_asm_line_str(line_str, errors=None):
             else:
                 mnemonic = token
 
+    # end of line
+
     if not errors:
         if operand:
             operands.append(operand[1:])
@@ -129,16 +137,25 @@ def assemble_asm_file(file_name):
 
             line = parse_asm_line_str(current_asm_line_str, errors)
 
-            if not errors:
-                if line['directive']:
-                    directive = line['directive']
-                    directive_lower = directive.lower()
+            if not errors and line['directive']:
+                directive = line['directive']
+                directive_lower = directive.lower()
 
-                if line['symbol_name']:
-                    symbol_name = line['symbol_name']
+                if not is_valid_directive(directive_lower):
+                    errors.append({
+                        'name': 'INVALID_DIRECTIVE',
+                        'info': [',']
+                    })
+                elif 'end' == directive_lower:
+                    break
 
-                if line['mnemonic']:
-                    pass
+            if not errors and line['symbol_name']:
+                symbol_name = line['symbol_name']
+
+            if not errors and line['mnemonic']:
+                pass
+
+        # end of file
 
 
 if '__main__' == __name__:
