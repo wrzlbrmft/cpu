@@ -2,6 +2,7 @@ import endianness
 import symbol_table
 import symbols
 
+import os
 import re
 import shlex
 import sys
@@ -885,6 +886,11 @@ def assemble_asm_file(file_name):
                         symbol['machine_code'].extend(assembly['machine_code'])
                         symbol['relocation_table'].extend(assembly['relocation_table'])
 
+            # end of line
+
+            if errors:
+                print(errors[0])
+
         # end of file
 
 
@@ -894,3 +900,5 @@ if '__main__' == __name__:
     else:
         asm_file_name = sys.argv[1]
         assemble_asm_file(asm_file_name)
+
+        obj_file_name = os.path.splitext(os.path.basename(asm_file_name))[0] + '.obj'
