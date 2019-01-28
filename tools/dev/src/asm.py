@@ -1,4 +1,5 @@
 import shlex
+import sys
 
 current_asm_file_name = None
 current_asm_line_num = 0
@@ -100,4 +101,8 @@ def assemble_asm_file(file_name):
 
 
 if '__main__' == __name__:
-    pass
+    if len(sys.argv) < 2:
+        pass
+    else:
+        asm_file_name = sys.argv[1]
+        assemble_asm_file(asm_file_name)
