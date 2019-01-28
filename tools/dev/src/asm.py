@@ -1,3 +1,4 @@
+import endianness
 import symbol_table
 import symbols
 
@@ -318,35 +319,354 @@ def mnemonics_nop_hlt_rst(mnemonic, operands, errors=None):
 
 
 def mnemonic_mov(operands, errors=None):
-    return 0
+    opcode = None
+    opcode_operands = bytearray()
+    relocation_table = []
+
+    if validate_operands_count(operands, 2, errors):
+        operand1 = operands[0].lower()
+        operand2 = operands[1].lower()
+        if 'm' == operand1:
+            register1_opcode = 0b110
+            if validate_operand_register_size(operand2, 8, errors):
+                register2_opcode = get_register_opcode(operand2)
+                opcode = 0b10000000 | (register1_opcode << 4) | (register2_opcode << 1)
+        elif validate_operand_register(operand1, errors):
+            register1_size = get_register_size(operand1)
+            register1_opcode = get_register_opcode(operand1)
+            if 8 == register1_size:
+                register2_opcode = None
+                if 'm' == operand2:
+                    register2_opcode = 0b110
+                elif is_valid_register(operand2):
+                    if validate_operand_register_size(operand2, register1_size, errors):
+                        register2_opcode = get_register_opcode(operand2)
+                elif is_valid_data_str(operand2):
+                    if errors is not None:
+                        errors.append({
+                            'name': 'INCOMPATIBLE_DATA_TYPE',
+                            'info': []
+                        })
+                elif validate_operand_data_size(operand2, register1_size, errors):
+                    register2_opcode = 0b111
+                    data_value = get_data_value(operand2)
+                    opcode_operands.append(data_value)
+
+                if register2_opcode is not None:
+                    opcode = 0b10000000 | (register1_opcode << 4) | (register2_opcode << 1)
+            elif 16 == register1_size:
+                register2_opcode = None
+                if is_valid_name(operand2):
+                    register2_opcode = 0b111
+                    opcode_operands.extend([0, 0])
+                    relocation_table.append({
+                        'machine_code_offset': 1,
+                        'symbol_table_index': symbol_table.get_index(operand2)
+                    })
+                elif is_valid_register(operand2):
+                    if validate_operand_register_size(operand2, register1_size, errors):
+                        register2_opcode = get_register_opcode(operand2)
+                elif is_valid_data_str(operand2):
+                    errors.append({
+                        'name': 'INCOMPATIBLE_DATA_TYPE',
+                        'info': []
+                    })
+                elif validate_operand_data_size(operand2, register1_size, errors):
+                    register2_opcode = 0b111
+                    data_value = get_data_value(operand2)
+                    opcode_operands.extend(endianness.word_to_le(data_value))
+
+                if register2_opcode is not None:
+                    opcode = (register1_opcode << 4) | (register2_opcode << 1)
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        machine_code.extend(opcode_operands)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': relocation_table
+        }
 
 
 def mnemonic_lda(operands, errors=None):
-    return 0
+    opcode = None
+    opcode_operands = bytearray()
+    relocation_table = []
+
+    if validate_operands_count(operands, 2, errors):
+        operand1 = operands[0].lower()
+        operand2 = operands[1].lower()
+        if validate_operand_register_size(operand1, 8, errors):
+            register_opcode = get_register_opcode(operand1)
+            opcode = 0b10001101 | (register_opcode << 4)
+            if validate_operand_addr_size(operand2, 16, errors):
+                addr_value = get_addr_value(operand2)
+                if addr_value is None:
+                    opcode_operands.extend([0, 0])
+                    relocation_table.append({
+                        'machine_code_offset': 1,
+                        'symbol_table_index': symbol_table.get_index(operand2)
+                    })
+                else:
+                    opcode_operands.extend(endianness.word_to_le(addr_value))
+            else:
+                opcode = None
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        machine_code.extend(opcode_operands)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': relocation_table
+        }
 
 
 def mnemonic_sta(operands, errors=None):
-    return 0
+    opcode = None
+    opcode_operands = bytearray()
+    relocation_table = []
+
+    if validate_operands_count(operands, 2, errors):
+        operand1 = operands[0].lower()
+        operand2 = operands[1].lower()
+        if validate_operand_addr_size(operand1, 16, errors):
+            addr_value = get_addr_value(operand1)
+            if addr_value is None:
+                opcode_operands.extend([0, 0])
+                relocation_table.append({
+                    'machine_code_offset': 1,
+                    'symbol_table_index': symbol_table.get_index(operand1)
+                })
+            else:
+                opcode_operands.extend(endianness.word_to_le(addr_value))
+            if validate_operand_register_size(operand2, 8, errors):
+                register_opcode = get_register_opcode(operand2)
+                opcode = 0b11100001 | (register_opcode << 1)
+            else:
+                opcode_operands.clear()
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        machine_code.extend(opcode_operands)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': relocation_table
+        }
 
 
 def mnemonics_push_pop(mnemonic, operands, errors=None):
-    return 0
+    opcode = None
+
+    if validate_operands_count(operands, 1, errors):
+        operand = operands[0].lower()
+        if validate_operand_register_size(operand, 8, errors):
+            register_opcode = get_register_opcode(operand)
+            opcode = (register_opcode << 4) | (register_opcode << 1)
+            if 'push' == mnemonic:
+                opcode = 0b10000000 | opcode
+            elif 'pop' == mnemonic:
+                opcode = 0b10000001 | opcode
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': []
+        }
 
 
 def mnemonics_add_sub_cmp(mnemonic, operands, errors=None):
-    return 0
+    opcode = None
+    opcode_operands = bytearray()
+
+    if validate_operands_count(operands, 1, errors):
+        operand = operands[0].lower()
+        if 'm' == operand:
+            opcode = 0b1100
+        elif is_valid_register(operand):
+            if validate_operand_register_size(operand, 8, errors):
+                register_opcode = get_register_opcode(operand)
+                opcode = (register_opcode << 1)
+        elif is_valid_data_str(operand):
+            if errors is not None:
+                errors.append({
+                    'name': 'INCOMPATIBLE_DATA_TYPE',
+                    'info': []
+                })
+        elif validate_operand_data_size(operand, 8, errors):
+            opcode = 0b1110
+            data_value = get_data_value(operand)
+            opcode_operands.append(data_value)
+
+        if opcode is not None:
+            if 'add' == mnemonic:
+                opcode = 0b01100000 | opcode
+            elif 'sub' == mnemonic:
+                opcode = 0b01100001 | opcode
+            elif 'cmp' == mnemonic:
+                opcode = 0b01110000 | opcode
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        machine_code.extend(opcode_operands)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': []
+        }
 
 
 def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=None):
-    return 0
+    opcode = None
+    opcode_operands = bytearray()
+    relocation_table = []
+
+    if validate_operands_count(operands, 1, errors):
+        operand = operands[0].lower()
+        if 'm' == operand:
+            opcode = 0b0
+        elif validate_operand_addr_size(operand, 16, errors):
+            opcode = 0b1
+            addr_value = get_addr_value(operand)
+            if addr_value is None:
+                opcode_operands.extend([0, 0])
+                relocation_table.append({
+                    'machine_code_offset': 1,
+                    'symbol_table_index': symbol_table.get_index(operand)
+                })
+            else:
+                opcode_operands.extend(endianness.word_to_le(addr_value))
+
+        if opcode is not None:
+            if 'jmp' == mnemonic:
+                opcode = 0b01110101 | (opcode << 1)
+            elif 'jc' == mnemonic:
+                opcode = 0b01111001 | (opcode << 1)
+            elif 'jnc' == mnemonic:
+                opcode = 0b01111101 | (opcode << 1)
+            elif 'jz' == mnemonic:
+                opcode = 0b10001111 | (opcode << 4)
+            elif 'jnz' == mnemonic:
+                opcode = 0b10101111 | (opcode << 4)
+            elif 'call' == mnemonic:
+                opcode = 0b11000001 | (opcode << 1)
+            elif 'cc' == mnemonic:
+                opcode = 0b11000101 | (opcode << 1)
+            elif 'cnc' == mnemonic:
+                opcode = 0b11001011 | (opcode << 2)
+            elif 'cz' == mnemonic:
+                opcode = 0b11010001 | (opcode << 1)
+            elif 'cnz' == mnemonic:
+                opcode = 0b11010101 | (opcode << 1)
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        machine_code.extend(opcode_operands)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': relocation_table
+        }
 
 
 def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands, errors=None):
-    return 0
+    opcode = None
+
+    if validate_operands_count(operands, 0, errors):
+        if 'ret' == mnemonic:
+            opcode = 0b00000101
+        elif 'rc' == mnemonic:
+            opcode = 0b00001111
+        elif 'rnc' == mnemonic:
+            opcode = 0b00010001
+        elif 'rz' == mnemonic:
+            opcode = 0b00010101
+        elif 'rnz' == mnemonic:
+            opcode = 0b00011111
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': []
+        }
 
 
 def mnemonics_db_dw(mnemonic, operands, errors=None):
-    return 0
+    opcode_operands = bytearray()
+
+    if operands:
+        if 'db' == mnemonic:
+            for operand in operands:
+                if validate_operand_data_size(operand, 8, errors):
+                    if is_valid_data_str(operand):
+                        data_values = get_data_value(operand)
+                        for data_value in data_values:
+                            opcode_operands.append(data_value)
+                    else:
+                        data_value = get_data_value(operand)
+                        opcode_operands.append(data_value)
+                else:
+                    opcode_operands.clear()
+                    break
+        elif 'dw' == mnemonic:
+            for operand in operands:
+                if validate_operand_data_size(operand, 16, errors):
+                    if is_valid_data_str(operand):
+                        data_values = get_data_value(operand)
+                        for data_value in data_values:
+                            opcode_operands.extend(endianness.word_to_le(data_value))
+                    else:
+                        data_value = get_data_value(operand)
+                        opcode_operands.extend(endianness.word_to_le(data_value))
+                else:
+                    opcode_operands.clear()
+                    break
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'NO_DATA',
+                'info': []
+            })
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.extend(opcode_operands)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': []
+        }
+
+
+def dump_assembly(assembly):
+    for byte in assembly['machine_code']:
+        print(hex(byte)[2:].upper().zfill(2), '', end='')
+    print('   ' * (3 - len(assembly['machine_code'])), '  ', end='')
+    print(current_asm_line_str.strip())
+    for relocation in assembly['relocation_table']:
+        print('   ' * relocation['machine_code_offset'], end='')
+        print(f"^ {relocation['symbol_table_index']}: {symbol_table.get_symbol_name(relocation['symbol_table_index'])}")
 
 
 def assemble_asm_line(line, errors=None):
@@ -553,8 +873,17 @@ def assemble_asm_file(file_name):
                         'info': []
                     })
                 else:
-                    symbol = symbols.add_symbol(current_symbol_name)
+                    assembly = assemble_asm_line(line, errors)
 
+                    if not errors:
+                        # dump_assembly(assembly)
+
+                        symbol = symbols.add_symbol(current_symbol_name)
+
+                        for relocation in assembly['relocation_table']:
+                            relocation['machine_code_offset'] += len(symbol['machine_code'])
+                        symbol['machine_code'].extend(assembly['machine_code'])
+                        symbol['relocation_table'].extend(assembly['relocation_table'])
 
         # end of file
 
