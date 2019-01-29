@@ -844,48 +844,48 @@ def assemble_asm_file(file_name):
                     })
                 elif 'end' == directive_lower:
                     break
+            else:
+                if not errors and line['symbol_name']:
+                    symbol_name = line['symbol_name']
 
-            if not errors and line['symbol_name']:
-                symbol_name = line['symbol_name']
+                    if not is_valid_name(symbol_name):
+                        errors.append({
+                            'name': 'INVALID_SYMBOL_NAME',
+                            'info': [symbol_name]
+                        })
+                    elif symbols.symbol_exists(symbol_name):
+                        errors.append({
+                            'name': 'DUPLICATE_SYMBOL',
+                            'info': [symbol_name]
+                        })
+                    elif not line['mnemonic']:
+                        errors.append({
+                            'name': 'SYMBOL_WITHOUT_INSTRUCTION',
+                            'info': []
+                        })
+                    else:
+                        current_symbol_name = symbol_name
 
-                if not is_valid_name(symbol_name):
-                    errors.append({
-                        'name': 'INVALID_SYMBOL_NAME',
-                        'info': [symbol_name]
-                    })
-                elif symbols.symbol_exists(symbol_name):
-                    errors.append({
-                        'name': 'DUPLICATE_SYMBOL',
-                        'info': [symbol_name]
-                    })
-                elif not line['mnemonic']:
-                    errors.append({
-                        'name': 'SYMBOL_WITHOUT_INSTRUCTION',
-                        'info': []
-                    })
-                else:
-                    current_symbol_name = symbol_name
+                        symbol_table.get_index(current_symbol_name)
 
-                    symbol_table.get_index(current_symbol_name)
+                if not errors and line['mnemonic']:
+                    if not current_symbol_name:
+                        errors.append({
+                            'name': 'INSTRUCTION_WITHOUT_SYMBOL',
+                            'info': []
+                        })
+                    else:
+                        assembly = assemble_asm_line(line, errors)
 
-            if not errors and line['mnemonic']:
-                if not current_symbol_name:
-                    errors.append({
-                        'name': 'INSTRUCTION_WITHOUT_SYMBOL',
-                        'info': []
-                    })
-                else:
-                    assembly = assemble_asm_line(line, errors)
+                        if not errors:
+                            # dump_assembly(assembly)
 
-                    if not errors:
-                        # dump_assembly(assembly)
+                            symbol = symbols.add_symbol(current_symbol_name)
 
-                        symbol = symbols.add_symbol(current_symbol_name)
-
-                        for relocation in assembly['relocation_table']:
-                            relocation['machine_code_offset'] += len(symbol['machine_code'])
-                        symbol['machine_code'].extend(assembly['machine_code'])
-                        symbol['relocation_table'].extend(assembly['relocation_table'])
+                            for relocation in assembly['relocation_table']:
+                                relocation['machine_code_offset'] += len(symbol['machine_code'])
+                            symbol['machine_code'].extend(assembly['machine_code'])
+                            symbol['relocation_table'].extend(assembly['relocation_table'])
 
             # end of line
 
