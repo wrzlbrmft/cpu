@@ -128,10 +128,7 @@ def get_data_value(data):
     elif is_valid_data_chr(data):
         return ord(data[1])
     elif is_valid_data_str(data):
-        values = []
-        for value in data[1:-1]:
-            values.append(ord(value))
-        return values
+        return tuple(map(ord, data[1:-1]))
     else:
         return None
 
