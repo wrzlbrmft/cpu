@@ -100,3 +100,35 @@ def read_obj_file_header(file, errors=None):
                 'info': []
             })
         return None
+
+
+def read_obj_file_symbol_table(file, errors=None):
+    symbol_table_size = fileutils.read_word_le(file)
+    if symbol_table_size is None:
+        if errors is not None:
+            errors.append({
+                'name': 'UNEXPECTED_EOF',
+                'info': []
+            })
+        return None
+    else:
+        _symbol_table = []
+        for i in range(0, symbol_table_size):
+            symbol_name = fileutils.read_str(file)
+            if symbol_name is None:
+                if errors is not None:
+                    errors.append({
+                        'name': 'CORRUPT_SYMBOL_TABLE',
+                        'info': []
+                    })
+                return None
+            elif symbol_table.symbol_exists(symbol_name, _symbol_table):
+                if errors is not None:
+                    errors.append({
+                        'name': 'DUPLICATE_SYMBOL',
+                        'info': [symbol_name]
+                    })
+                return None
+            else:
+                symbol_table.get_index(symbol_name, _symbol_table)
+        return _symbol_table
