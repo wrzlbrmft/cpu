@@ -62,3 +62,41 @@ def write_obj_file(file_name, _symbol_table=None, _symbols=None):
 
     with open(file_name, 'wb') as obj:
         obj.write(buffer)
+
+
+def read_obj_file_header(file, errors=None):
+    file_signature = fileutils.read_str(file, len(obj_file_signature))
+    if file_signature is None:
+        if errors is not None:
+            errors.append({
+                'name': 'UNEXPECTED_EOF',
+                'info': []
+            })
+        return None
+    elif file_signature == obj_file_signature:
+        obj_file_version = fileutils.read_byte(file)
+        if obj_file_version is None:
+            if errors is not None:
+                errors.append({
+                    'name': 'CORRUPT_HEADER',
+                    'info': []
+                })
+            return None
+        elif obj_file_version > max_obj_file_version:
+            if errors is not None:
+                errors.append({
+                    'name': 'INCOMPATIBLE_OBJ_FILE_VERSION',
+                    'info': []
+                })
+            return None
+        else:
+            return {
+                'obj_file_version': obj_file_version
+            }
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'NOT_OBJ_FILE',
+                'info': []
+            })
+        return None
