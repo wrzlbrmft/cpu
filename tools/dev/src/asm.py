@@ -848,14 +848,14 @@ def assemble_asm_file(file_name):
             if not errors and line['symbol_name']:
                 symbol_name = line['symbol_name']
 
-                if symbols.symbol_exists(symbol_name):
-                    errors.append({
-                        'name': 'DUPLICATE_SYMBOL',
-                        'info': [symbol_name]
-                    })
-                elif not is_valid_name(symbol_name):
+                if not is_valid_name(symbol_name):
                     errors.append({
                         'name': 'INVALID_SYMBOL_NAME',
+                        'info': [symbol_name]
+                    })
+                elif symbols.symbol_exists(symbol_name):
+                    errors.append({
+                        'name': 'DUPLICATE_SYMBOL',
                         'info': [symbol_name]
                     })
                 elif not line['mnemonic']:
