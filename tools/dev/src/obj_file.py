@@ -132,3 +132,58 @@ def read_obj_file_symbol_table(file, errors=None):
             else:
                 symbol_table.get_index(symbol_name, _symbol_table)
         return _symbol_table
+
+
+def read_obj_file_symbols(file, _symbol_table=None, errors=None):
+    _symbol_table = symbol_table.get_symbol_table(_symbol_table)
+    _symbols = {}
+
+    for symbol_name in _symbol_table:
+        machine_code_size = fileutils.read_word_le(file)
+        if machine_code_size is None:
+            if errors is not None:
+                errors.append({
+                    'name': 'UNEXPECTED_EOF',
+                    'info': []
+                })
+            return None
+        elif machine_code_size:
+            symbol = symbols.add_symbol(symbol_name, _symbols)
+
+            machine_code = file.read(machine_code_size)
+            if len(machine_code) == machine_code_size:
+                symbol['machine_code'].extend(machine_code)
+            else:
+                if errors is not None:
+                    errors.append({
+                        'name': 'CORRUPT_MACHINE_CODE',
+                        'info': []
+                    })
+                return None
+
+            relocation_table_size = fileutils.read_word_le(file)
+            if relocation_table_size is None:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED_EOF',
+                        'info': []
+                    })
+                return None
+            else:
+                for i in range(0, relocation_table_size):
+                    machine_code_offset = fileutils.read_word_le(file)
+                    symbol_table_index = fileutils.read_word_le(file)
+                    if machine_code_offset is None or symbol_table_index is None:
+                        if errors is not None:
+                            errors.append({
+                                'name': 'CORRUPT_RELOCATION_TABLE',
+                                'info': []
+                            })
+                        return None
+                    else:
+                        symbol['relocation_table'].append({
+                            'machine_code_offset': machine_code_offset,
+                            'symbol_table_index': symbol_table_index
+                        })
+
+    return _symbols
