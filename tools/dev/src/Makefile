@@ -16,7 +16,7 @@ asm:
 	cat $(TEMP_FILE).zip >> asm
 	chmod +x asm
 
-	rm -v $(TEMP_FILE)
+	rm -v $(TEMP_FILE).zip
 	rm -rv $(TEMP_DIR)
 
 link:
@@ -31,5 +31,5 @@ link:
 	cat $(TEMP_FILE).zip >> link
 	chmod +x link
 
-	rm -v $(TEMP_FILE)
+	rm -v $(TEMP_FILE).zip
 	rm -rv $(TEMP_DIR)
