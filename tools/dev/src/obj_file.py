@@ -11,6 +11,7 @@ def build_obj_file_header():
     buffer = bytearray()
     buffer.extend(map(ord, obj_file_signature))
     buffer.append(max_obj_file_version)
+
     return buffer
 
 
@@ -23,6 +24,7 @@ def build_obj_file_symbol_table(_symbol_table=None):
     for symbol_name in _symbol_table:
         buffer.append(len(symbol_name))
         buffer.extend(map(ord, symbol_name))
+
     return buffer
 
 
@@ -45,6 +47,7 @@ def build_obj_file_symbols(_symbol_table=None, _symbols=None):
                 buffer.extend(endianness.word_to_le(relocation['symbol_table_index']))
         else:
             buffer.extend([0, 0])
+
     return buffer
 
 
@@ -131,13 +134,14 @@ def read_obj_file_symbol_table(file, errors=None):
                 return None
             else:
                 symbol_table.get_index(symbol_name, _symbol_table)
+
         return _symbol_table
 
 
 def read_obj_file_symbols(file, _symbol_table=None, errors=None):
     _symbol_table = symbol_table.get_symbol_table(_symbol_table)
-    _symbols = {}
 
+    _symbols = {}
     for symbol_name in _symbol_table:
         machine_code_size = fileutils.read_word_le(file)
         if machine_code_size is None:
