@@ -22,7 +22,7 @@ asm:
 link:
 	$(eval TEMP_DIR := $(shell mktemp -d))
 	cp -v link.py $(TEMP_DIR)/__main__.py
-	cp -v endianness.py fileutils.py obj_file.py symbol_table.py symbols.py $(TEMP_DIR)
+	cp -v cpu_file.py endianness.py fileutils.py i18n.py obj_file.py symbol_table.py symbols.py $(TEMP_DIR)
 
 	$(eval TEMP_FILE := $(shell mktemp))
 	zip -rj $(TEMP_FILE).zip $(TEMP_DIR)

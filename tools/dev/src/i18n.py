@@ -1,4 +1,5 @@
 error_messages = {
+    'NO_ASM_FILE': 'no asm file',
     'UNEXPECTED': "unexpected '{}'",
     'INVALID_DIRECTIVE': "invalid directive '{}'",
     'INVALID_SYMBOL_NAME': "invalid symbol name '{}'",
@@ -21,5 +22,8 @@ error_messages = {
     'NOT_OBJ_FILE': 'not an object file',
     'CORRUPT_SYMBOL_TABLE': 'corrupt symbol table',
     'CORRUPT_MACHINE_CODE': 'corrupt machine code',
-    'CORRUPT_RELOCATION_TABLE': 'corrupt relocation table'
+    'CORRUPT_RELOCATION_TABLE': 'corrupt relocation table',
+
+    'NO_OBJ_FILES': 'no object file(s)',
+    'DUPLICATE_OBJ_FILE': "duplicate object file '{}'"
 }

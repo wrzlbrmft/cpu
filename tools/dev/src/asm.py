@@ -941,13 +941,17 @@ def assemble_asm_file(file_name):
 
 def main():
     if len(sys.argv) < 2:
-        pass
+        show_error({
+            'name': 'NO_ASM_FILE',
+            'info': []
+        })
     else:
         asm_file_name = sys.argv[1]
         assemble_asm_file(asm_file_name)
 
-        obj_file_name = os.path.splitext(os.path.basename(asm_file_name))[0] + '.obj'
-        obj_file.write_obj_file(obj_file_name)
+        if not total_errors_count:
+            obj_file_name = os.path.splitext(os.path.basename(asm_file_name))[0] + '.obj'
+            obj_file.write_obj_file(obj_file_name)
 
 
 if '__main__' == __name__:

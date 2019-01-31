@@ -48,19 +48,30 @@ def show_error(error, obj_file_name=None):
 
 
 def read_obj_files(file_names):
+    global current_obj_file_name
+
     for file_name in file_names:
+        current_obj_file_name = file_name
+
         if obj_file_exists(file_name):
-            pass
+            show_error({
+                'name': 'DUPLICATE_OBJ_FILE',
+                'info': [current_obj_file_name]
+            }, '')
+            return
         else:
             errors = []
 
-            header, _symbol_table, _symbols = obj_file.read_obj_file(file_name, errors)
+            header, _symbol_table, _symbols = obj_file.read_obj_file(current_obj_file_name, errors)
 
             if not errors:
-                _obj_file = add_obj_file(file_name)
+                _obj_file = add_obj_file(current_obj_file_name)
 
                 _obj_file['symbol_table'] = _symbol_table
                 _obj_file['symbols'] = _symbols
+
+            if errors:
+                show_error(errors[0])
 
 
 # main
@@ -68,10 +79,16 @@ def read_obj_files(file_names):
 
 def main():
     if len(sys.argv) < 2:
-        pass
+        show_error({
+            'name': 'NO_OBJ_FILES',
+            'info': []
+        })
     else:
         obj_file_names = sys.argv[1:]
         read_obj_files(obj_file_names)
+
+        if not total_errors_count:
+            pass
 
 
 if '__main__' == __name__:
