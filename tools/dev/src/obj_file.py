@@ -81,7 +81,7 @@ def read_obj_file_header(file, errors=None):
         if obj_file_version is None:
             if errors is not None:
                 errors.append({
-                    'name': 'CORRUPT_HEADER',
+                    'name': 'CORRUPT_FILE_HEADER',
                     'info': []
                 })
             return None
