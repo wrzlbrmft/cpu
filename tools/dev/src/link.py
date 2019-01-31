@@ -100,13 +100,13 @@ def link_symbol(symbol_name):
             show_error({
                 'name': 'UNKNOWN_SYMBOL',
                 'info': [symbol_name]
-            }, '')
+            })
             return
         elif len(obj_file_names) > 1:
             show_error({
                 'name': 'DUPLICATE_SYMBOL',
                 'info': [symbol_name]
-            }, '')
+            })
             return
         else:
             _obj_file = get_obj_file(obj_file_names[0])
@@ -129,6 +129,10 @@ def link_symbol(symbol_name):
 
 
 def link_obj_file(file_name):
+    global current_obj_file_name
+
+    current_obj_file_name = file_name
+
     _obj_file = get_obj_file(file_name)
     for symbol_name in _obj_file['symbols'].keys():
         link_symbol(symbol_name)
@@ -143,6 +147,8 @@ def link_obj_files(file_names):
 
 
 def main():
+    global current_obj_file_name
+
     if len(sys.argv) < 2:
         show_error({
             'name': 'NO_OBJ_FILES',
@@ -160,6 +166,8 @@ def main():
                     'info': ['main']
                 }, '')
             elif 1 == len(main_obj_file_names):
+                current_obj_file_name = ''
+
                 link_symbol('main')
                 link_obj_file(main_obj_file_names[0])
                 del obj_files[main_obj_file_names[0]]
