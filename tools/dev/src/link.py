@@ -2,6 +2,7 @@ import sys
 
 import i18n
 import obj_file
+import symbols
 
 total_errors_count = 0
 
@@ -29,6 +30,16 @@ def add_obj_file(file_name):
         }
 
     return get_obj_file(file_name)
+
+
+def get_symbol_obj_file_names(symbol_name):
+    file_names = []
+    for file_name in obj_files.keys():
+        _obj_file = get_obj_file(file_name)
+        if symbols.symbol_exists(symbol_name, _obj_file['symbols']):
+            file_names.append(file_name)
+
+    return file_names
 
 
 def show_error(error, obj_file_name=None):
@@ -88,7 +99,16 @@ def main():
         read_obj_files(obj_file_names)
 
         if not total_errors_count:
-            pass
+            main_obj_file_names = get_symbol_obj_file_names('main')
+            if len(main_obj_file_names) > 1:
+                show_error({
+                    'name': 'DUPLICATE_SYMBOL',
+                    'info': ['main']
+                })
+            elif 1 == len(main_obj_file_names):
+                pass
+            else:
+                pass
 
 
 if '__main__' == __name__:
