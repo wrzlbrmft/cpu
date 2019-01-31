@@ -874,10 +874,11 @@ def assemble_asm_file(file_name):
                 directive_lower = directive.lower()
 
                 if not is_valid_directive(directive_lower):
-                    errors.append({
+                    show_error({
                         'name': 'INVALID_DIRECTIVE',
                         'info': [',']
                     })
+                    return
                 elif 'end' == directive_lower:
                     break
             else:
@@ -885,20 +886,23 @@ def assemble_asm_file(file_name):
                     symbol_name = line['symbol_name']
 
                     if not is_valid_name(symbol_name):
-                        errors.append({
+                        show_error({
                             'name': 'INVALID_SYMBOL_NAME',
                             'info': [symbol_name]
-                        })
+                        }, '')
+                        return
                     elif symbols.symbol_exists(symbol_name):
-                        errors.append({
+                        show_error({
                             'name': 'DUPLICATE_SYMBOL',
                             'info': [symbol_name]
-                        })
+                        }, '')
+                        return
                     elif not line['mnemonic']:
-                        errors.append({
+                        show_error({
                             'name': 'SYMBOL_WITHOUT_INSTRUCTION',
                             'info': []
                         })
+                        return
                     else:
                         current_symbol_name = symbol_name
 
@@ -906,10 +910,11 @@ def assemble_asm_file(file_name):
 
                 if not errors and line['mnemonic']:
                     if not current_symbol_name:
-                        errors.append({
+                        show_error({
                             'name': 'INSTRUCTION_WITHOUT_SYMBOL',
                             'info': []
                         })
+                        return
                     else:
                         assembly = assemble_asm_line(line, errors)
 
