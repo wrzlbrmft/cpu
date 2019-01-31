@@ -1,6 +1,11 @@
 import sys
 
+import i18n
 import obj_file
+
+total_errors_count = 0
+
+current_obj_file_name = None
 
 obj_files = {}
 
@@ -24,6 +29,22 @@ def add_obj_file(file_name):
         }
 
     return get_obj_file(file_name)
+
+
+def show_error(error, obj_file_name=None):
+    global total_errors_count
+
+    if obj_file_name is None:
+        obj_file_name = current_obj_file_name
+
+    total_errors_count += 1
+
+    if obj_file_name:
+        print(f'{obj_file_name}: ', end='')
+
+    print('error:', i18n.error_messages[error['name']].format(*error['info']))
+
+    print()
 
 
 def read_obj_files(file_names):
