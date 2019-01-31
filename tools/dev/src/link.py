@@ -78,6 +78,7 @@ def read_obj_files(file_names):
             if not errors:
                 _obj_file = add_obj_file(current_obj_file_name)
 
+                _obj_file['header'] = header
                 _obj_file['symbol_table'] = _symbol_table
                 _obj_file['symbols'] = _symbols
 
