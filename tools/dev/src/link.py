@@ -1,5 +1,7 @@
 import sys
 
+import obj_file
+
 obj_files = {}
 
 
@@ -26,7 +28,18 @@ def add_obj_file(file_name):
 
 def read_obj_files(file_names):
     for file_name in file_names:
-        pass
+        if obj_file_exists(file_name):
+            pass
+        else:
+            errors = []
+
+            header, _symbol_table, _symbols = obj_file.read_obj_file(file_name, errors)
+
+            if not errors:
+                _obj_file = add_obj_file(file_name)
+
+                _obj_file['symbol_table'] = _symbol_table
+                _obj_file['symbols'] = _symbols
 
 
 # main
