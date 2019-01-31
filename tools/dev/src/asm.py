@@ -1,4 +1,5 @@
 import endianness
+import i18n
 import obj_file
 import symbol_table
 import symbols
@@ -7,6 +8,8 @@ import os
 import re
 import shlex
 import sys
+
+total_errors_count = 0
 
 current_asm_file_name = None
 current_asm_line_num = 0
@@ -705,6 +708,42 @@ def assemble_asm_line(line, errors=None):
         return assembly
 
 
+def show_error(error, symbol_name=None, asm_line_str=None, asm_line_num=None, asm_file_name=None):
+    global total_errors_count
+
+    if symbol_name is None:
+        symbol_name = current_symbol_name
+
+    if asm_line_str is None:
+        asm_line_str = current_asm_line_str
+
+    if asm_line_num is None:
+        asm_line_num = current_asm_line_num
+
+    if asm_file_name is None:
+        asm_file_name = current_asm_file_name
+
+    total_errors_count += 1
+
+    if symbol_name:
+        if asm_file_name:
+            print(f'{asm_file_name}: ', end='')
+        print(f"in symbol '{symbol_name}':")
+
+    if asm_file_name:
+        print(f'{asm_file_name}:', end='')
+        if asm_line_num:
+            print(f'{asm_line_num}:', end='')
+        print(' ', end='')
+
+    print('error:', i18n.error_messages[error['name']].format(*error['info']))
+
+    if asm_line_str:
+        print('', asm_line_str.strip())
+
+    print()
+
+
 def parse_asm_line_str(line_str, errors=None):
     directive = None
     symbol_name = None
@@ -887,7 +926,7 @@ def assemble_asm_file(file_name):
             # end of line
 
             if errors:
-                print(errors[0])
+                show_error(errors[0])
 
         # end of file
 
@@ -895,7 +934,7 @@ def assemble_asm_file(file_name):
 # main
 
 
-if '__main__' == __name__:
+def main():
     if len(sys.argv) < 2:
         pass
     else:
@@ -904,3 +943,7 @@ if '__main__' == __name__:
 
         obj_file_name = os.path.splitext(os.path.basename(asm_file_name))[0] + '.obj'
         obj_file.write_obj_file(obj_file_name)
+
+
+if '__main__' == __name__:
+    main()

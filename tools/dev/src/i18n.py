@@ -1,4 +1,4 @@
-messages = {
+error_messages = {
     'UNEXPECTED': "unexpected '{}'",
     'INVALID_DIRECTIVE': "invalid directive '{}'",
     'INVALID_SYMBOL_NAME': "invalid symbol name '{}'",
