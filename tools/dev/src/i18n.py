@@ -16,6 +16,9 @@ error_messages = {
     'INCOMPATIBLE_ADDR_SIZE': 'incompatible address size (given: {}-bit, max: {}-bit)',
     'INCOMPATIBLE_DATA_TYPE': 'incompatible data type',
     'NO_DATA': 'no data',
+
+    'NO_OBJ_FILES': 'no object file(s)',
+    'DUPLICATE_OBJ_FILE': "duplicate object file '{}'",
     'UNEXPECTED_EOF': 'unexpected end of file',
     'CORRUPT_FILE_HEADER': 'corrupt file header',
     'INCOMPATIBLE_OBJ_FILE_VERSION': 'incompatible object file version (given: {}, max: {})',
@@ -23,7 +26,5 @@ error_messages = {
     'CORRUPT_SYMBOL_TABLE': 'corrupt symbol table',
     'CORRUPT_MACHINE_CODE': 'corrupt machine code',
     'CORRUPT_RELOCATION_TABLE': 'corrupt relocation table',
-
-    'NO_OBJ_FILES': 'no object file(s)',
-    'DUPLICATE_OBJ_FILE': "duplicate object file '{}'"
+    'UNKNOWN_SYMBOL': "unknown symbol '{}'"
 }

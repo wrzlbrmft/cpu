@@ -1,7 +1,10 @@
+import os
 import sys
 
+import cpu_file
 import i18n
 import obj_file
+import symbol_table
 import symbols
 
 total_errors_count = 0
@@ -9,6 +12,8 @@ total_errors_count = 0
 current_obj_file_name = None
 
 obj_files = {}
+
+link_offset = 0
 
 
 def obj_file_exists(file_name):
@@ -86,6 +91,54 @@ def read_obj_files(file_names):
                 show_error(errors[0])
 
 
+def link_symbol(symbol_name):
+    global link_offset
+
+    if not symbols.symbol_exists(symbol_name):
+        obj_file_names = get_symbol_obj_file_names(symbol_name)
+        if not obj_file_names:
+            show_error({
+                'name': 'UNKNOWN_SYMBOL',
+                'info': [symbol_name]
+            }, '')
+            return
+        elif len(obj_file_names) > 1:
+            show_error({
+                'name': 'DUPLICATE_SYMBOL',
+                'info': [symbol_name]
+            }, '')
+            return
+        else:
+            _obj_file = get_obj_file(obj_file_names[0])
+            obj_file_symbol = symbols.get_symbol(symbol_name, _obj_file['symbols'])
+
+            symbol_table.get_index(symbol_name)
+            symbol = symbols.add_symbol(symbol_name)
+
+            symbol['machine_code'] = obj_file_symbol['machine_code']
+            for relocation in obj_file_symbol['relocation_table']:
+                relocation_symbol_name = symbol_table.get_symbol_name(relocation['symbol_table_index'],
+                                                                      _obj_file['symbol_table'])
+                symbol['relocation_table'].append({
+                    'machine_code_offset': relocation['machine_code_offset'],
+                    'symbol_table_index': symbol_table.get_index(relocation_symbol_name)
+                })
+
+            symbol['machine_code_base'] = link_offset
+            link_offset += len(symbol['machine_code'])
+
+
+def link_obj_file(file_name):
+    _obj_file = get_obj_file(file_name)
+    for symbol_name in _obj_file['symbols'].keys():
+        link_symbol(symbol_name)
+
+
+def link_obj_files(file_names):
+    for file_name in file_names:
+        link_obj_file(file_name)
+
+
 # main
 
 
@@ -105,11 +158,25 @@ def main():
                 show_error({
                     'name': 'DUPLICATE_SYMBOL',
                     'info': ['main']
-                })
+                }, '')
             elif 1 == len(main_obj_file_names):
-                pass
+                link_symbol('main')
+                link_obj_file(main_obj_file_names[0])
+                del obj_files[main_obj_file_names[0]]
+                link_obj_files(obj_files.keys())
+
+                errors = []
+
+                cpu_file_name = os.path.splitext(os.path.basename(main_obj_file_names[0]))[0] + '.cpu'
+                cpu_file.write_cpu_file(cpu_file_name, errors, 0)  # link_base=0
+
+                if errors:
+                    show_error(errors[0], '')
             else:
-                pass
+                link_obj_files(obj_files.keys())
+
+                obj_file_name = 'output.obj'
+                obj_file.write_obj_file(obj_file_name)
 
 
 if '__main__' == __name__:
