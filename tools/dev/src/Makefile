@@ -10,13 +10,13 @@ asm:
 	cp -v endianness.py fileutils.py i18n.py obj_file.py symbol_table.py symbols.py $(TEMP_DIR)
 
 	$(eval TEMP_FILE := $(shell mktemp))
-	zip -rj9 $(TEMP_FILE).zip $(TEMP_DIR)
+	zip -rj9X - $(TEMP_DIR) > $(TEMP_FILE)
 
 	echo '#!/usr/bin/env python' > asm
-	cat $(TEMP_FILE).zip >> asm
+	cat $(TEMP_FILE) >> asm
 	chmod +x asm
 
-	rm -v $(TEMP_FILE).zip
+	rm -v $(TEMP_FILE)
 	rm -rv $(TEMP_DIR)
 
 link:
@@ -25,11 +25,11 @@ link:
 	cp -v cpu_file.py endianness.py fileutils.py i18n.py obj_file.py symbol_table.py symbols.py $(TEMP_DIR)
 
 	$(eval TEMP_FILE := $(shell mktemp))
-	zip -rj9 $(TEMP_FILE).zip $(TEMP_DIR)
+	zip -rj9X - $(TEMP_DIR) > $(TEMP_FILE)
 
 	echo '#!/usr/bin/env python' > link
-	cat $(TEMP_FILE).zip >> link
+	cat $(TEMP_FILE) >> link
 	chmod +x link
 
-	rm -v $(TEMP_FILE).zip
+	rm -v $(TEMP_FILE)
 	rm -rv $(TEMP_DIR)
