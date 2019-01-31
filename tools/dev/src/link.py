@@ -24,6 +24,11 @@ def add_obj_file(file_name):
     return get_obj_file(file_name)
 
 
+def read_obj_files(file_names):
+    for file_name in file_names:
+        pass
+
+
 # main
 
 
@@ -32,3 +37,4 @@ if '__main__' == __name__:
         pass
     else:
         obj_file_names = sys.argv[1:]
+        read_obj_files(obj_file_names)
