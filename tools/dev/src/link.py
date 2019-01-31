@@ -45,9 +45,13 @@ def read_obj_files(file_names):
 # main
 
 
-if '__main__' == __name__:
+def main():
     if len(sys.argv) < 2:
         pass
     else:
         obj_file_names = sys.argv[1:]
         read_obj_files(obj_file_names)
+
+
+if '__main__' == __name__:
+    main()
