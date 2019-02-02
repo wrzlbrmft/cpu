@@ -1,5 +1,6 @@
 error_messages = {
     'NO_ASM_FILE': 'no asm file',
+    'FILE_NOT_FOUND': "file not found '{}'",
     'UNEXPECTED': "unexpected '{}'",
     'INVALID_DIRECTIVE': "invalid directive '{}'",
     'INVALID_SYMBOL_NAME': "invalid symbol name '{}'",

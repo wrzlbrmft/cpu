@@ -1,3 +1,5 @@
+import os
+
 import endianness
 import fileutils
 import symbol_table
@@ -194,15 +196,23 @@ def read_obj_file_symbols(file, _symbol_table=None, errors=None):
 
 
 def read_obj_file(file_name, errors=None):
-    with open(file_name, 'rb') as obj:
-        header = read_obj_file_header(obj, errors)
-        _symbol_table = None
-        _symbols = None
+    if os.path.isfile(file_name):
+        with open(file_name, 'rb') as obj:
+            header = read_obj_file_header(obj, errors)
+            _symbol_table = None
+            _symbols = None
 
-        if not errors:
-            _symbol_table = read_obj_file_symbol_table(obj, errors)
+            if not errors:
+                _symbol_table = read_obj_file_symbol_table(obj, errors)
 
-        if not errors:
-            _symbols = read_obj_file_symbols(obj, _symbol_table, errors)
+            if not errors:
+                _symbols = read_obj_file_symbols(obj, _symbol_table, errors)
 
-        return header, _symbol_table, _symbols
+            return header, _symbol_table, _symbols
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'FILE_NOT_FOUND',
+                'info': [file_name]
+            })
+        return None, None, None

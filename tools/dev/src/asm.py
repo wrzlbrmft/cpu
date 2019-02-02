@@ -855,85 +855,91 @@ def parse_asm_line_str(line_str, errors=None):
 def assemble_asm_file(file_name):
     global current_asm_file_name, current_asm_line_num, current_asm_line_str, current_symbol_name
 
-    with open(file_name, 'r') as asm:
-        current_asm_file_name = file_name
-        line_num = 0
-        current_asm_line_num = line_num
-
-        for line_str in asm.readlines():
-            current_asm_line_str = line_str
-            line_num += 1
+    if os.path.isfile(file_name):
+        with open(file_name, 'r') as asm:
+            current_asm_file_name = file_name
+            line_num = 0
             current_asm_line_num = line_num
 
-            errors = []
+            for line_str in asm.readlines():
+                current_asm_line_str = line_str
+                line_num += 1
+                current_asm_line_num = line_num
 
-            line = parse_asm_line_str(current_asm_line_str, errors)
+                errors = []
 
-            if not errors and line['directive']:
-                directive = line['directive']
-                directive_lower = directive.lower()
+                line = parse_asm_line_str(current_asm_line_str, errors)
 
-                if not is_valid_directive(directive_lower):
-                    show_error({
-                        'name': 'INVALID_DIRECTIVE',
-                        'info': [',']
-                    })
-                    return
-                elif 'end' == directive_lower:
-                    break
-            else:
-                if not errors and line['symbol_name']:
-                    symbol_name = line['symbol_name']
+                if not errors and line['directive']:
+                    directive = line['directive']
+                    directive_lower = directive.lower()
 
-                    if not is_valid_name(symbol_name):
+                    if not is_valid_directive(directive_lower):
                         show_error({
-                            'name': 'INVALID_SYMBOL_NAME',
-                            'info': [symbol_name]
-                        }, '')
-                        return
-                    elif symbols.symbol_exists(symbol_name):
-                        show_error({
-                            'name': 'DUPLICATE_SYMBOL',
-                            'info': [symbol_name]
-                        }, '')
-                        return
-                    elif not line['mnemonic']:
-                        show_error({
-                            'name': 'SYMBOL_WITHOUT_INSTRUCTION',
-                            'info': []
+                            'name': 'INVALID_DIRECTIVE',
+                            'info': [',']
                         })
                         return
-                    else:
-                        current_symbol_name = symbol_name
+                    elif 'end' == directive_lower:
+                        break
+                else:
+                    if not errors and line['symbol_name']:
+                        symbol_name = line['symbol_name']
 
-                        symbol_table.get_index(current_symbol_name)
+                        if not is_valid_name(symbol_name):
+                            show_error({
+                                'name': 'INVALID_SYMBOL_NAME',
+                                'info': [symbol_name]
+                            }, '')
+                            return
+                        elif symbols.symbol_exists(symbol_name):
+                            show_error({
+                                'name': 'DUPLICATE_SYMBOL',
+                                'info': [symbol_name]
+                            }, '')
+                            return
+                        elif not line['mnemonic']:
+                            show_error({
+                                'name': 'SYMBOL_WITHOUT_INSTRUCTION',
+                                'info': []
+                            })
+                            return
+                        else:
+                            current_symbol_name = symbol_name
 
-                if not errors and line['mnemonic']:
-                    if not current_symbol_name:
-                        show_error({
-                            'name': 'INSTRUCTION_WITHOUT_SYMBOL',
-                            'info': []
-                        })
-                        return
-                    else:
-                        assembly = assemble_asm_line(line, errors)
+                            symbol_table.get_index(current_symbol_name)
 
-                        if not errors:
-                            # dump_assembly(assembly)
+                    if not errors and line['mnemonic']:
+                        if not current_symbol_name:
+                            show_error({
+                                'name': 'INSTRUCTION_WITHOUT_SYMBOL',
+                                'info': []
+                            })
+                            return
+                        else:
+                            assembly = assemble_asm_line(line, errors)
 
-                            symbol = symbols.add_symbol(current_symbol_name)
+                            if not errors:
+                                # dump_assembly(assembly)
 
-                            for relocation in assembly['relocation_table']:
-                                relocation['machine_code_offset'] += len(symbol['machine_code'])
-                            symbol['machine_code'].extend(assembly['machine_code'])
-                            symbol['relocation_table'].extend(assembly['relocation_table'])
+                                symbol = symbols.add_symbol(current_symbol_name)
 
-            # end of line
+                                for relocation in assembly['relocation_table']:
+                                    relocation['machine_code_offset'] += len(symbol['machine_code'])
+                                symbol['machine_code'].extend(assembly['machine_code'])
+                                symbol['relocation_table'].extend(assembly['relocation_table'])
 
-            if errors:
-                show_error(errors[0])
+                # end of line
 
-        # end of file
+                if errors:
+                    show_error(errors[0])
+
+            # end of file
+    else:
+        show_error({
+            'name': 'FILE_NOT_FOUND',
+            'info': [file_name]
+        })
 
 
 # main
