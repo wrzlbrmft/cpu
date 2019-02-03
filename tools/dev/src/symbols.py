@@ -1,6 +1,7 @@
 # symbols are a map keyed by the symbol name, each symbol is a map containing the machine code and the relocation table
 # a relocation table is an array of relocations, each relocation is a map containing the machine code offset and the
 # index of the symbol name in the corresponding symbol table
+
 _symbols = {}
 
 
