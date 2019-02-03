@@ -486,7 +486,7 @@ def mnemonics_push_pop(mnemonic, operands, errors=None):
     if validate_operands_count(operands, 1, errors):
         operand = operands[0].lower()
         if validate_operand_register_size(operand, 8, errors):
-            # push or pop are supported for any 8-bit register
+            # push or pop are supported with any 8-bit register
             register_opcode = get_register_opcode(operand)
             opcode = (register_opcode << 4) | (register_opcode << 1)
             if 'push' == mnemonic:
@@ -573,7 +573,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
             else:
                 opcode_operands.extend(endianness.word_to_le(addr_value))
 
-        # optimize usage of opcodes and set the appropriate bit for M vs. address/symbol name
+        # optimized usage of opcodes ...and set the appropriate bit for M vs. address/symbol name
         if opcode is not None:
             if 'jmp' == mnemonic:
                 opcode = 0b01110101 | (opcode << 1)
@@ -638,7 +638,7 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
     opcode_operands = bytearray()
 
     if operands:
-        # define byte/word one or more using operands
+        # define bytes/words using one or more operands
         if 'db' == mnemonic:
             # bytes support max. 8-bit data, a single character or a string
             for operand in operands:
@@ -773,8 +773,8 @@ def parse_asm_line_str(line_str, errors=None):
     symbol_name = None
     mnemonic = None
     operands = []
-    operand = ''
-    operand_expected = False
+    operand = ''              # the current operand
+    operand_expected = False  # whether another operand is expected (after a comma)
 
     parser = shlex.shlex(line_str)
     parser.commenters = ';'
@@ -819,7 +819,7 @@ def parse_asm_line_str(line_str, errors=None):
 
         elif ',' == token:
             if operand:
-                # comma finishes the current operand and expects another one
+                # finish the current operand and expect another one
                 operands.append(operand[1:])
                 operand = ''
                 operand_expected = True
@@ -908,8 +908,7 @@ def assemble_asm_file(file_name):
                         })
                         return
                     elif 'end' == directive_lower:
-                        # the .end directive exists the line-by-line loop of the current file (ignoring the rest of the
-                        # current file)
+                        # the .end directive simply exists the line-by-line loop (skipping the rest of the file)
                         break
                 else:
                     if not errors and line['symbol_name']:
@@ -954,8 +953,8 @@ def assemble_asm_file(file_name):
 
                                 symbol = symbols.add_symbol(current_symbol_name)
 
-                                # add the relocation table of the single instruction to the relocation table of the
-                                # symbol and adjust the machine code offsets
+                                # add the relocation table of the current instruction to the relocation table of the
+                                # current symbol and adjust the machine code offsets
                                 for relocation in assembly['relocation_table']:
                                     relocation['machine_code_offset'] += len(symbol['machine_code'])
                                 symbol['machine_code'].extend(assembly['machine_code'])
