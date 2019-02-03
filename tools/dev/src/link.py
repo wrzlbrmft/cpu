@@ -11,14 +11,14 @@ total_errors_count = 0
 
 current_obj_file_name = None
 
-# object files are a map keyed by the object file name, each object file containing a symbol table and symbols
+# object files are a map keyed by the object file name, each object file containing the symbol table and the symbols
 obj_files = {}
 
-# the memory address to which a program is loaded before it is executed by the cpu
-# this value will be added when calculating the absolute address of a relocated symbol
+# this is the memory address to which a program is loaded before it is executed by the cpu
+# the value will be used when determining the absolute memory address of a relocated symbol
 link_base = 0
 
-# keeps track of the byte count when linking symbols by adding up the sizes of their machine code
+# this keeps track of the total byte count when linking symbols by adding up the sizes of their machine code
 # used for relocation when writing a cpu file
 link_offset = 0
 
@@ -116,7 +116,7 @@ def link_symbol(symbol_name):
             })
             return
         else:
-            # copy symbol from object file symbols to global symbols
+            # copy the symbol from the object file symbols to the global symbols
             _obj_file = get_obj_file(obj_file_names[0])
             obj_file_symbol = symbols.get_symbol(symbol_name, _obj_file['symbols'])
 
@@ -125,7 +125,7 @@ def link_symbol(symbol_name):
 
             symbol['machine_code'] = obj_file_symbol['machine_code']
             for relocation in obj_file_symbol['relocation_table']:
-                # adjust symbol table index from object file symbol table to global symbol table
+                # adjust the array index of the symbol name from the object file symbol table to the global symbol table
                 relocation_symbol_name = symbol_table.get_symbol_name(relocation['symbol_table_index'],
                                                                       _obj_file['symbol_table'])
                 symbol['relocation_table'].append({
@@ -133,7 +133,7 @@ def link_symbol(symbol_name):
                     'symbol_table_index': symbol_table.get_index(relocation_symbol_name)
                 })
 
-            # set of the machine code base (derived from the link offset)
+            # set the machine code base of the linked symbol to the current link offset
             # used for relocation when writing a cpu file
             symbol['machine_code_base'] = link_offset
             link_offset += len(symbol['machine_code'])
