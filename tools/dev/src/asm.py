@@ -819,6 +819,7 @@ def parse_asm_line_str(line_str, errors=None):
 
         elif ',' == token:
             if operand:
+                # comma finishes the current operand and expects another one
                 operands.append(operand[1:])
                 operand = ''
                 operand_expected = True
@@ -846,6 +847,7 @@ def parse_asm_line_str(line_str, errors=None):
                     })
                 break
             elif directive or mnemonic:
+                # everything after a directive or mnemonic is an operand
                 operand += ' ' + token
                 operand_expected = False
             else:
@@ -855,6 +857,7 @@ def parse_asm_line_str(line_str, errors=None):
 
     if not errors:
         if operand:
+            # finish the last operand
             operands.append(operand[1:])
             # operand = ''
             # operand_expected = False
@@ -905,6 +908,8 @@ def assemble_asm_file(file_name):
                         })
                         return
                     elif 'end' == directive_lower:
+                        # the .end directive exists the line-by-line loop of the current file (ignoring the rest of the
+                        # current file)
                         break
                 else:
                     if not errors and line['symbol_name']:
@@ -931,6 +936,7 @@ def assemble_asm_file(file_name):
                         else:
                             current_symbol_name = symbol_name
 
+                            # implicitly adds the symbol to the symbol table
                             symbol_table.get_index(current_symbol_name)
 
                     if not errors and line['mnemonic']:
@@ -948,6 +954,8 @@ def assemble_asm_file(file_name):
 
                                 symbol = symbols.add_symbol(current_symbol_name)
 
+                                # add the relocation table of the single instruction to the relocation table of the
+                                # symbol and adjust the machine code offsets
                                 for relocation in assembly['relocation_table']:
                                     relocation['machine_code_offset'] += len(symbol['machine_code'])
                                 symbol['machine_code'].extend(assembly['machine_code'])
