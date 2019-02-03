@@ -14,6 +14,10 @@ current_obj_file_name = None
 # object files are a map keyed by the object file name, each object file containing a symbol table and symbols
 obj_files = {}
 
+# the memory address to which a program is loaded before it is executed by the cpu
+# this value will be added when calculating the absolute address of a relocated symbol
+link_base = 0
+
 # keeps track of the byte count when linking symbols by adding up the sizes of their machine code
 # used for relocation when writing a cpu file
 link_offset = 0
@@ -174,13 +178,13 @@ def main():
                     'info': ['main']
                 }, '')
             elif 1 == len(main_obj_file_names):
-                # if there is one 'main' symbol, then create a cpu file
+                # if there is one 'main' symbol, then create a cpu file (executable)
                 current_obj_file_name = ''
 
                 # link order:
-                # 1. the 'main' symbol
-                # 2. all symbols of the object file that contains the 'main' symbol in the order of their appearance
-                # 3. all symbols of all other object files in the order of their appearance
+                #   1. the 'main' symbol
+                #   2. all symbols of the object file that contains the 'main' symbol in the order of their appearance
+                #   3. all symbols of all other object files in the order of their appearance
                 link_symbol('main')
                 link_obj_file(main_obj_file_names[0])
                 del obj_files[main_obj_file_names[0]]
@@ -190,7 +194,7 @@ def main():
                     errors = []
 
                     cpu_file_name = os.path.splitext(os.path.basename(main_obj_file_names[0]))[0] + '.cpu'
-                    cpu_file.write_cpu_file(cpu_file_name, errors, 0)  # link_base=0
+                    cpu_file.write_cpu_file(cpu_file_name, errors, link_base)
 
                     if errors:
                         show_error(errors[0], '')
@@ -198,7 +202,7 @@ def main():
                 # if there is no 'main' symbol, then create a combined object file (library)
 
                 # link order:
-                # - all symbols of all object files in the order of their appearance
+                #   - all symbols of all object files in the order of their appearance
                 link_obj_files(obj_files.keys())
 
                 if not total_errors_count:
