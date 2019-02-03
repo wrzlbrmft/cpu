@@ -1,5 +1,5 @@
 # a symbol table is an array of symbol names
-# note: relocation tables are using the array index as the reference to the symbol name
+# note: relocation tables are using the array index of the symbol name as the reference
 
 _symbol_table = []
 
