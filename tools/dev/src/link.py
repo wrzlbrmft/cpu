@@ -178,7 +178,7 @@ def main():
                 current_obj_file_name = ''
 
                 # link order:
-                # 1. 'main' symbol
+                # 1. the 'main' symbol
                 # 2. all symbols of the object file that contains the 'main' symbol in the order of their appearance
                 # 3. all symbols of all other object files in the order of their appearance
                 link_symbol('main')

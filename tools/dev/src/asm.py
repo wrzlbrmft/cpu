@@ -556,7 +556,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
     relocation_table = []
 
     if validate_operands_count(operands, 1, errors):
-        # all types of jump are supported to M, an address or symbol name (using relocation)
+        # all types of jumps are supported to M, an address or symbol name (using relocation)
         # note: M vs. address/symbol name is distinguished by one bit in the opcode
         operand = operands[0].lower()
         if 'm' == operand:
@@ -573,7 +573,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
             else:
                 opcode_operands.extend(endianness.word_to_le(addr_value))
 
-        # optimized usage of opcodes ...and set the appropriate bit for M vs. address/symbol name
+        # optimized usage of opcodes ...and set the corresponding bit for M vs. address/symbol name
         if opcode is not None:
             if 'jmp' == mnemonic:
                 opcode = 0b01110101 | (opcode << 1)
@@ -847,7 +847,7 @@ def parse_asm_line_str(line_str, errors=None):
                     })
                 break
             elif directive or mnemonic:
-                # everything after a directive or mnemonic is an operand
+                # everything after the directive or mnemonic is an operand
                 operand += ' ' + token
                 operand_expected = False
             else:
@@ -953,8 +953,8 @@ def assemble_asm_file(file_name):
 
                                 symbol = symbols.add_symbol(current_symbol_name)
 
-                                # add the relocation table of the current instruction to the relocation table of the
-                                # current symbol and adjust the machine code offsets
+                                # adjust the machine code offset of the relocations of the current instruction by adding
+                                # the machine code byte count of the current symbol
                                 for relocation in assembly['relocation_table']:
                                     relocation['machine_code_offset'] += len(symbol['machine_code'])
                                 symbol['machine_code'].extend(assembly['machine_code'])

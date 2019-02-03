@@ -22,8 +22,8 @@ def build_cpu_symbols(errors=None, link_base=0, _symbol_table=None, _symbols=Non
                 relocation_symbol = symbols.get_symbol(relocation_symbol_name, _symbols)
                 relocation_symbol_addr = link_base + relocation_symbol['machine_code_base']
 
-                # insert the address of the relocated symbol into the machine code of the current symbol at the correct
-                # offset
+                # insert the calculated address of the relocated symbol into the machine code of the current symbol at
+                # the correct offset
                 machine_code[relocation['machine_code_offset']] = endianness.word_to_le(relocation_symbol_addr)[0]
                 machine_code[relocation['machine_code_offset'] + 1] = endianness.word_to_le(relocation_symbol_addr)[1]
             else:
