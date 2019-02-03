@@ -131,6 +131,8 @@ def get_data_value(data):
     elif is_valid_data_chr(data):
         return ord(data[1])
     elif is_valid_data_str(data):
+        # string data is returned as a tuple containing the ascii codes of the individual characters
+        # note: codes can be >255 because of unicode characters
         return tuple(map(ord, data[1:-1]))
     else:
         return None
@@ -138,27 +140,29 @@ def get_data_value(data):
 
 def get_data_size(data):
     value = get_data_value(data)
-    if isinstance(value, list):
+    if isinstance(value, tuple):
+        # for tuples (string data), return the size of the largest item, e.g. a unicode character
         values = value
         size = 0
         for value in values:
             bits = value.bit_length()
-            size = max(size, bits + (8 - bits) % 8)
+            size = max(size, bits + (8 - bits) % 8)  # multiples of 8-bit
         return size
     elif value is not None:
         bits = value.bit_length()
-        return bits + (8 - bits) % 8
+        return bits + (8 - bits) % 8  # multiples of 8-bit
     else:
         return None
 
 
 def is_valid_addr(addr):
+    # symbol names are always valid addresses because of relocation
     return is_valid_name(addr) or (is_valid_data(addr) and not is_valid_data_chr(addr) and not is_valid_data_str(addr))
 
 
 def get_addr_value(addr):
     if is_valid_name(addr):
-        return None
+        return None  # this will then add an item to the relocation table
     elif is_valid_addr(addr):
         return get_data_value(addr)
     else:
@@ -167,7 +171,7 @@ def get_addr_value(addr):
 
 def get_addr_size(addr):
     if is_valid_name(addr):
-        return 16
+        return 16  # for symbol names, the linker will determine a 16-bit address during relocation
     elif is_valid_addr(addr):
         return get_data_size(addr)
     else:
@@ -251,6 +255,7 @@ def validate_operand_data_size(operand, size_valid, errors=None):
     if validate_operand_data(operand, errors):
         size = get_data_size(operand)
         if size <= size_valid:
+            # data just has to fit in
             return True
         else:
             if errors is not None:
@@ -286,6 +291,7 @@ def validate_operand_addr_size(operand, size_valid, errors=None):
     if validate_operand_addr(operand, errors):
         size = get_addr_size(operand)
         if size <= size_valid:
+            # an address just has to fit it
             return True
         else:
             if errors is not None:
@@ -329,6 +335,7 @@ def mnemonic_mov(operands, errors=None):
         operand1 = operands[0].lower()
         operand2 = operands[1].lower()
         if 'm' == operand1:
+            # move into M is only supported from an 8-bit register
             register1_opcode = 0b110
             if validate_operand_register_size(operand2, 8, errors):
                 register2_opcode = get_register_opcode(operand2)
@@ -337,6 +344,8 @@ def mnemonic_mov(operands, errors=None):
             register1_size = get_register_size(operand1)
             register1_opcode = get_register_opcode(operand1)
             if 8 == register1_size:
+                # move into an 8-bit register is supported from M, another 8-bit register or using max. 8-bit data or a
+                # single character (no string)
                 register2_opcode = None
                 if 'm' == operand2:
                     register2_opcode = 0b110
@@ -357,6 +366,8 @@ def mnemonic_mov(operands, errors=None):
                 if register2_opcode is not None:
                     opcode = 0b10000000 | (register1_opcode << 4) | (register2_opcode << 1)
             elif 16 == register1_size:
+                # move into a 16-bit register is supported from a symbol name (using relocation), another 16-bit
+                # register or using max. 16-bit data or a single character including unicode (no string)
                 register2_opcode = None
                 if is_valid_name(operand2):
                     register2_opcode = 0b111
@@ -402,6 +413,7 @@ def mnemonic_lda(operands, errors=None):
         operand1 = operands[0].lower()
         operand2 = operands[1].lower()
         if validate_operand_register_size(operand1, 8, errors):
+            # load from address into an 8-bit register is supported from an address or a symbol name (using relocation)
             register_opcode = get_register_opcode(operand1)
             opcode = 0b10001101 | (register_opcode << 4)
             if validate_operand_addr_size(operand2, 16, errors):
@@ -438,6 +450,8 @@ def mnemonic_sta(operands, errors=None):
         operand1 = operands[0].lower()
         operand2 = operands[1].lower()
         if validate_operand_addr_size(operand1, 16, errors):
+            # store to address is supported to an address or symbol name (using relocation) but only from an 8-bit
+            # register
             addr_value = get_addr_value(operand1)
             if addr_value is None:
                 opcode_operands.extend([0, 0])
@@ -447,6 +461,7 @@ def mnemonic_sta(operands, errors=None):
                 })
             else:
                 opcode_operands.extend(endianness.word_to_le(addr_value))
+
             if validate_operand_register_size(operand2, 8, errors):
                 register_opcode = get_register_opcode(operand2)
                 opcode = 0b11100001 | (register_opcode << 1)
@@ -471,6 +486,7 @@ def mnemonics_push_pop(mnemonic, operands, errors=None):
     if validate_operands_count(operands, 1, errors):
         operand = operands[0].lower()
         if validate_operand_register_size(operand, 8, errors):
+            # push or pop are supported for any 8-bit register
             register_opcode = get_register_opcode(operand)
             opcode = (register_opcode << 4) | (register_opcode << 1)
             if 'push' == mnemonic:
@@ -494,6 +510,8 @@ def mnemonics_add_sub_cmp(mnemonic, operands, errors=None):
     opcode_operands = bytearray()
 
     if validate_operands_count(operands, 1, errors):
+        # add, subtract and compare are supported with M, any 8-bit register or max. 8-bit data or a single character
+        # (no string)
         operand = operands[0].lower()
         if 'm' == operand:
             opcode = 0b1100
@@ -538,6 +556,8 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
     relocation_table = []
 
     if validate_operands_count(operands, 1, errors):
+        # all types of jump are supported to M, an address or symbol name (using relocation)
+        # note: M vs. address/symbol name is distinguished by one bit in the opcode
         operand = operands[0].lower()
         if 'm' == operand:
             opcode = 0b0
@@ -553,6 +573,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
             else:
                 opcode_operands.extend(endianness.word_to_le(addr_value))
 
+        # optimize usage of opcodes and set the appropriate bit for M vs. address/symbol name
         if opcode is not None:
             if 'jmp' == mnemonic:
                 opcode = 0b01110101 | (opcode << 1)
@@ -617,7 +638,9 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
     opcode_operands = bytearray()
 
     if operands:
+        # define byte/word one or more using operands
         if 'db' == mnemonic:
+            # bytes support max. 8-bit data, a single character or a string
             for operand in operands:
                 if validate_operand_data_size(operand, 8, errors):
                     if is_valid_data_str(operand):
@@ -631,6 +654,7 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                     opcode_operands.clear()
                     break
         elif 'dw' == mnemonic:
+            # words support max. 16-bit data, a single character or a string both including unicode
             for operand in operands:
                 if validate_operand_data_size(operand, 16, errors):
                     if is_valid_data_str(operand):
