@@ -17,6 +17,7 @@ def symbol_exists(symbol_name, symbol_table=None):
 def get_index(symbol_name, symbol_table=None):
     symbol_table = get_symbol_table(symbol_table)
 
+    # add the symbol if it does not exist yet
     if not symbol_exists(symbol_name, symbol_table):
         symbol_table.append(symbol_name)
 
