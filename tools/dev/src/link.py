@@ -14,7 +14,7 @@ current_obj_file_name = None
 # object files are a map keyed by the object file name, each object file containing a symbol table and symbols
 obj_files = {}
 
-# keeps track of the incrementing byte count when linking symbols by adding up the sizes of their machine codes
+# keeps track of the byte count when linking symbols by adding up the sizes of their machine code
 # used for relocation when writing a cpu file
 link_offset = 0
 
@@ -129,7 +129,7 @@ def link_symbol(symbol_name):
                     'symbol_table_index': symbol_table.get_index(relocation_symbol_name)
                 })
 
-            # keep track of the machine code base (derived from the incrementing link offset)
+            # set of the machine code base (derived from the link offset)
             # used for relocation when writing a cpu file
             symbol['machine_code_base'] = link_offset
             link_offset += len(symbol['machine_code'])
