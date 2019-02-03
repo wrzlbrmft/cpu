@@ -50,6 +50,7 @@ def read_word_be(file):
 
 
 def read_str(file, length=None):
+    # if no string length is given, read one byte containing the string length
     if length is None:
         length = read_byte(file)
 
