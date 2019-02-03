@@ -1,3 +1,33 @@
+# object file format:
+#   4 bytes  header
+#   ? bytes  symbol table
+#   ? bytes  symbols
+#   --- eof ---
+#
+#
+# header:
+#   3 bytes  file signature ('MPO')
+#   1 byte   file version
+#
+# symbol table:
+#   1 word   number of symbol names in symbol table
+#   ? bytes  symbol names in symbol table
+#
+# symbol name in symbol table:
+#   1 byte   length of symbol name
+#   ? bytes  symbol name
+#
+# symbols (one for each symbol name in symbol table)
+#   1 word   size of machine code (0=external)
+#   --- if not external ---
+#   ? bytes  machine code
+#   1 word   number of relocations
+#   ? bytes  relocations
+#
+# relocation:
+#   1 word   machine code offset
+#   1 word   symbol table index
+
 import os
 
 import endianness

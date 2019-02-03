@@ -1,3 +1,7 @@
+# cpu file format:
+#   ? bytes  machine code
+#   --- eof ---
+
 import endianness
 import fileutils
 import symbol_table
