@@ -17,17 +17,18 @@ def build_cpu_symbols(errors=None, link_base=0, _symbol_table=None, _symbols=Non
         symbol = symbols.get_symbol(symbol_name, _symbols)
 
         machine_code = symbol['machine_code']
+        # the actual relocation
         for relocation in symbol['relocation_table']:
             relocation_symbol_name = symbol_table.get_symbol_name(relocation['symbol_table_index'], _symbol_table)
             if symbols.symbol_exists(relocation_symbol_name, _symbols):
-                # calculate the address of the relocated symbol by adding its machine code base to the link base
-                # the machine code base was set when linking the relocated symbol
-                # the link base depends on the cpu and to which memory address a program is loaded before execution
+                # determine the absolute memory address of the relocated symbol by adding its machine code base to the
+                # link base (the machine code base was determined when linking the relocated symbol)
+                # the link base is the memory address to which a program is loaded before it is executed by the cpu
                 relocation_symbol = symbols.get_symbol(relocation_symbol_name, _symbols)
                 relocation_symbol_addr = link_base + relocation_symbol['machine_code_base']
 
-                # insert the calculated address of the relocated symbol into the machine code of the current symbol at
-                # the correct offset
+                # insert the absolute memory address of the relocated symbol into the machine code of the current symbol
+                # at the correct machine code offset
                 machine_code[relocation['machine_code_offset']] = endianness.word_to_le(relocation_symbol_addr)[0]
                 machine_code[relocation['machine_code_offset'] + 1] = endianness.word_to_le(relocation_symbol_addr)[1]
             else:
