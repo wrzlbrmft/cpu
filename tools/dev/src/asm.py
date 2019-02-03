@@ -141,7 +141,8 @@ def get_data_value(data):
 def get_data_size(data):
     value = get_data_value(data)
     if isinstance(value, tuple):
-        # for tuples (string data), return the size of the largest item, e.g. a unicode character
+        # for tuples (string data), return the size of the largest item (character)
+        # note: size can be >8 bit because of unicode characters
         values = value
         size = 0
         for value in values:
