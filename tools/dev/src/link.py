@@ -183,8 +183,8 @@ def main():
 
                 # link order:
                 #   1. the 'main' symbol
-                #   2. all symbols of the object file that contains the 'main' symbol in the order of their appearance
-                #   3. all symbols of all other object files in the order of their appearance
+                #   2. all other symbols of the object file that contains the 'main' symbol in the given order
+                #   3. all symbols of all other object files in the given order
                 link_symbol('main')
                 link_obj_file(main_obj_file_names[0])
                 del obj_files[main_obj_file_names[0]]
@@ -202,7 +202,7 @@ def main():
                 # if there is no 'main' symbol, then create a combined object file (library)
 
                 # link order:
-                #   - all symbols of all object files in the order of their appearance
+                #   - all symbols of all object files in the given order
                 link_obj_files(obj_files.keys())
 
                 if not total_errors_count:
