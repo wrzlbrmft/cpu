@@ -574,7 +574,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
             else:
                 opcode_operands.extend(endianness.word_to_le(addr_value))
 
-        # optimized usage of opcodes ...and adjust the corresponding bit for M vs. address/symbol name
+        # optimized usage of opcodes ...and adjust the bit for M vs. address/symbol name
         if opcode is not None:
             if 'jmp' == mnemonic:
                 opcode = 0b01110101 | (opcode << 1)
@@ -639,7 +639,6 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
     opcode_operands = bytearray()
 
     if operands:
-        # define bytes/words using one or more operands
         if 'db' == mnemonic:
             # bytes support max. 8-bit data, a single character or a string
             for operand in operands:
