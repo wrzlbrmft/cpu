@@ -156,7 +156,7 @@ def get_data_size(data):
 
 
 def is_valid_addr(addr):
-    # symbol names are always valid addresses because of relocation
+    # a symbol name is always a valid address (the linker will determine the address during relocation)
     return is_valid_name(addr) or (is_valid_data(addr) and not is_valid_data_chr(addr) and not is_valid_data_str(addr))
 
 
@@ -450,7 +450,7 @@ def mnemonic_sta(operands, errors=None):
         operand1 = operands[0].lower()
         operand2 = operands[1].lower()
         if validate_operand_addr_size(operand1, 16, errors):
-            # store to address is supported to an address or symbol name (using relocation) but only from an 8-bit
+            # store to address is supported to an address or a symbol name (using relocation) but only from an 8-bit
             # register
             addr_value = get_addr_value(operand1)
             if addr_value is None:
@@ -556,8 +556,8 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
     relocation_table = []
 
     if validate_operands_count(operands, 1, errors):
-        # all types of jumps are supported to M, an address or symbol name (using relocation)
-        # note: M vs. address/symbol name is distinguished by one bit in the opcode
+        # all jumps are supported to M, an address or a symbol name (using relocation)
+        # note: M vs. address/symbol name is distinguished using one bit in the opcode
         operand = operands[0].lower()
         if 'm' == operand:
             opcode = 0b0
@@ -573,7 +573,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
             else:
                 opcode_operands.extend(endianness.word_to_le(addr_value))
 
-        # optimized usage of opcodes ...and set the corresponding bit for M vs. address/symbol name
+        # optimized usage of opcodes ...and adjust the corresponding bit for M vs. address/symbol name
         if opcode is not None:
             if 'jmp' == mnemonic:
                 opcode = 0b01110101 | (opcode << 1)
@@ -957,8 +957,9 @@ def assemble_asm_file(file_name):
                                 # the machine code byte count of the current symbol
                                 for relocation in assembly['relocation_table']:
                                     relocation['machine_code_offset'] += len(symbol['machine_code'])
-                                symbol['machine_code'].extend(assembly['machine_code'])
                                 symbol['relocation_table'].extend(assembly['relocation_table'])
+
+                                symbol['machine_code'].extend(assembly['machine_code'])
 
                 # end of line
 
