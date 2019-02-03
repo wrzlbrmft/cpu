@@ -954,12 +954,10 @@ def assemble_asm_file(file_name):
 
                                 symbol = symbols.add_symbol(current_symbol_name)
 
-                                # adjust the machine code offset of the relocations of the current instruction by adding
-                                # the machine code byte count of the current symbol
                                 for relocation in assembly['relocation_table']:
+                                    # adjust the machine code offset by adding the current byte count of the symbol
                                     relocation['machine_code_offset'] += len(symbol['machine_code'])
                                 symbol['relocation_table'].extend(assembly['relocation_table'])
-
                                 symbol['machine_code'].extend(assembly['machine_code'])
 
                 # end of line

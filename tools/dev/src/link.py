@@ -133,7 +133,7 @@ def link_symbol(symbol_name):
                     'symbol_table_index': symbol_table.get_index(relocation_symbol_name)
                 })
 
-            # set the machine code base of the linked symbol to the current link offset
+            # set the machine code base to the current link offset
             # used for relocation when writing a cpu file
             symbol['machine_code_base'] = link_offset
             link_offset += len(symbol['machine_code'])
