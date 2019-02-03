@@ -11,8 +11,11 @@ total_errors_count = 0
 
 current_obj_file_name = None
 
+# object files are a map keyed by the object file name, each object file containing a symbol table and symbols
 obj_files = {}
 
+# keeps track of the incrementing byte count when linking symbols by adding up the sizes of their machine codes
+# used for one-pass relocation when writing a cpu file
 link_offset = 0
 
 
@@ -109,6 +112,7 @@ def link_symbol(symbol_name):
             })
             return
         else:
+            # copy symbol from object file symbols to global symbols
             _obj_file = get_obj_file(obj_file_names[0])
             obj_file_symbol = symbols.get_symbol(symbol_name, _obj_file['symbols'])
 
@@ -117,6 +121,7 @@ def link_symbol(symbol_name):
 
             symbol['machine_code'] = obj_file_symbol['machine_code']
             for relocation in obj_file_symbol['relocation_table']:
+                # adjust symbol table index from object file symbol table to global symbol table
                 relocation_symbol_name = symbol_table.get_symbol_name(relocation['symbol_table_index'],
                                                                       _obj_file['symbol_table'])
                 symbol['relocation_table'].append({
@@ -124,6 +129,8 @@ def link_symbol(symbol_name):
                     'symbol_table_index': symbol_table.get_index(relocation_symbol_name)
                 })
 
+            # set machine code base (derived from the incrementing link offset)
+            # used for one-pass relocation when writing a cpu file
             symbol['machine_code_base'] = link_offset
             link_offset += len(symbol['machine_code'])
 
@@ -161,30 +168,42 @@ def main():
         if not total_errors_count:
             main_obj_file_names = get_symbol_obj_file_names('main')
             if len(main_obj_file_names) > 1:
+                # there can only be one 'main' symbol
                 show_error({
                     'name': 'DUPLICATE_SYMBOL',
                     'info': ['main']
                 }, '')
             elif 1 == len(main_obj_file_names):
+                # if there is one 'main' symbol, then create a cpu file
                 current_obj_file_name = ''
 
+                # link order:
+                # 1. 'main' symbol
+                # 2. all symbols of the object file that contains the 'main' symbol in the order of their appearance
+                # 3. all symbols of all other object files in the order of their appearance
                 link_symbol('main')
                 link_obj_file(main_obj_file_names[0])
                 del obj_files[main_obj_file_names[0]]
                 link_obj_files(obj_files.keys())
 
-                errors = []
+                if not total_errors_count:
+                    errors = []
 
-                cpu_file_name = os.path.splitext(os.path.basename(main_obj_file_names[0]))[0] + '.cpu'
-                cpu_file.write_cpu_file(cpu_file_name, errors, 0)  # link_base=0
+                    cpu_file_name = os.path.splitext(os.path.basename(main_obj_file_names[0]))[0] + '.cpu'
+                    cpu_file.write_cpu_file(cpu_file_name, errors, 0)  # link_base=0
 
-                if errors:
-                    show_error(errors[0], '')
+                    if errors:
+                        show_error(errors[0], '')
             else:
+                # if there is no 'main' symbol, then create a combined object file (library)
+
+                # link order:
+                # - all symbols of all object files in the order of their appearance
                 link_obj_files(obj_files.keys())
 
-                obj_file_name = 'output.obj'
-                obj_file.write_obj_file(obj_file_name)
+                if not total_errors_count:
+                    obj_file_name = 'output.obj'
+                    obj_file.write_obj_file(obj_file_name)
 
 
 if '__main__' == __name__:
