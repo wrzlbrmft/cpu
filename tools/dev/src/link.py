@@ -15,7 +15,7 @@ current_obj_file_name = None
 obj_files = {}
 
 # keeps track of the incrementing byte count when linking symbols by adding up the sizes of their machine codes
-# used for one-pass relocation when writing a cpu file
+# used for relocation when writing a cpu file
 link_offset = 0
 
 
@@ -129,8 +129,8 @@ def link_symbol(symbol_name):
                     'symbol_table_index': symbol_table.get_index(relocation_symbol_name)
                 })
 
-            # set machine code base (derived from the incrementing link offset)
-            # used for one-pass relocation when writing a cpu file
+            # keep track of the machine code base (derived from the incrementing link offset)
+            # used for relocation when writing a cpu file
             symbol['machine_code_base'] = link_offset
             link_offset += len(symbol['machine_code'])
 
