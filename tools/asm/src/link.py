@@ -18,8 +18,8 @@ obj_files = {}
 # the value is used when determining the absolute memory address of a relocated symbol
 link_base = 0
 
-# this is the current size of the machine code byte-stream of all symbols linked so far
-# the value is used as the machine code base for the next symbol to be linked, becoming its offset in the byte-stream
+# this is the current size of the byte-stream of machine code of all symbols linked so far
+# the value is set as the machine code base of the next symbol to be linked, which is its offset in the byte-stream
 link_offset = 0
 
 
@@ -198,7 +198,7 @@ def main():
                     if errors:
                         show_error(errors[0], '')
             else:
-                # if there is no 'main' symbol, then create a combined object file (library)
+                # if there is no 'main' symbol, then create a new object file (library)
 
                 # link order:
                 #   - all symbols of all object files in the given order

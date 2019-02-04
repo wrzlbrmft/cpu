@@ -557,7 +557,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
     relocation_table = []
 
     if validate_operands_count(operands, 1, errors):
-        # all jumps are supported to M, an address or a symbol name (using relocation)
+        # jumps are supported to M, an address or a symbol name (using relocation)
         # note: M vs. address/symbol name is distinguished using one bit in the opcode
         operand = operands[0].lower()
         if 'm' == operand:
@@ -935,7 +935,7 @@ def assemble_asm_file(file_name):
                         else:
                             current_symbol_name = symbol_name
 
-                            # implicitly adds the symbol to the symbol table
+                            # implicitly adds the symbol name to the symbol table
                             symbol_table.get_index(current_symbol_name)
 
                     if not errors and line['mnemonic']:
