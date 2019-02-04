@@ -22,13 +22,13 @@ def build_cpu_symbols(errors=None, link_base=0, _symbol_table=None, _symbols=Non
             relocation_symbol_name = symbol_table.get_symbol_name(relocation['symbol_table_index'], _symbol_table)
             if symbols.symbol_exists(relocation_symbol_name, _symbols):
                 # determine the absolute memory address of the relocated symbol by adding its machine code base to the
-                # link base (the machine code base was determined when linking the relocated symbol)
+                # link base (the machine code base was set when linking the relocated symbol)
                 # the link base is the memory address to which a program is loaded before it is executed by the cpu
                 relocation_symbol = symbols.get_symbol(relocation_symbol_name, _symbols)
                 relocation_symbol_addr = link_base + relocation_symbol['machine_code_base']
 
                 # insert the absolute memory address of the relocated symbol into the machine code of the current symbol
-                # at the correct machine code offset
+                # at the correct offset
                 machine_code[relocation['machine_code_offset']] = endianness.word_to_le(relocation_symbol_addr)[0]
                 machine_code[relocation['machine_code_offset'] + 1] = endianness.word_to_le(relocation_symbol_addr)[1]
             else:
