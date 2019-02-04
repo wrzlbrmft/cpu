@@ -15,11 +15,11 @@ current_obj_file_name = None
 obj_files = {}
 
 # this is the memory address to which a program is loaded before it is executed by the cpu
-# the value will be used when determining the absolute memory address of a relocated symbol
+# the value is used when determining the absolute memory address of a relocated symbol
 link_base = 0
 
-# this keeps track of the total byte count when linking symbols by adding up the sizes of their machine code
-# used for relocation when writing a cpu file
+# this is the current size of the machine code byte-stream of all symbols linked so far
+# the value is used as the machine code base for the next symbol to be linked, being its offset in the byte-stream
 link_offset = 0
 
 
@@ -133,8 +133,7 @@ def link_symbol(symbol_name):
                     'symbol_table_index': symbol_table.get_index(relocation_symbol_name)
                 })
 
-            # set the machine code base to the current link offset
-            # used for relocation when writing a cpu file
+            # set the machine code base to the current link offset and increment it for the next symbol to be linked
             symbol['machine_code_base'] = link_offset
             link_offset += len(symbol['machine_code'])
 

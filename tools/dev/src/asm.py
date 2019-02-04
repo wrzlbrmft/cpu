@@ -954,7 +954,7 @@ def assemble_asm_file(file_name):
                                 symbol = symbols.add_symbol(current_symbol_name)
 
                                 for relocation in assembly['relocation_table']:
-                                    # adjust the machine code offset by adding the current byte count of the symbol
+                                    # adjust the machine code offset to be relative to the current symbol
                                     relocation['machine_code_offset'] += len(symbol['machine_code'])
                                 symbol['relocation_table'].extend(assembly['relocation_table'])
                                 symbol['machine_code'].extend(assembly['machine_code'])
