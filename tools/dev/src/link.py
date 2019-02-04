@@ -19,7 +19,7 @@ obj_files = {}
 link_base = 0
 
 # this is the current size of the machine code byte-stream of all symbols linked so far
-# the value is used as the machine code base for the next symbol to be linked, being its offset in the byte-stream
+# the value is used as the machine code base for the next symbol to be linked, becoming its offset in the byte-stream
 link_offset = 0
 
 
