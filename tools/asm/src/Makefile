@@ -3,6 +3,7 @@
 clean:
 	rm -vf asm
 	rm -vf link
+	rm -rvf __pycache__
 
 asm:
 	$(eval TEMP_DIR := $(shell mktemp -d))
