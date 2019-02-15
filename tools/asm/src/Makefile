@@ -13,7 +13,7 @@ asm:
 	$(eval TEMP_FILE := $(shell mktemp))
 	zip -rj9X - $(TEMP_DIR) > $(TEMP_FILE)
 
-	echo '#!/usr/bin/env python' > asm
+	echo '#!/usr/bin/env python3' > asm
 	cat $(TEMP_FILE) >> asm
 	chmod +x asm
 
@@ -28,7 +28,7 @@ link:
 	$(eval TEMP_FILE := $(shell mktemp))
 	zip -rj9X - $(TEMP_DIR) > $(TEMP_FILE)
 
-	echo '#!/usr/bin/env python' > link
+	echo '#!/usr/bin/env python3' > link
 	cat $(TEMP_FILE) >> link
 	chmod +x link
 
