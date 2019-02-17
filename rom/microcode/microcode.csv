@@ -1,0 +1,2 @@
+;0;0bx;0bx;0b0000;0bxxxxxxxx;IP_TO_ADDR,ADDR_TO_MAR
+;0;0bx;0bx;0b0001;0bxxxxxxxx;MDR_TO_DATA,DATA_TO_IR,IP_INC
