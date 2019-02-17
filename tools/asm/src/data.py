@@ -3,7 +3,7 @@ import re
 valid_dec_regex = re.compile('[1-9][0-9]*')
 valid_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
 valid_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
-valid_oct_regex = re.compile('0[0-7]+')
+valid_oct_regex = re.compile('0o[0-7]+')
 valid_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
 valid_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
 
