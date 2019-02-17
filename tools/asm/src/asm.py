@@ -1,3 +1,4 @@
+import data
 import endianness
 import i18n
 import obj_file
@@ -41,12 +42,6 @@ valid_registers = {
 valid_operands = list(valid_registers.keys()) + ['m']
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]{,254}', re.IGNORECASE)
-valid_data_dec_regex = re.compile('[1-9][0-9]*')
-valid_data_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
-valid_data_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
-valid_data_oct_regex = re.compile('0[0-7]+')
-valid_data_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
-valid_data_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
 
 
 def is_valid_directive(directive):
@@ -83,89 +78,16 @@ def is_valid_name(name):
     return not is_valid_operand(name) and valid_name_regex.fullmatch(name)
 
 
-def is_valid_data_dec(data):
-    return valid_data_dec_regex.fullmatch(data)
-
-
-def is_valid_data_hex(data):
-    return valid_data_hex_regex.fullmatch(data)
-
-
-def is_valid_data_bin(data):
-    return valid_data_bin_regex.fullmatch(data)
-
-
-def is_valid_data_oct(data):
-    return valid_data_oct_regex.fullmatch(data)
-
-
-def is_valid_data_chr(data):
-    return valid_data_chr_regex.fullmatch(data)
-
-
-def is_valid_data_str(data):
-    return valid_data_str_regex.fullmatch(data)
-
-
-def is_valid_data(data):
-    return '0' == data or \
-        is_valid_data_dec(data) or \
-        is_valid_data_hex(data) or \
-        is_valid_data_bin(data) or \
-        is_valid_data_oct(data) or \
-        is_valid_data_chr(data) or \
-        is_valid_data_str(data)
-
-
-def get_data_value(data):
-    if '0' == data:
-        return 0
-    elif is_valid_data_dec(data):
-        return int(data)
-    elif is_valid_data_hex(data):
-        return int(data[2:], 16)
-    elif is_valid_data_bin(data):
-        return int(data[2:], 2)
-    elif is_valid_data_oct(data):
-        return int(data[1:], 8)
-    elif is_valid_data_chr(data):
-        return ord(data[1])
-    elif is_valid_data_str(data):
-        # string data is returned as a tuple containing the ascii codes of the individual characters
-        # note: codes can be >255 because of unicode characters
-        return tuple(map(ord, data[1:-1]))
-    else:
-        return None
-
-
-def get_data_size(data):
-    value = get_data_value(data)
-    if isinstance(value, tuple):
-        # for tuples (string data), return the size of the largest item (character)
-        # note: size can be >8 bit because of unicode characters
-        values = value
-        size = 0
-        for value in values:
-            bits = value.bit_length()
-            size = max(size, bits + (8 - bits) % 8)  # multiples of 8-bit
-        return size
-    elif value is not None:
-        bits = value.bit_length()
-        return bits + (8 - bits) % 8  # multiples of 8-bit
-    else:
-        return None
-
-
 def is_valid_addr(addr):
     # a symbol name is always a valid address (the linker will determine the address during relocation)
-    return is_valid_name(addr) or (is_valid_data(addr) and not is_valid_data_chr(addr) and not is_valid_data_str(addr))
+    return is_valid_name(addr) or (data.is_valid(addr) and not data.is_valid_chr(addr) and not data.is_valid_str(addr))
 
 
 def get_addr_value(addr):
     if is_valid_name(addr):
         return None  # this will then add an item to the relocation table
     elif is_valid_addr(addr):
-        return get_data_value(addr)
+        return data.get_value(addr)
     else:
         return None
 
@@ -174,7 +96,7 @@ def get_addr_size(addr):
     if is_valid_name(addr):
         return 16  # for symbol names, the linker will determine a 16-bit address during relocation
     elif is_valid_addr(addr):
-        return get_data_size(addr)
+        return data.get_size(addr)
     else:
         return None
 
@@ -234,7 +156,7 @@ def validate_operand_register_size(operand, size_valid, errors=None):
 
 
 def validate_operand_data(operand, errors=None):
-    if is_valid_data(operand):
+    if data.is_valid(operand):
         return True
     elif is_valid_operand(operand):
         if errors is not None:
@@ -254,7 +176,7 @@ def validate_operand_data(operand, errors=None):
 
 def validate_operand_data_size(operand, size_valid, errors=None):
     if validate_operand_data(operand, errors):
-        size = get_data_size(operand)
+        size = data.get_size(operand)
         if size <= size_valid:
             # data just has to fit in
             return True
@@ -353,7 +275,7 @@ def mnemonic_mov(operands, errors=None):
                 elif is_valid_register(operand2):
                     if validate_operand_register_size(operand2, register1_size, errors):
                         register2_opcode = get_register_opcode(operand2)
-                elif is_valid_data_str(operand2):
+                elif data.is_valid_str(operand2):
                     if errors is not None:
                         errors.append({
                             'name': 'INCOMPATIBLE_DATA_TYPE',
@@ -361,7 +283,7 @@ def mnemonic_mov(operands, errors=None):
                         })
                 elif validate_operand_data_size(operand2, register1_size, errors):
                     register2_opcode = 0b111
-                    data_value = get_data_value(operand2)
+                    data_value = data.get_value(operand2)
                     opcode_operands.append(data_value)
 
                 if register2_opcode is not None:
@@ -380,14 +302,14 @@ def mnemonic_mov(operands, errors=None):
                 elif is_valid_register(operand2):
                     if validate_operand_register_size(operand2, register1_size, errors):
                         register2_opcode = get_register_opcode(operand2)
-                elif is_valid_data_str(operand2):
+                elif data.is_valid_str(operand2):
                     errors.append({
                         'name': 'INCOMPATIBLE_DATA_TYPE',
                         'info': []
                     })
                 elif validate_operand_data_size(operand2, register1_size, errors):
                     register2_opcode = 0b111
-                    data_value = get_data_value(operand2)
+                    data_value = data.get_value(operand2)
                     opcode_operands.extend(endianness.word_to_le(data_value))
 
                 if register2_opcode is not None:
@@ -520,7 +442,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands, errors=None):
             if validate_operand_register_size(operand, 8, errors):
                 register_opcode = get_register_opcode(operand)
                 opcode = (register_opcode << 1)
-        elif is_valid_data_str(operand):
+        elif data.is_valid_str(operand):
             if errors is not None:
                 errors.append({
                     'name': 'INCOMPATIBLE_DATA_TYPE',
@@ -528,7 +450,7 @@ def mnemonics_add_sub_cmp(mnemonic, operands, errors=None):
                 })
         elif validate_operand_data_size(operand, 8, errors):
             opcode = 0b1110
-            data_value = get_data_value(operand)
+            data_value = data.get_value(operand)
             opcode_operands.append(data_value)
 
         if opcode is not None:
@@ -643,12 +565,12 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
             # bytes support max. 8-bit data, a single character or a string
             for operand in operands:
                 if validate_operand_data_size(operand, 8, errors):
-                    if is_valid_data_str(operand):
-                        data_values = get_data_value(operand)
+                    if data.is_valid_str(operand):
+                        data_values = data.get_value(operand)
                         for data_value in data_values:
                             opcode_operands.append(data_value)
                     else:
-                        data_value = get_data_value(operand)
+                        data_value = data.get_value(operand)
                         opcode_operands.append(data_value)
                 else:
                     opcode_operands.clear()
@@ -657,12 +579,12 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
             # words support max. 16-bit data, a single character or a string both including unicode
             for operand in operands:
                 if validate_operand_data_size(operand, 16, errors):
-                    if is_valid_data_str(operand):
-                        data_values = get_data_value(operand)
+                    if data.is_valid_str(operand):
+                        data_values = data.get_value(operand)
                         for data_value in data_values:
                             opcode_operands.extend(endianness.word_to_le(data_value))
                     else:
-                        data_value = get_data_value(operand)
+                        data_value = data.get_value(operand)
                         opcode_operands.extend(endianness.word_to_le(data_value))
                 else:
                     opcode_operands.clear()
