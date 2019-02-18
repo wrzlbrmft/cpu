@@ -8,7 +8,7 @@ data_config_bits = None
 data_config_control_signals = {}
 
 
-def parse_address_config(config_str):
+def parse_address_config(config_str, errors=None):
     config = {}
 
     for i in config_str.split(','):
@@ -16,12 +16,22 @@ def parse_address_config(config_str):
 
         column = j[0]
         if not column.isdecimal():
+            if errors is not None:
+                errors.append({
+                    'name': '',  # todo
+                    'info': [column]
+                })
             return None
 
         bits = None
         if len(j) > 1:
             bits = j[1]
             if not bits.isdecimal():
+                if errors is not None:
+                    errors.append({
+                        'name': '',  # todo
+                        'info': [bits]
+                    })
                 return None
 
         config[column] = bits
@@ -29,7 +39,7 @@ def parse_address_config(config_str):
     return config
 
 
-def read_control_signals_file(file_name):
+def read_control_signals_file(file_name, errors=None):
     if os.path.isfile(file_name):
         control_signals = {}
 
@@ -42,14 +52,24 @@ def read_control_signals_file(file_name):
 
         return bits, control_signals
     else:
+        if errors is not None:
+            errors.append({
+                'name': '',  # todo
+                'info': [file_name]
+            })
         return None, None
 
 
-def parse_data_config(config_str):
+def parse_data_config(config_str, errors=None):
     i = config_str.split(':')
 
     column = i[0]
     if not column.isdecimal():
+        if errors is not None:
+            errors.append({
+                'name': '',  # todo
+                'info': [column]
+            })
         return None, None, None
 
     bits = None
@@ -58,7 +78,10 @@ def parse_data_config(config_str):
         bits = i[1]
         if not bits.isdecimal():
             control_signals_file_name = bits
-            bits, control_signals = read_control_signals_file(control_signals_file_name)
+            bits, control_signals = read_control_signals_file(control_signals_file_name, errors)
+
+            if errors:
+                return None, None, None
 
     return column, bits, control_signals
 
@@ -77,8 +100,13 @@ def main():
         data_config_str = sys.argv[3]
         output_format = sys.argv[4]
 
-        address_config = parse_address_config(address_config_str)
-        data_config_column, data_config_bits, data_config_control_signals = parse_data_config(data_config_str)
+        errors = []
+
+        address_config = parse_address_config(address_config_str, errors)
+
+        if not errors:
+            data_config_column, data_config_bits, data_config_control_signals = parse_data_config(data_config_str,
+                                                                                                  errors)
 
 
 if '__main__' == __name__:
