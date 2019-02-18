@@ -1,3 +1,4 @@
+import data
 import i18n
 
 import math
@@ -78,10 +79,10 @@ def read_control_signals_file(file_name, errors=None):
         control_signals = {}
 
         with open(file_name, 'r') as file:
-            for line in file.readlines():
-                line = line.strip()
-                if line:
-                    control_signals[line] = int(math.pow(2, len(control_signals)))
+            for line_str in file.readlines():
+                line_str = line_str.strip()
+                if line_str:
+                    control_signals[line_str] = int(math.pow(2, len(control_signals)))
         bits = len(control_signals)
 
         return bits, control_signals
@@ -123,10 +124,28 @@ def parse_data_config(config_str):
     return column, bits, control_signals
 
 
+def parse_csv_line(line_str, errors=None):
+    columns = line_str.split(';')
+
+    for column, bits in address_config.items():
+        if column < len(columns):
+            pass
+        else:
+            if errors is not None:
+                errors.append({
+                    'name': '',  # todo
+                    'info': []
+                })
+                return None, None
+
+
 def read_csv_file(file_name):
     if os.path.isfile(file_name):
         with open(file_name, 'r') as csv:
-            pass
+            for line_str in csv.readlines():
+                line_str = line_str.strip('; ').strip()
+                if line_str:
+                    parse_csv_line(line_str)
     else:
         pass  # todo
 
