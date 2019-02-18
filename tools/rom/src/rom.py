@@ -52,7 +52,7 @@ def parse_addr_config(config_str):
         j = i.split(':')
 
         column = j[0]
-        if not column.isdecimal():
+        if not column.isdecimal() or int(column) < 1:
             show_error({
                 'name': 'INVALID_COLUMN',
                 'info': [column]
@@ -64,7 +64,7 @@ def parse_addr_config(config_str):
         bits = None
         if len(j) > 1:
             bits = j[1]
-            if not bits.isdecimal():
+            if not bits.isdecimal() or int(bits) < 1:
                 show_error({
                     'name': 'INVALID_BITS',
                     'info': [bits]
@@ -104,7 +104,7 @@ def parse_data_config(config_str):
     i = config_str.split(':')
 
     column = i[0]
-    if not column.isdecimal():
+    if not column.isdecimal() or int(column) < 1:
         show_error({
             'name': 'INVALID_COLUMN',
             'info': [column]
@@ -127,6 +127,12 @@ def parse_data_config(config_str):
             if errors:
                 show_error(errors[0])
                 return None, None, None
+        elif int(bits) < 1:
+            show_error({
+                'name': 'INVALID_BITS',
+                'info': [bits]
+            })
+            return None, None, None
         else:
             bits = int(bits)
 
@@ -174,7 +180,10 @@ def read_csv_file(file_name):
                     addr_value, data_value = parse_csv_line(line_str)
                     print(addr_value, data_value)
     else:
-        pass  # todo
+        show_error({
+            'name': 'FILE_NOT_FOUND',
+            'info': [file_name]
+        })
 
 
 # main
