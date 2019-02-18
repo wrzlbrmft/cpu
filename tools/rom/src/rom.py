@@ -1,3 +1,5 @@
+import math
+import os
 import sys
 
 address_config = {}
@@ -27,6 +29,22 @@ def parse_address_config(config_str):
     return config
 
 
+def read_control_signals_file(file_name):
+    if os.path.isfile(file_name):
+        control_signals = {}
+
+        with open(file_name, 'r') as file:
+            for line in file.readlines():
+                line = line.strip()
+                if line:
+                    control_signals[line] = int(math.pow(2, len(control_signals)))
+        bits = len(control_signals)
+
+        return bits, control_signals
+    else:
+        return None, None
+
+
 def parse_data_config(config_str):
     i = config_str.split(':')
 
@@ -39,7 +57,8 @@ def parse_data_config(config_str):
     if len(i) > 1:
         bits = i[1]
         if not bits.isdecimal():
-            control_signals = {}
+            control_signals_file_name = bits
+            bits, control_signals = read_control_signals_file(control_signals_file_name)
 
     return column, bits, control_signals
 
