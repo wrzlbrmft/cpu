@@ -58,6 +58,8 @@ def parse_addr_config(config_str):
                 'info': [column]
             })
             return None
+        else:
+            column = int(column)
 
         bits = None
         if len(j) > 1:
@@ -68,6 +70,8 @@ def parse_addr_config(config_str):
                     'info': [bits]
                 })
                 return None
+            else:
+                bits = int(bits)
 
         config[column] = bits
 
@@ -83,6 +87,7 @@ def read_control_signals_file(file_name, errors=None):
                 line_str = line_str.strip()
                 if line_str:
                     control_signals[line_str] = int(math.pow(2, len(control_signals)))
+
         bits = len(control_signals)
 
         return bits, control_signals
@@ -105,6 +110,8 @@ def parse_data_config(config_str):
             'info': [column]
         })
         return None, None, None
+    else:
+        column = int(column)
 
     bits = None
     control_signals = {}
@@ -120,6 +127,8 @@ def parse_data_config(config_str):
             if errors:
                 show_error(errors[0])
                 return None, None, None
+        else:
+            bits = int(bits)
 
     return column, bits, control_signals
 
@@ -127,9 +136,24 @@ def parse_data_config(config_str):
 def parse_csv_line(line_str, errors=None):
     columns = line_str.split(';')
 
+    addr_value = ''
+    data_value = ''
+
     for column, bits in addr_config.items():
         if column < len(columns):
-            pass
+            column_value = columns[column - 1]
+            if data.is_valid(column_value) and not data.is_valid_str(column_value):
+                column_value = format(data.get_value(column_value), 'b')
+                if bits is not None:
+                    column_value = column_value.zfill(bits)
+            else:
+                if errors is not None:
+                    errors.append({
+                        'name': '',  # todo
+                        'info': []
+                    })
+                return None, None
+            addr_value += column_value
         else:
             if errors is not None:
                 errors.append({
@@ -138,14 +162,17 @@ def parse_csv_line(line_str, errors=None):
                 })
                 return None, None
 
+    return addr_value, data_value
+
 
 def read_csv_file(file_name):
     if os.path.isfile(file_name):
         with open(file_name, 'r') as csv:
             for line_str in csv.readlines():
-                line_str = line_str.strip('; ').strip()
+                line_str = line_str.strip()
                 if line_str:
-                    parse_csv_line(line_str)
+                    addr_value, data_value = parse_csv_line(line_str)
+                    print(addr_value, data_value)
     else:
         pass  # todo
 
