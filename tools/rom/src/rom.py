@@ -4,13 +4,47 @@ import math
 import os
 import sys
 
+total_errors_count = 0
+
+current_file_name = None
+current_line_num = 0
+current_line_str = None
+
 address_config = {}
 data_config_column = None
 data_config_bits = None
 data_config_control_signals = {}
 
 
-def parse_address_config(config_str, errors=None):
+def show_error(error, line_str=None, line_num=None, file_name=None):
+    global total_errors_count
+
+    if line_str is None:
+        line_str = current_line_str
+
+    if line_num is None:
+        line_num = current_line_num
+
+    if file_name is None:
+        file_name = current_file_name
+
+    total_errors_count += 1
+
+    if file_name:
+        print(f'{file_name}:', end='')
+        if line_num:
+            print(f'{line_num}:', end='')
+        print(' ', end='')
+
+    print('error:', i18n.error_messages[error['name']].format(*error['info']))
+
+    if line_str:
+        print('', line_str.strip())
+
+    print()
+
+
+def parse_address_config(config_str):
     config = {}
 
     for i in config_str.split(','):
@@ -18,22 +52,20 @@ def parse_address_config(config_str, errors=None):
 
         column = j[0]
         if not column.isdecimal():
-            if errors is not None:
-                errors.append({
-                    'name': '',  # todo
-                    'info': [column]
-                })
+            show_error({
+                'name': '',  # todo
+                'info': [column]
+            })
             return None
 
         bits = None
         if len(j) > 1:
             bits = j[1]
             if not bits.isdecimal():
-                if errors is not None:
-                    errors.append({
-                        'name': '',  # todo
-                        'info': [bits]
-                    })
+                show_error({
+                    'name': '',  # todo
+                    'info': [bits]
+                })
                 return None
 
         config[column] = bits
@@ -56,22 +88,21 @@ def read_control_signals_file(file_name, errors=None):
     else:
         if errors is not None:
             errors.append({
-                'name': '',  # todo
+                'name': 'FILE_NOT_FOUND',
                 'info': [file_name]
             })
         return None, None
 
 
-def parse_data_config(config_str, errors=None):
+def parse_data_config(config_str):
     i = config_str.split(':')
 
     column = i[0]
     if not column.isdecimal():
-        if errors is not None:
-            errors.append({
-                'name': '',  # todo
-                'info': [column]
-            })
+        show_error({
+            'name': '',  # todo
+            'info': [column]
+        })
         return None, None, None
 
     bits = None
@@ -80,9 +111,13 @@ def parse_data_config(config_str, errors=None):
         bits = i[1]
         if not bits.isdecimal():
             control_signals_file_name = bits
+
+            errors = []
+
             bits, control_signals = read_control_signals_file(control_signals_file_name, errors)
 
             if errors:
+                show_error(errors[0])
                 return None, None, None
 
     return column, bits, control_signals
@@ -102,13 +137,10 @@ def main():
         data_config_str = sys.argv[3]
         output_format = sys.argv[4]
 
-        errors = []
+        address_config = parse_address_config(address_config_str)
 
-        address_config = parse_address_config(address_config_str, errors)
-
-        if not errors:
-            data_config_column, data_config_bits, data_config_control_signals = parse_data_config(data_config_str,
-                                                                                                  errors)
+        if not total_errors_count:
+            data_config_column, data_config_bits, data_config_control_signals = parse_data_config(data_config_str)
 
 
 if '__main__' == __name__:
