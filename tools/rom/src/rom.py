@@ -130,7 +130,7 @@ def main():
     global address_config, data_config_column, data_config_bits, data_config_control_signals
 
     if len(sys.argv) < 5:
-        pass
+        pass  # todo
     else:
         csv_file_name = sys.argv[1]
         address_config_str = sys.argv[2]
