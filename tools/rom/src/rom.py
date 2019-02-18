@@ -123,6 +123,14 @@ def parse_data_config(config_str):
     return column, bits, control_signals
 
 
+def read_csv_file(file_name):
+    if os.path.isfile(file_name):
+        with open(file_name, 'r') as csv:
+            pass
+    else:
+        pass  # todo
+
+
 # main
 
 
@@ -144,6 +152,9 @@ def main():
 
         if not total_errors_count:
             data_config_column, data_config_bits, data_config_control_signals = parse_data_config(data_config_str)
+
+        if not total_errors_count:
+            read_csv_file(csv_file_name)
 
 
 if '__main__' == __name__:
