@@ -12,9 +12,9 @@ import sys
 
 total_errors_count = 0
 
-current_asm_file_name = None
-current_asm_line_num = 0
-current_asm_line_str = None
+current_file_name = None
+current_line_num = 0
+current_line_str = None
 current_symbol_name = None
 
 valid_directives = ['end']
@@ -611,7 +611,7 @@ def dump_assembly(assembly):
     for byte in assembly['machine_code']:
         print(hex(byte)[2:].upper().zfill(2), '', end='')
     print('   ' * (3 - len(assembly['machine_code'])), '  ', end='')
-    print(current_asm_line_str.strip())
+    print(current_line_str.strip())
     for relocation in assembly['relocation_table']:
         print('   ' * relocation['machine_code_offset'], end='')
         print(f"^ {relocation['symbol_table_index']}: {symbol_table.get_symbol_name(relocation['symbol_table_index'])}")
@@ -654,38 +654,38 @@ def assemble_asm_line(line, errors=None):
         return assembly
 
 
-def show_error(error, symbol_name=None, asm_line_str=None, asm_line_num=None, asm_file_name=None):
+def show_error(error, symbol_name=None, line_str=None, line_num=None, file_name=None):
     global total_errors_count
 
     if symbol_name is None:
         symbol_name = current_symbol_name
 
-    if asm_line_str is None:
-        asm_line_str = current_asm_line_str
+    if line_str is None:
+        line_str = current_line_str
 
-    if asm_line_num is None:
-        asm_line_num = current_asm_line_num
+    if line_num is None:
+        line_num = current_line_num
 
-    if asm_file_name is None:
-        asm_file_name = current_asm_file_name
+    if file_name is None:
+        file_name = current_file_name
 
     total_errors_count += 1
 
     if symbol_name:
-        if asm_file_name:
-            print(f'{asm_file_name}: ', end='')
+        if file_name:
+            print(f'{file_name}: ', end='')
         print(f"in symbol '{symbol_name}':")
 
-    if asm_file_name:
-        print(f'{asm_file_name}:', end='')
-        if asm_line_num:
-            print(f'{asm_line_num}:', end='')
+    if file_name:
+        print(f'{file_name}:', end='')
+        if line_num:
+            print(f'{line_num}:', end='')
         print(' ', end='')
 
     print('error:', i18n.error_messages[error['name']].format(*error['info']))
 
-    if asm_line_str:
-        print('', asm_line_str.strip())
+    if line_str:
+        print('', line_str.strip())
 
     print()
 
@@ -802,22 +802,22 @@ def parse_asm_line_str(line_str, errors=None):
 
 
 def assemble_asm_file(file_name):
-    global current_asm_file_name, current_asm_line_num, current_asm_line_str, current_symbol_name
+    global current_file_name, current_line_num, current_line_str, current_symbol_name
 
     if os.path.isfile(file_name):
         with open(file_name, 'r') as asm:
-            current_asm_file_name = file_name
+            current_file_name = file_name
             line_num = 0
-            current_asm_line_num = line_num
+            current_line_num = line_num
 
             for line_str in asm.readlines():
-                current_asm_line_str = line_str
+                current_line_str = line_str
                 line_num += 1
-                current_asm_line_num = line_num
+                current_line_num = line_num
 
                 errors = []
 
-                line = parse_asm_line_str(current_asm_line_str, errors)
+                line = parse_asm_line_str(current_line_str, errors)
 
                 if not errors and line['directive']:
                     directive = line['directive']
