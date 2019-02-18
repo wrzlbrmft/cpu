@@ -11,7 +11,7 @@ current_file_name = None
 current_line_num = 0
 current_line_str = None
 
-address_config = {}
+addr_config = {}
 data_config_column = None
 data_config_bits = None
 data_config_control_signals = {}
@@ -45,7 +45,7 @@ def show_error(error, line_str=None, line_num=None, file_name=None):
     print()
 
 
-def parse_address_config(config_str):
+def parse_addr_config(config_str):
     config = {}
 
     for i in config_str.split(','):
@@ -127,7 +127,7 @@ def parse_data_config(config_str):
 def parse_csv_line(line_str, errors=None):
     columns = line_str.split(';')
 
-    for column, bits in address_config.items():
+    for column, bits in addr_config.items():
         if column < len(columns):
             pass
         else:
@@ -154,7 +154,7 @@ def read_csv_file(file_name):
 
 
 def main():
-    global address_config, data_config_column, data_config_bits, data_config_control_signals
+    global addr_config, data_config_column, data_config_bits, data_config_control_signals
 
     if len(sys.argv) < 5:
         show_error({
@@ -163,11 +163,11 @@ def main():
         })
     else:
         csv_file_name = sys.argv[1]
-        address_config_str = sys.argv[2]
+        addr_config_str = sys.argv[2]
         data_config_str = sys.argv[3]
         output_format = sys.argv[4]
 
-        address_config = parse_address_config(address_config_str)
+        addr_config = parse_addr_config(addr_config_str)
 
         if not total_errors_count:
             data_config_column, data_config_bits, data_config_control_signals = parse_data_config(data_config_str)
