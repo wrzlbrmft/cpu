@@ -53,7 +53,7 @@ def parse_address_config(config_str):
         column = j[0]
         if not column.isdecimal():
             show_error({
-                'name': '',  # todo
+                'name': 'INVALID_COLUMN',
                 'info': [column]
             })
             return None
@@ -63,7 +63,7 @@ def parse_address_config(config_str):
             bits = j[1]
             if not bits.isdecimal():
                 show_error({
-                    'name': '',  # todo
+                    'name': 'INVALID_BITS',
                     'info': [bits]
                 })
                 return None
@@ -100,7 +100,7 @@ def parse_data_config(config_str):
     column = i[0]
     if not column.isdecimal():
         show_error({
-            'name': '',  # todo
+            'name': 'INVALID_COLUMN',
             'info': [column]
         })
         return None, None, None
