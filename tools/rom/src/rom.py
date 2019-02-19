@@ -13,8 +13,9 @@ current_line_num = 0
 current_line_str = None
 
 addr_config = {}
-data_config_column = None
-data_config_bits = None
+addr_config_bits = 0
+data_config_column = 0
+data_config_bits = 0
 data_config_control_signals = {}
 
 valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
@@ -60,6 +61,8 @@ def show_error(error, line_str=None, line_num=None, file_name=None):
 
 
 def parse_addr_config(config_str):
+    global addr_config_bits
+
     config = {}
 
     for i in config_str.split(','):
@@ -88,6 +91,12 @@ def parse_addr_config(config_str):
                 bits = int(bits)
 
         config[column] = bits
+
+        if addr_config_bits is not None:
+            if bits is not None:
+                addr_config_bits += bits
+            else:
+                addr_config_bits = None
 
     return config
 
@@ -186,6 +195,14 @@ def parse_csv_line(line_str, errors=None):
                 })
                 return None, None
 
+    if addr_config_bits is not None and len(addr_value) > addr_config_bits:
+        if errors is not None:
+            errors.append({
+                'name': 'INCOMPATIBLE_ADDR_SIZE',
+                'info': [len(addr_value), addr_config_bits]
+            })
+            return None, None
+
     if data_config_column <= len(columns):
         column_value = columns[data_config_column - 1]
         if data.is_valid(column_value) and not data.is_valid_str(column_value):
@@ -205,6 +222,14 @@ def parse_csv_line(line_str, errors=None):
             errors.append({
                 'name': 'DATA_COLUMN_NOT_FOUND',
                 'info': [data_config_column]
+            })
+            return None, None
+
+    if data_config_bits is not None and len(data_value) > data_config_bits:
+        if errors is not None:
+            errors.append({
+                'name': 'INCOMPATIBLE_DATA_SIZE',
+                'info': [len(data_value), data_config_bits]
             })
             return None, None
 
