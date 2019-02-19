@@ -1,8 +1,9 @@
 error_messages = {
     'INSUFFICIENT_ARGUMENTS': 'insufficient arguments (given: {}, required: {})',
-    'FILE_NOT_FOUND': "file not found '{}'",
     'INVALID_COLUMN_NUMBER': "invalid column number '{}'",
     'INVALID_BIT_WIDTH': "invalid bit width '{}'",
+    'FILE_NOT_FOUND': "file not found '{}'",
+    'INVALID_FLAG_NAME': "invalid flag name '{}'",
     'INVALID_ADDR_VALUE': "invalid address value '{}'",
     'ADDR_COLUMN_NOT_FOUND': "address column not found '{}'",
     'INCOMPATIBLE_ADDR_SIZE': 'incompatible address size (given: {}-bit, max: {}-bit)',

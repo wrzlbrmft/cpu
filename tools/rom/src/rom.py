@@ -18,7 +18,12 @@ data_config_column = 0
 data_config_bits = 0
 data_config_flags = {}
 
+valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
 valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
+
+
+def is_valid_name(s):
+    return valid_name_regex.fullmatch(s)
 
 
 def is_valid_bits(s):
@@ -109,7 +114,15 @@ def read_flags_file(file_name, errors=None):
             for line_str in file.readlines():
                 line_str = line_str.strip()
                 if line_str:
-                    flags[line_str] = int(math.pow(2, len(flags)))
+                    if is_valid_name(line_str):
+                        flags[line_str] = int(math.pow(2, len(flags)))
+                    else:
+                        if errors is not None:
+                            errors.append({
+                                'name': 'INVALID_FLAG_NAME',
+                                'info': [line_str]
+                            })
+                        return None, None
 
         bits = len(flags)
 
