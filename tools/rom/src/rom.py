@@ -3,6 +3,7 @@ import i18n
 
 import math
 import os
+import re
 import sys
 
 total_errors_count = 0
@@ -15,6 +16,19 @@ addr_config = {}
 data_config_column = None
 data_config_bits = None
 data_config_control_signals = {}
+
+valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
+
+
+def is_valid_bits(s):
+    return valid_bits_regex.fullmatch(s)
+
+
+def get_bits_value(s):
+    if is_valid_bits(s):
+        return s[2:]
+    else:
+        return None
 
 
 def show_error(error, line_str=None, line_num=None, file_name=None):
@@ -54,7 +68,7 @@ def parse_addr_config(config_str):
         column = j[0]
         if not column.isdecimal() or int(column) < 1:
             show_error({
-                'name': 'INVALID_COLUMN',
+                'name': 'INVALID_COLUMN_NUMBER',
                 'info': [column]
             })
             return None
@@ -66,7 +80,7 @@ def parse_addr_config(config_str):
             bits = j[1]
             if not bits.isdecimal() or int(bits) < 1:
                 show_error({
-                    'name': 'INVALID_BITS',
+                    'name': 'INVALID_BIT_WIDTH',
                     'info': [bits]
                 })
                 return None
@@ -106,7 +120,7 @@ def parse_data_config(config_str):
     column = i[0]
     if not column.isdecimal() or int(column) < 1:
         show_error({
-            'name': 'INVALID_COLUMN',
+            'name': 'INVALID_COLUMN_NUMBER',
             'info': [column]
         })
         return None, None, None
@@ -129,7 +143,7 @@ def parse_data_config(config_str):
                 return None, None, None
         elif int(bits) < 1:
             show_error({
-                'name': 'INVALID_BITS',
+                'name': 'INVALID_BIT_WIDTH',
                 'info': [bits]
             })
             return None, None, None
@@ -152,19 +166,23 @@ def parse_csv_line(line_str, errors=None):
                 column_value = format(data.get_value(column_value), 'b')
                 if bits is not None:
                     column_value = column_value.zfill(bits)
+            elif is_valid_bits(column_value):
+                column_value = get_bits_value(column_value)
+                if bits is not None:
+                    column_value = column_value.zfill(bits)
             else:
                 if errors is not None:
                     errors.append({
-                        'name': '',  # todo
-                        'info': []
+                        'name': 'INVALID_ADDR_VALUE',
+                        'info': [column_value]
                     })
                 return None, None
             addr_value += column_value
         else:
             if errors is not None:
                 errors.append({
-                    'name': '',  # todo
-                    'info': []
+                    'name': 'COLUMN_NOT_FOUND',
+                    'info': [column]
                 })
                 return None, None
 
@@ -177,8 +195,20 @@ def read_csv_file(file_name):
             for line_str in csv.readlines():
                 line_str = line_str.strip()
                 if line_str:
-                    addr_value, data_value = parse_csv_line(line_str)
-                    print(addr_value, data_value)
+                    errors = []
+
+                    addr_value, data_value = parse_csv_line(line_str, errors)
+
+                    if not errors:
+                        print(addr_value, data_value)
+
+                    # end of line
+
+                    if errors:
+                        show_error(errors[0])
+                        break
+
+            # end of file
     else:
         show_error({
             'name': 'FILE_NOT_FOUND',
