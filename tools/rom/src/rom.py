@@ -181,7 +181,7 @@ def parse_csv_line(line_str, errors=None):
         else:
             if errors is not None:
                 errors.append({
-                    'name': 'COLUMN_NOT_FOUND',
+                    'name': 'ADDR_COLUMN_NOT_FOUND',
                     'info': [column]
                 })
                 return None, None
