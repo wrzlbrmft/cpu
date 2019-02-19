@@ -885,6 +885,7 @@ def assemble_asm_file(file_name):
 
                 if errors:
                     show_error(errors[0])
+                    break
 
             # end of file
     else:
