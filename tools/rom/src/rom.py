@@ -16,7 +16,7 @@ addr_config = {}
 addr_config_bits = 0
 data_config_column = 0
 data_config_bits = 0
-data_config_control_signals = {}
+data_config_flags = {}
 
 valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
 
@@ -101,19 +101,19 @@ def parse_addr_config(config_str):
     return config
 
 
-def read_control_signals_file(file_name, errors=None):
+def read_flags_file(file_name, errors=None):
     if os.path.isfile(file_name):
-        control_signals = {}
+        flags = {}
 
         with open(file_name, 'r') as file:
             for line_str in file.readlines():
                 line_str = line_str.strip()
                 if line_str:
-                    control_signals[line_str] = int(math.pow(2, len(control_signals)))
+                    flags[line_str] = int(math.pow(2, len(flags)))
 
-        bits = len(control_signals)
+        bits = len(flags)
 
-        return bits, control_signals
+        return bits, flags
     else:
         if errors is not None:
             errors.append({
@@ -137,15 +137,15 @@ def parse_data_config(config_str):
         column = int(column)
 
     bits = None
-    control_signals = {}
+    flags = {}
     if len(i) > 1:
         bits = i[1]
         if not bits.isdecimal():
-            control_signals_file_name = bits
+            flags_file_name = bits
 
             errors = []
 
-            bits, control_signals = read_control_signals_file(control_signals_file_name, errors)
+            bits, flags = read_flags_file(flags_file_name, errors)
 
             if errors:
                 show_error(errors[0])
@@ -159,7 +159,7 @@ def parse_data_config(config_str):
         else:
             bits = int(bits)
 
-    return column, bits, control_signals
+    return column, bits, flags
 
 
 def parse_csv_line(line_str, errors=None):
@@ -267,7 +267,7 @@ def read_csv_file(file_name):
 
 
 def main():
-    global addr_config, data_config_column, data_config_bits, data_config_control_signals
+    global addr_config, data_config_column, data_config_bits, data_config_flags
 
     if len(sys.argv) < 5:
         show_error({
@@ -283,7 +283,7 @@ def main():
         addr_config = parse_addr_config(addr_config_str)
 
         if not total_errors_count:
-            data_config_column, data_config_bits, data_config_control_signals = parse_data_config(data_config_str)
+            data_config_column, data_config_bits, data_config_flags = parse_data_config(data_config_str)
 
         if not total_errors_count:
             read_csv_file(csv_file_name)
