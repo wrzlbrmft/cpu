@@ -160,7 +160,7 @@ def parse_csv_line(line_str, errors=None):
     data_value = ''
 
     for column, bits in addr_config.items():
-        if column < len(columns):
+        if column <= len(columns):
             column_value = columns[column - 1]
             if data.is_valid(column_value) and not data.is_valid_str(column_value):
                 column_value = format(data.get_value(column_value), 'b')
@@ -185,6 +185,28 @@ def parse_csv_line(line_str, errors=None):
                     'info': [column]
                 })
                 return None, None
+
+    if data_config_column <= len(columns):
+        column_value = columns[data_config_column - 1]
+        if data.is_valid(column_value) and not data.is_valid_str(column_value):
+            column_value = format(data.get_value(column_value), 'b')
+            if data_config_bits is not None:
+                column_value = column_value.zfill(data_config_bits)
+        else:
+            if errors is not None:
+                errors.append({
+                    'name': 'INVALID_DATA_VALUE',
+                    'info': [column_value]
+                })
+            return None, None
+        data_value = column_value
+    else:
+        if errors is not None:
+            errors.append({
+                'name': 'DATA_COLUMN_NOT_FOUND',
+                'info': [data_config_column]
+            })
+            return None, None
 
     return addr_value, data_value
 
