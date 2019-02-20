@@ -158,11 +158,31 @@ def parse_data_config(config_str):
 
             errors = []
 
-            bits, flags = read_flags_file(flags_file_name, errors)
+            flags_bits, flags = read_flags_file(flags_file_name, errors)
 
             if errors:
                 show_error(errors[0])
                 return None, None, None
+            else:
+                if len(i) > 2:
+                    bits = i[2]
+                    if not bits.isdecimal() or int(bits) < 1:
+                        show_error({
+                            'name': 'INVALID_BIT_WIDTH',
+                            'info': [bits]
+                        })
+                        return None, None, None
+                    else:
+                        bits = int(bits)
+
+                    if flags_bits > bits:
+                        show_error({
+                            'name': 'FLAGS_EXCEEDING_BIT_WIDTH',
+                            'info': [flags_bits, bits]
+                        })
+                        return None, None, None
+                else:
+                    bits = flags_bits
         elif int(bits) < 1:
             show_error({
                 'name': 'INVALID_BIT_WIDTH',

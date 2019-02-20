@@ -2,6 +2,7 @@ error_messages = {
     'INSUFFICIENT_ARGUMENTS': 'insufficient arguments (given: {}, required: {})',
     'INVALID_COLUMN_NUMBER': "invalid column number '{}'",
     'INVALID_BIT_WIDTH': "invalid bit width '{}'",
+    'FLAGS_EXCEEDING_BIT_WIDTH': "flags exceeding bit width (flags: {}-bit, given: {}-bit)",
     'FILE_NOT_FOUND': "file not found '{}'",
     'INVALID_FLAG_NAME': "invalid flag name '{}'",
     'INVALID_ADDR_VALUE': "invalid address value '{}'",
