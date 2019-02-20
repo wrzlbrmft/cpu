@@ -107,12 +107,22 @@ def parse_addr_config(config_str):
 
 
 def read_flags_file(file_name, errors=None):
+    global current_file_name, current_line_num, current_line_str
+
     if os.path.isfile(file_name):
         flags = {}
 
         with open(file_name, 'r') as file:
+            current_file_name = file_name
+            line_num = 0
+            current_line_num = line_num
+
             for line_str in file.readlines():
                 line_str = line_str.strip()
+                current_line_str = line_str
+                line_num += 1
+                current_line_num = line_num
+
                 if line_str:
                     if is_valid_name(line_str):
                         flags[line_str] = int(math.pow(2, len(flags)))
@@ -137,6 +147,8 @@ def read_flags_file(file_name, errors=None):
 
 
 def parse_data_config(config_str):
+    global current_file_name, current_line_num, current_line_str
+
     i = config_str.split(':')
 
     column = i[0]
@@ -164,6 +176,10 @@ def parse_data_config(config_str):
                 show_error(errors[0])
                 return None, None, None
             else:
+                current_file_name = None
+                current_line_num = 0
+                current_line_str = None
+
                 if len(i) > 2:
                     bits = i[2]
                     if not bits.isdecimal() or int(bits) < 1:
@@ -295,10 +311,20 @@ def parse_csv_line(line_str, errors=None):
 
 
 def read_csv_file(file_name):
+    global current_file_name, current_line_num, current_line_str
+
     if os.path.isfile(file_name):
         with open(file_name, 'r') as csv:
+            current_file_name = file_name
+            line_num = 0
+            current_line_num = line_num
+
             for line_str in csv.readlines():
                 line_str = line_str.strip()
+                current_line_str = line_str
+                line_num += 1
+                current_line_num = line_num
+
                 if line_str:
                     errors = []
 
