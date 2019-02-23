@@ -21,7 +21,6 @@ data_config_flags = {}
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
 valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
 
-rom_min_data_bits = None
 rom = {}
 
 
@@ -345,18 +344,13 @@ def parse_csv_line(line_str, errors=None):
 
 
 def add_to_rom(addr_value, data_value):
-    global rom_min_data_bits, rom
+    global rom
 
     addr_value = addr_value.split('x', 1)
     if len(addr_value) > 1:
         add_to_rom('0'.join(addr_value), data_value)
         add_to_rom('1'.join(addr_value), data_value)
     else:
-        if not rom_min_data_bits:
-            rom_min_data_bits = len(data_value)
-        else:
-            rom_min_data_bits = min(rom_min_data_bits, len(data_value))
-
         rom[int(addr_value[0], 2)] = int(data_value, 2)
 
 
@@ -401,8 +395,8 @@ def read_csv_file(file_name):
     current_line_str = None
 
 
-def get_value_bits(value, bits_from, bits_to, errors=None):
-    value = format(value, 'b')
+def get_value_bits(value, bits_from, bits_to):
+    value = format(value, 'b').zfill(bits_to + 1)
     if data_config_bits:
         value = value.zfill(data_config_bits)
 
@@ -424,13 +418,7 @@ def write_raw_file(file_name, output_bits_from=None, output_bits_to=None):
             data_value = rom[addr_value]
 
             if output_bits_from is not None and output_bits_to is not None:
-                errors = []
-
-                data_value = get_value_bits(data_value, output_bits_from, output_bits_to, errors)
-
-                if errors:
-                    show_error(errors[0])
-                    return None
+                data_value = get_value_bits(data_value, output_bits_from, output_bits_to)
 
             data_value = hex(data_value)[2:]
             raw.write(data_value + '\n')
