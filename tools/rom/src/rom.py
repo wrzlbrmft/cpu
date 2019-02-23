@@ -118,11 +118,11 @@ def read_flags_file(file_name, errors=None):
             current_line_num = line_num
 
             for line_str in file.readlines():
-                line_str = line_str.strip()
                 current_line_str = line_str
                 line_num += 1
                 current_line_num = line_num
 
+                line_str = line_str.strip()
                 if line_str:
                     if is_valid_name(line_str):
                         flags[line_str] = int(math.pow(2, len(flags)))
@@ -332,11 +332,11 @@ def read_csv_file(file_name):
             current_line_num = line_num
 
             for line_str in csv.readlines():
-                line_str = line_str.strip()
                 current_line_str = line_str
                 line_num += 1
                 current_line_num = line_num
 
+                line_str = line_str.strip()
                 if line_str:
                     errors = []
 
