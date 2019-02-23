@@ -67,6 +67,33 @@ def show_error(error, line_str=None, line_num=None, file_name=None):
     print()
 
 
+def parse_output_bits(bits, errors=None):
+    i = bits.split('-')
+
+    bits_from = i[0]
+    if not bits_from.isdecimal() or bits_from < 0:
+        pass
+        return None, None
+    else:
+        bits_from = int(bits_from)
+
+    if len(i) > 1:
+        bits_to = i[1]
+        if not bits_to.isdecimal() or bits_to < 0:
+            pass
+            return None, None
+        else:
+            bits_to = int(bits_to)
+
+        if bits_to < bits_from:
+            pass
+            return None, None
+    else:
+        bits_to = bits_from
+
+    return bits_from, bits_to
+
+
 def parse_addr_config(config_str):
     config = {}
     config_bits = 0
@@ -363,7 +390,7 @@ def read_csv_file(file_name):
     current_line_str = None
 
 
-def write_raw_file(file_name):
+def write_raw_file(file_name, output_bits_from=None, output_bits_to=None):
     with open(file_name, 'w') as raw:
         raw.write('v2.0 raw\n')
 
@@ -379,7 +406,7 @@ def write_raw_file(file_name):
             prev_addr_value = addr_value
 
 
-def write_img_file(file_name):
+def write_img_file(file_name, output_bits_from=None, output_bits_to=None):
     pass
 
 
@@ -413,8 +440,10 @@ def main():
                 'info': [output_file_extension]
             })
 
+        output_bits_from = None
+        output_bits_to = None
         if len(sys.argv) > 5:
-            pass
+            output_bits_from, output_bits_to = parse_output_bits(sys.argv[5])
 
         addr_config, addr_config_bits = parse_addr_config(addr_config_str)
 
@@ -426,9 +455,9 @@ def main():
 
         if not total_errors_count:
             if 'raw' == output_file_extension_lower:
-                write_raw_file(output_file_name)
+                write_raw_file(output_file_name, output_bits_from, output_bits_to)
             elif 'img' == output_file_extension_lower:
-                write_img_file(output_file_name)
+                write_img_file(output_file_name, output_bits_from, output_bits_to)
 
 
 if '__main__' == __name__:
