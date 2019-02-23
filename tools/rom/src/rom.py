@@ -67,12 +67,15 @@ def show_error(error, line_str=None, line_num=None, file_name=None):
     print()
 
 
-def parse_output_bits(bits, errors=None):
+def parse_output_bits(bits):
     i = bits.split('-')
 
     bits_from = i[0]
     if not bits_from.isdecimal() or bits_from < 0:
-        pass
+        show_error({
+            'name': 'INVALID_OUTPUT_BIT',
+            'info': [bits_from]
+        })
         return None, None
     else:
         bits_from = int(bits_from)
@@ -80,14 +83,16 @@ def parse_output_bits(bits, errors=None):
     if len(i) > 1:
         bits_to = i[1]
         if not bits_to.isdecimal() or bits_to < 0:
-            pass
+            show_error({
+                'name': 'INVALID_OUTPUT_BIT',
+                'info': [bits_from]
+            })
             return None, None
         else:
             bits_to = int(bits_to)
 
         if bits_to < bits_from:
-            pass
-            return None, None
+            bits_from, bits_to = bits_to, bits_from
     else:
         bits_to = bits_from
 
@@ -445,7 +450,8 @@ def main():
         if len(sys.argv) > 5:
             output_bits_from, output_bits_to = parse_output_bits(sys.argv[5])
 
-        addr_config, addr_config_bits = parse_addr_config(addr_config_str)
+        if not total_errors_count:
+            addr_config, addr_config_bits = parse_addr_config(addr_config_str)
 
         if not total_errors_count:
             data_config_column, data_config_bits, data_config_flags = parse_data_config(data_config_str)
