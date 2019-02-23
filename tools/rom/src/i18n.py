@@ -11,5 +11,7 @@ error_messages = {
     'INVALID_DATA_VALUE': "invalid data value '{}'",
     'DATA_COLUMN_NOT_FOUND': "data column not found '{}'",
     'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bit, max: {}-bit)',
-    'UNKNOWN_FLAG': "unknown flag '{}'"
+    'UNKNOWN_FLAG': "unknown flag '{}'",
+    'MISSING_OUTPUT_FILE_EXTENSION': "missing output file extension '{}'",
+    'INVALID_OUTPUT_FILE_EXTENSION': "invalid output file extension '{}'"
 }
