@@ -358,6 +358,10 @@ def read_csv_file(file_name):
             'info': [file_name]
         })
 
+    current_file_name = None
+    current_line_num = 0
+    current_line_str = None
+
 
 # main
 
