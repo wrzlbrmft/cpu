@@ -398,7 +398,23 @@ def main():
         csv_file_name = sys.argv[1]
         addr_config_str = sys.argv[2]
         data_config_str = sys.argv[3]
+
         output_file_name = sys.argv[4]
+        output_file_extension = os.path.splitext(output_file_name)[1][1:]
+        output_file_extension_lower = output_file_extension.lower()
+        if not output_file_extension:
+            show_error({
+                'name': 'MISSING_OUTPUT_FILE_EXTENSION',
+                'info': [output_file_name]
+            })
+        elif output_file_extension_lower not in ['raw', 'img']:
+            show_error({
+                'name': 'INVALID_OUTPUT_FILE_EXTENSION',
+                'info': [output_file_extension]
+            })
+
+        if len(sys.argv) > 5:
+            pass
 
         addr_config, addr_config_bits = parse_addr_config(addr_config_str)
 
@@ -409,22 +425,10 @@ def main():
             read_csv_file(csv_file_name)
 
         if not total_errors_count:
-            output_file_extension = os.path.splitext(output_file_name)[1][1:]
-            output_file_extension_lower = output_file_extension.lower()
-            if not output_file_extension:
-                show_error({
-                    'name': 'MISSING_OUTPUT_FILE_EXTENSION',
-                    'info': [output_file_name]
-                })
-            elif 'raw' == output_file_extension_lower:
+            if 'raw' == output_file_extension_lower:
                 write_raw_file(output_file_name)
             elif 'img' == output_file_extension_lower:
                 write_img_file(output_file_name)
-            else:
-                show_error({
-                    'name': 'INVALID_OUTPUT_FILE_EXTENSION',
-                    'info': [output_file_extension]
-                })
 
 
 if '__main__' == __name__:
