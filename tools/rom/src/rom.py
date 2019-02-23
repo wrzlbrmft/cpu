@@ -66,10 +66,8 @@ def show_error(error, line_str=None, line_num=None, file_name=None):
 
 
 def parse_addr_config(config_str):
-    global addr_config_bits
-
     config = {}
-
+    config_bits = 0
     for i in config_str.split(','):
         j = i.split(':')
 
@@ -79,7 +77,7 @@ def parse_addr_config(config_str):
                 'name': 'INVALID_COLUMN_NUMBER',
                 'info': [column]
             })
-            return None
+            return None, None
         else:
             column = int(column)
 
@@ -91,19 +89,19 @@ def parse_addr_config(config_str):
                     'name': 'INVALID_BIT_WIDTH',
                     'info': [bits]
                 })
-                return None
+                return None, None
             else:
                 bits = int(bits)
 
         config[column] = bits
 
-        if addr_config_bits is not None:
+        if config_bits is not None:
             if bits is not None:
-                addr_config_bits += bits
+                config_bits += bits
             else:
-                addr_config_bits = None
+                config_bits = None
 
-    return config
+    return config, config_bits
 
 
 def read_flags_file(file_name, errors=None):
@@ -134,9 +132,9 @@ def read_flags_file(file_name, errors=None):
                             })
                         return None, None
 
-        bits = len(flags)
+        flags_bits = len(flags)
 
-        return bits, flags
+        return flags, flags_bits
     else:
         if errors is not None:
             errors.append({
@@ -170,7 +168,7 @@ def parse_data_config(config_str):
 
             errors = []
 
-            flags_bits, flags = read_flags_file(flags_file_name, errors)
+            flags, flags_bits = read_flags_file(flags_file_name, errors)
 
             if errors:
                 show_error(errors[0])
@@ -273,6 +271,7 @@ def parse_csv_line(line_str, errors=None):
             flags = column_value.split(',')
             column_value = 0
             for flag in flags:
+                flag = flag.strip()
                 if flag_exists(flag):
                     column_value |= get_flag(flag)
                 else:
@@ -351,7 +350,7 @@ def read_csv_file(file_name):
 
 
 def main():
-    global addr_config, data_config_column, data_config_bits, data_config_flags
+    global addr_config, addr_config_bits, data_config_column, data_config_bits, data_config_flags
 
     if len(sys.argv) < 5:
         show_error({
@@ -364,7 +363,7 @@ def main():
         data_config_str = sys.argv[3]
         output_format = sys.argv[4]
 
-        addr_config = parse_addr_config(addr_config_str)
+        addr_config, addr_config_bits = parse_addr_config(addr_config_str)
 
         if not total_errors_count:
             data_config_column, data_config_bits, data_config_flags = parse_data_config(data_config_str)
