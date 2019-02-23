@@ -319,7 +319,7 @@ def add_to_rom(addr_value, data_value):
         add_to_rom('0'.join(addr_value), data_value)
         add_to_rom('1'.join(addr_value), data_value)
     else:
-        rom[addr_value[0]] = data_value
+        rom[int(addr_value[0], 2)] = int(data_value, 2)
 
 
 def read_csv_file(file_name):
