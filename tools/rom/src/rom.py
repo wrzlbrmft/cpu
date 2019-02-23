@@ -21,6 +21,8 @@ data_config_flags = {}
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
 valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
 
+rom = {}
+
 
 def is_valid_name(s):
     return valid_name_regex.fullmatch(s)
@@ -309,6 +311,17 @@ def parse_csv_line(line_str, errors=None):
     return addr_value, data_value
 
 
+def add_to_rom(addr_value, data_value):
+    global rom
+
+    addr_value = addr_value.split('x', 1)
+    if len(addr_value) > 1:
+        add_to_rom('0'.join(addr_value), data_value)
+        add_to_rom('1'.join(addr_value), data_value)
+    else:
+        rom[addr_value[0]] = data_value
+
+
 def read_csv_file(file_name):
     global current_file_name, current_line_num, current_line_str
 
@@ -330,7 +343,7 @@ def read_csv_file(file_name):
                     addr_value, data_value = parse_csv_line(line_str, errors)
 
                     if not errors:
-                        print(addr_value, data_value)
+                        add_to_rom(addr_value, data_value)
 
                     # end of line
 
@@ -370,6 +383,9 @@ def main():
 
         if not total_errors_count:
             read_csv_file(csv_file_name)
+
+        if not total_errors_count:
+            print(rom)
 
 
 if '__main__' == __name__:
