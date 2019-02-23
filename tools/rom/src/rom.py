@@ -363,6 +363,26 @@ def read_csv_file(file_name):
     current_line_str = None
 
 
+def write_raw_file(file_name):
+    with open(file_name, 'w') as raw:
+        raw.write('v2.0 raw\n')
+
+        prev_addr_value = 0
+        for addr_value in sorted(rom.keys()):
+            for i in range(prev_addr_value, addr_value - 1):
+                raw.write('0\n')
+
+            data_value = rom[addr_value]
+            data_value = hex(data_value)[2:]
+            raw.write(data_value + '\n')
+
+            prev_addr_value = addr_value
+
+
+def write_img_file(file_name):
+    pass
+
+
 # main
 
 
@@ -397,9 +417,9 @@ def main():
                     'info': [output_file_name]
                 })
             elif 'raw' == output_file_extension_lower:
-                pass
+                write_raw_file(output_file_name)
             elif 'img' == output_file_extension_lower:
-                pass
+                write_img_file(output_file_name)
             else:
                 show_error({
                     'name': 'INVALID_OUTPUT_FILE_EXTENSION',
