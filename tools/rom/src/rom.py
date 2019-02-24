@@ -143,6 +143,7 @@ def read_flags_file(file_name, errors=None):
 
     if os.path.isfile(file_name):
         flags = {}
+        flags_bits = 0
 
         with open(file_name, 'r') as file:
             current_file_name = file_name
@@ -156,17 +157,33 @@ def read_flags_file(file_name, errors=None):
 
                 line_str = line_str.strip()
                 if line_str:
-                    if is_valid_name(line_str):
-                        flags[line_str] = int(math.pow(2, len(flags)))
+                    i = line_str.split(';')
+
+                    flag_name = i[0]
+                    if is_valid_name(flag_name):
+                        if len(i) > 1:
+                            flag_value = i[1]
+                            if data.is_valid(flag_value) and not data.is_valid_str(flag_value):
+                                flag_value = data.get_value(flag_value)
+                            else:
+                                if errors is not None:
+                                    errors.append({
+                                        'name': 'INVALID_FLAG_VALUE',
+                                        'info': [flag_value]
+                                    })
+                                return None, None
+                        else:
+                            flag_value = int(math.pow(2, len(flags)))
+
+                        flags[flag_name] = flag_value
+                        flags_bits = max(flags_bits, flag_value.bit_length())
                     else:
                         if errors is not None:
                             errors.append({
                                 'name': 'INVALID_FLAG_NAME',
-                                'info': [line_str]
+                                'info': [flag_name]
                             })
                         return None, None
-
-        flags_bits = len(flags)
 
         return flags, flags_bits
     else:
