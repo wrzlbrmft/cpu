@@ -439,7 +439,7 @@ def write_raw_file(file_name):
     with open(file_name, 'w') as raw:
         raw.write('v2.0 raw\n')
 
-        prev_addr_value = 0
+        prev_addr_value = -1
         for addr_value in sorted(rom.keys()):
             for i in range(prev_addr_value, addr_value - 1):
                 raw.write('0\n')
