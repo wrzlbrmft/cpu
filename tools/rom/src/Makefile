@@ -1,9 +1,5 @@
 .PHONY: clean
 
-clean:
-	rm -vf rom
-	rm -rvf __pycache__
-
 rom:
 	$(eval TEMP_DIR := $(shell mktemp -d))
 	cp -v rom.py $(TEMP_DIR)/__main__.py
@@ -18,3 +14,7 @@ rom:
 
 	rm -v $(TEMP_FILE)
 	rm -rv $(TEMP_DIR)
+
+clean:
+	rm -vf rom
+	rm -rvf __pycache__

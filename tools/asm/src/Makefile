@@ -1,9 +1,6 @@
-.PHONY: clean
+.PHONY: all clean
 
-clean:
-	rm -vf asm
-	rm -vf link
-	rm -rvf __pycache__
+all: asm link
 
 asm:
 	$(eval TEMP_DIR := $(shell mktemp -d))
@@ -34,3 +31,8 @@ link:
 
 	rm -v $(TEMP_FILE)
 	rm -rv $(TEMP_DIR)
+
+clean:
+	rm -vf asm
+	rm -vf link
+	rm -rvf __pycache__
