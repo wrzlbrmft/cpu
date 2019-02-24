@@ -178,7 +178,7 @@ def read_flags_file(file_name, errors=None):
                                     })
                                 return None, None
                         else:
-                            flag_value = int(math.pow(2, len(flags)))
+                            flag_value = int(math.pow(2, flags_bits))
 
                         flags[flag_name] = flag_value
                         flags_bits = max(flags_bits, flag_value.bit_length())
