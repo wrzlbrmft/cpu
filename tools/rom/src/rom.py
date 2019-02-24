@@ -365,6 +365,17 @@ def parse_csv_line(line_str, errors=None):
     return addr_value, data_value
 
 
+def get_value_bits(value, bits_from, bits_to):
+    value = format(value, 'b').zfill(bits_to + 1)
+    if data_config_bits:
+        value = value.zfill(data_config_bits)
+
+    value = value[len(value) - bits_to - 1:len(value) - bits_from]
+    value = int(value, 2)
+
+    return value
+
+
 def add_to_rom(addr_value, data_value):
     global rom
 
@@ -420,17 +431,6 @@ def read_csv_file(file_name):
     current_file_name = None
     current_line_num = 0
     current_line_str = None
-
-
-def get_value_bits(value, bits_from, bits_to):
-    value = format(value, 'b').zfill(bits_to + 1)
-    if data_config_bits:
-        value = value.zfill(data_config_bits)
-
-    value = value[len(value) - bits_to - 1:len(value) - bits_from]
-    value = int(value, 2)
-
-    return value
 
 
 def write_raw_file(file_name):
