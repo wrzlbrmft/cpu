@@ -439,15 +439,16 @@ def write_raw_file(file_name):
 
         prev_addr_value = 0
         for addr_value in sorted(rom.keys()):
-            for i in range(prev_addr_value, addr_value - 1):
-                raw.write('0\n')
-
             data_value = rom[addr_value]
-            data_value = hex(data_value)[2:]
 
-            raw.write(data_value + '\n')
+            if data_value:
+                for i in range(prev_addr_value, addr_value - 1):
+                    raw.write('0\n')
 
-            prev_addr_value = addr_value
+                data_value = hex(data_value)[2:]
+                raw.write(data_value + '\n')
+
+                prev_addr_value = addr_value
 
 
 def write_img_file(file_name):
