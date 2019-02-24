@@ -21,6 +21,9 @@ data_config_flags = {}
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
 valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
 
+output_bits_from = None
+output_bits_to = None
+
 rom = {}
 
 
@@ -370,7 +373,12 @@ def add_to_rom(addr_value, data_value):
         add_to_rom('0'.join(addr_value), data_value)
         add_to_rom('1'.join(addr_value), data_value)
     else:
-        rom[int(addr_value[0], 2)] = int(data_value, 2)
+        data_value = int(data_value, 2)
+
+        if output_bits_from is not None and output_bits_to is not None:
+            data_value = get_value_bits(data_value, output_bits_from, output_bits_to)
+
+        rom[int(addr_value[0], 2)] = data_value
 
 
 def read_csv_file(file_name):
@@ -425,7 +433,7 @@ def get_value_bits(value, bits_from, bits_to):
     return value
 
 
-def write_raw_file(file_name, output_bits_from=None, output_bits_to=None):
+def write_raw_file(file_name):
     with open(file_name, 'w') as raw:
         raw.write('v2.0 raw\n')
 
@@ -435,17 +443,14 @@ def write_raw_file(file_name, output_bits_from=None, output_bits_to=None):
                 raw.write('0\n')
 
             data_value = rom[addr_value]
-
-            if output_bits_from is not None and output_bits_to is not None:
-                data_value = get_value_bits(data_value, output_bits_from, output_bits_to)
-
             data_value = hex(data_value)[2:]
+
             raw.write(data_value + '\n')
 
             prev_addr_value = addr_value
 
 
-def write_img_file(file_name, output_bits_from=None, output_bits_to=None):
+def write_img_file(file_name):
     pass
 
 
@@ -453,7 +458,8 @@ def write_img_file(file_name, output_bits_from=None, output_bits_to=None):
 
 
 def main():
-    global addr_config, addr_config_bits, data_config_column, data_config_bits, data_config_flags
+    global addr_config, addr_config_bits, data_config_column, data_config_bits, data_config_flags, output_bits_from, \
+        output_bits_to
 
     if len(sys.argv) < 5:
         show_error({
@@ -479,8 +485,6 @@ def main():
                 'info': [output_file_extension]
             })
 
-        output_bits_from = None
-        output_bits_to = None
         if len(sys.argv) > 5:
             output_bits_from, output_bits_to = parse_output_bits(sys.argv[5])
 
@@ -495,9 +499,9 @@ def main():
 
         if not total_errors_count:
             if 'raw' == output_file_extension_lower:
-                write_raw_file(output_file_name, output_bits_from, output_bits_to)
+                write_raw_file(output_file_name)
             elif 'img' == output_file_extension_lower:
-                write_img_file(output_file_name, output_bits_from, output_bits_to)
+                write_img_file(output_file_name)
 
 
 if '__main__' == __name__:
