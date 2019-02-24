@@ -389,7 +389,9 @@ def add_to_rom(addr_value, data_value):
         if output_bits_from is not None and output_bits_to is not None:
             data_value = get_value_bits(data_value, output_bits_from, output_bits_to)
 
-        rom[int(addr_value[0], 2)] = data_value
+        if data_value:
+            addr_value = int(addr_value[0], 2)
+            rom[addr_value] = data_value
 
 
 def read_csv_file(file_name):
@@ -439,16 +441,14 @@ def write_raw_file(file_name):
 
         prev_addr_value = 0
         for addr_value in sorted(rom.keys()):
+            for i in range(prev_addr_value, addr_value - 1):
+                raw.write('0\n')
+
             data_value = rom[addr_value]
+            data_value = hex(data_value)[2:]
+            raw.write(data_value + '\n')
 
-            if data_value:
-                for i in range(prev_addr_value, addr_value - 1):
-                    raw.write('0\n')
-
-                data_value = hex(data_value)[2:]
-                raw.write(data_value + '\n')
-
-                prev_addr_value = addr_value
+            prev_addr_value = addr_value
 
 
 def write_img_file(file_name):
