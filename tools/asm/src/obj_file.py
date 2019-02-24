@@ -165,6 +165,7 @@ def read_obj_file_symbol_table(file, errors=None):
                     })
                 return None
             else:
+                # adds the symbol name to the symbol table
                 symbol_table.get_index(symbol_name, _symbol_table)
 
         return _symbol_table

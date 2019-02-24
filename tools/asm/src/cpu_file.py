@@ -17,7 +17,7 @@ def build_cpu_symbols(errors=None, link_base=0, _symbol_table=None, _symbols=Non
         symbol = symbols.get_symbol(symbol_name, _symbols)
 
         machine_code = symbol['machine_code']
-        # the actual relocation
+        # do the relocation...
         for relocation in symbol['relocation_table']:
             relocation_symbol_name = symbol_table.get_symbol_name(relocation['symbol_table_index'], _symbol_table)
             if symbols.symbol_exists(relocation_symbol_name, _symbols):

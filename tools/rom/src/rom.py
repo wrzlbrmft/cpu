@@ -102,6 +102,7 @@ def parse_output_bits(bits):
 def parse_addr_config(config_str):
     config = {}
     config_bits = 0
+
     for i in config_str.split(','):
         j = i.split(':')
 

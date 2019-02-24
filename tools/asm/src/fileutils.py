@@ -18,7 +18,7 @@ def dump_buffer(buffer):
             for j in range(row, row + col):
                 byte = buffer[j]
                 if byte not in range(33, 126):
-                    byte = 46  # .
+                    byte = 46  # show '.' for invisible character
                 print(chr(byte), end='')
             print('')
             row += col

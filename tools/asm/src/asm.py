@@ -44,16 +44,16 @@ valid_operands = list(valid_registers.keys()) + ['m']
 valid_name_regex = re.compile('[_a-z][_a-z0-9]{,254}', re.IGNORECASE)
 
 
-def is_valid_directive(directive):
-    return directive in valid_directives
+def is_valid_directive(s):
+    return s in valid_directives
 
 
-def is_valid_mnemonic(mnemonic):
-    return mnemonic in valid_mnemonics
+def is_valid_mnemonic(s):
+    return s in valid_mnemonics
 
 
-def is_valid_register(register):
-    return register in valid_registers.keys()
+def is_valid_register(s):
+    return s in valid_registers.keys()
 
 
 def get_register_size(register):
@@ -70,17 +70,17 @@ def get_register_opcode(register):
         return None
 
 
-def is_valid_operand(operand):
-    return operand in valid_operands
+def is_valid_operand(s):
+    return s in valid_operands
 
 
-def is_valid_name(name):
-    return not is_valid_operand(name) and valid_name_regex.fullmatch(name)
+def is_valid_name(s):
+    return not is_valid_operand(s) and valid_name_regex.fullmatch(s)
 
 
-def is_valid_addr(addr):
+def is_valid_addr(s):
     # a symbol name is always a valid address (the linker will determine the address during relocation)
-    return is_valid_name(addr) or (data.is_valid(addr) and not data.is_valid_chr(addr) and not data.is_valid_str(addr))
+    return is_valid_name(s) or (data.is_valid(s) and not data.is_valid_chr(s) and not data.is_valid_str(s))
 
 
 def get_addr_value(addr):
@@ -857,7 +857,7 @@ def assemble_asm_file(file_name):
                         else:
                             current_symbol_name = symbol_name
 
-                            # implicitly adds the symbol name to the symbol table
+                            # adds the symbol name to the symbol table
                             symbol_table.get_index(current_symbol_name)
 
                     if not errors and line['mnemonic']:
