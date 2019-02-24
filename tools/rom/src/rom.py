@@ -243,13 +243,13 @@ def parse_data_config(config_str):
     return column, bits, flags
 
 
-def flag_exists(flag):
-    return flag in data_config_flags.keys()
+def flag_exists(flag_name):
+    return flag_name in data_config_flags.keys()
 
 
-def get_flag(flag):
-    if flag_exists(flag):
-        return data_config_flags[flag]
+def get_flag_value(flag_name):
+    if flag_exists(flag_name):
+        return data_config_flags[flag_name]
     else:
         return None
 
@@ -302,17 +302,17 @@ def parse_csv_line(line_str, errors=None):
             if data_config_bits is not None:
                 column_value = column_value.zfill(data_config_bits)
         elif data_config_flags:
-            flags = column_value.split(',')
+            flag_names = column_value.split(',')
             column_value = 0
-            for flag in flags:
-                flag = flag.strip()
-                if flag_exists(flag):
-                    column_value |= get_flag(flag)
+            for flag_name in flag_names:
+                flag_name = flag_name.strip()
+                if flag_exists(flag_name):
+                    column_value |= get_flag_value(flag_name)
                 else:
                     if errors is not None:
                         errors.append({
                             'name': 'UNKNOWN_FLAG',
-                            'info': [flag]
+                            'info': [flag_name]
                         })
                     return None, None
             column_value = format(column_value, 'b').zfill(data_config_bits)
