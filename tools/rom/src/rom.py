@@ -92,6 +92,7 @@ def parse_output_bits(bits):
             bits_to = int(bits_to)
 
         if bits_to < bits_from:
+            # change e.g. 7-0 to 0-7
             bits_from, bits_to = bits_to, bits_from
     else:
         bits_to = bits_from
