@@ -1,6 +1,8 @@
 import binary
+import bin_file
 import data
 import i18n
+import raw_file
 
 import math
 import os
@@ -425,26 +427,6 @@ def read_csv_file(file_name):
     current_line_str = None
 
 
-def write_raw_file(file_name):
-    with open(file_name, 'w') as raw:
-        raw.write('v2.0 raw\n')
-
-        prev_addr_value = -1
-        for addr_value in sorted(rom.keys()):
-            for i in range(prev_addr_value, addr_value - 1):
-                raw.write('0\n')
-
-            data_value = rom[addr_value]
-            data_value = hex(data_value)[2:]
-            raw.write(data_value + '\n')
-
-            prev_addr_value = addr_value
-
-
-def write_bin_file(file_name):
-    pass
-
-
 # main
 
 
@@ -495,9 +477,9 @@ def main():
 
         if not total_errors_count:
             if 'bin' == output_file_format:
-                write_bin_file(output_file_name)
+                bin_file.write_bin_file(output_file_name, rom)
             elif 'raw' == output_file_format:
-                write_raw_file(output_file_name)
+                raw_file.write_raw_file(output_file_name, rom)
 
 
 if '__main__' == __name__:
