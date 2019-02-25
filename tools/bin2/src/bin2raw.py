@@ -87,6 +87,17 @@ def main():
         if not total_errors_count and len(sys.argv) > 4:
             extract_bits_from, extract_bits_to = parse_extract_bits(sys.argv[4])
 
+        if not total_errors_count:
+            if os.path.isfile(input_file_name):
+                with open(input_file_name, 'rb') as input_file:
+                    with open(output_file_name, 'w') as output_file:
+                        output_file.write('v2.0 raw\n')
+            else:
+                show_error({
+                    'name': 'FILE_NOT_FOUND',
+                    'info': [input_file_name]
+                })
+
 
 if '__main__' == __name__:
     main()
