@@ -7,11 +7,13 @@ def write_raw_file(file_name, data):
 
         prev_addr_value = -1
         for addr_value in sorted(data.keys()):
-            for i in range(prev_addr_value, addr_value - 1):
-                raw.write('0\n')
-
             data_value = data[addr_value]
-            data_value = hex(data_value)[2:]
-            raw.write(data_value + '\n')
 
-            prev_addr_value = addr_value
+            if data_value:
+                for i in range(prev_addr_value, addr_value - 1):
+                    raw.write('0\n')
+
+                data_value = hex(data_value)[2:]
+                raw.write(data_value + '\n')
+
+                prev_addr_value = addr_value
