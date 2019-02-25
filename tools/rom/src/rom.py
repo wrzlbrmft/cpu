@@ -451,7 +451,7 @@ def write_raw_file(file_name):
             prev_addr_value = addr_value
 
 
-def write_img_file(file_name):
+def write_bin_file(file_name):
     pass
 
 
@@ -462,31 +462,34 @@ def main():
     global addr_config, addr_config_bits, data_config_column, data_config_bits, data_config_flags, output_bits_from, \
         output_bits_to
 
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 4:
         show_error({
             'name': 'INSUFFICIENT_ARGUMENTS',
-            'info': [len(sys.argv) - 1, 4]
+            'info': [len(sys.argv) - 1, 3]
         })
     else:
         csv_file_name = sys.argv[1]
         addr_config_str = sys.argv[2]
         data_config_str = sys.argv[3]
 
-        output_file_name = sys.argv[4]
+        if len(sys.argv) > 4:
+            output_file_name = sys.argv[4]
+        else:
+            output_file_name = os.path.splitext(os.path.basename(csv_file_name))[0] + '.raw'
         output_file_extension = os.path.splitext(output_file_name)[1][1:]
-        output_file_extension_lower = output_file_extension.lower()
+        output_file_format = output_file_extension.lower()
         if not output_file_extension:
             show_error({
                 'name': 'MISSING_OUTPUT_FILE_EXTENSION',
                 'info': [output_file_name]
             })
-        elif output_file_extension_lower not in ['raw', 'img']:
+        elif output_file_format not in ['bin', 'raw']:
             show_error({
-                'name': 'INVALID_OUTPUT_FILE_EXTENSION',
-                'info': [output_file_extension]
+                'name': 'UNKNOWN_OUTPUT_FILE_FORMAT',
+                'info': [output_file_format]
             })
 
-        if len(sys.argv) > 5:
+        if not total_errors_count and len(sys.argv) > 5:
             output_bits_from, output_bits_to = parse_output_bits(sys.argv[5])
 
         if not total_errors_count:
@@ -499,10 +502,10 @@ def main():
             read_csv_file(csv_file_name)
 
         if not total_errors_count:
-            if 'raw' == output_file_extension_lower:
+            if 'bin' == output_file_format:
+                write_bin_file(output_file_name)
+            elif 'raw' == output_file_format:
                 write_raw_file(output_file_name)
-            elif 'img' == output_file_extension_lower:
-                write_img_file(output_file_name)
 
 
 if '__main__' == __name__:
