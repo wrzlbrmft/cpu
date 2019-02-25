@@ -2,7 +2,7 @@ error_messages = {
     'INSUFFICIENT_ARGUMENTS': 'insufficient arguments (given: {}, required: {})',
     'MISSING_OUTPUT_FILE_EXTENSION': "missing output file extension '{}'",
     'UNKNOWN_OUTPUT_FILE_FORMAT': "unknown output file format '{}'",
-    'INVALID_OUTPUT_BIT': "invalid output bit '{}'",
+    'INVALID_EXTRACT_BITS': "invalid extract bits '{}'",
     'INVALID_COLUMN_NUMBER': "invalid column number '{}'",
     'INVALID_BIT_WIDTH': "invalid bit width '{}'",
     'FILE_NOT_FOUND': "file not found '{}'",

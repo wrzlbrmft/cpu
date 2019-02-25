@@ -21,8 +21,8 @@ data_config_flags = {}
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
 valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
 
-output_bits_from = None
-output_bits_to = None
+extract_bits_from = None
+extract_bits_to = None
 
 rom = {}
 
@@ -70,13 +70,13 @@ def show_error(error, line_str=None, line_num=None, file_name=None):
     print()
 
 
-def parse_output_bits(bits):
-    i = bits.split('-')
+def parse_extract_bits(bits_str):
+    i = bits_str.split('-')
 
     bits_from = i[0]
     if not bits_from.isdecimal() or int(bits_from) < 0:
         show_error({
-            'name': 'INVALID_OUTPUT_BIT',
+            'name': 'INVALID_EXTRACT_BITS',
             'info': [bits_from]
         })
         return None, None
@@ -87,7 +87,7 @@ def parse_output_bits(bits):
         bits_to = i[1]
         if not bits_to.isdecimal() or int(bits_to) < 0:
             show_error({
-                'name': 'INVALID_OUTPUT_BIT',
+                'name': 'INVALID_EXTRACT_BITS',
                 'info': [bits_from]
             })
             return None, None
@@ -365,7 +365,7 @@ def parse_csv_line(line_str, errors=None):
     return addr_value, data_value
 
 
-def get_value_bits(value, bits_from, bits_to):
+def extract_bits(value, bits_from, bits_to):
     value = format(value, 'b').zfill(bits_to + 1)
     if data_config_bits:
         value = value.zfill(data_config_bits)
@@ -386,8 +386,8 @@ def add_to_rom(addr_value, data_value):
     else:
         data_value = int(data_value, 2)
 
-        if output_bits_from is not None and output_bits_to is not None:
-            data_value = get_value_bits(data_value, output_bits_from, output_bits_to)
+        if extract_bits_from is not None and extract_bits_to is not None:
+            data_value = extract_bits(data_value, extract_bits_from, extract_bits_to)
 
         if data_value:
             addr_value = int(addr_value[0], 2)
@@ -459,8 +459,8 @@ def write_bin_file(file_name):
 
 
 def main():
-    global addr_config, addr_config_bits, data_config_column, data_config_bits, data_config_flags, output_bits_from, \
-        output_bits_to
+    global addr_config, addr_config_bits, data_config_column, data_config_bits, data_config_flags, extract_bits_from, \
+        extract_bits_to
 
     if len(sys.argv) < 4:
         show_error({
@@ -490,7 +490,7 @@ def main():
             })
 
         if not total_errors_count and len(sys.argv) > 5:
-            output_bits_from, output_bits_to = parse_output_bits(sys.argv[5])
+            extract_bits_from, extract_bits_to = parse_extract_bits(sys.argv[5])
 
         if not total_errors_count:
             addr_config, addr_config_bits = parse_addr_config(addr_config_str)
