@@ -164,10 +164,10 @@ def read_flags_file(file_name, errors=None):
                 if line_str:
                     i = line_str.split(';')
 
-                    flag_name = i[0]
+                    flag_name = i[0].strip()
                     if is_valid_name(flag_name):
                         if len(i) > 1:
-                            flag_value = i[1]
+                            flag_value = i[1].strip()
                             if data.is_valid(flag_value) and not data.is_valid_str(flag_value):
                                 flag_value = data.get_value(flag_value)
                             else:
@@ -284,7 +284,7 @@ def parse_csv_line(line_str, errors=None):
 
     for column, bits in addr_config.items():
         if column <= len(columns):
-            column_value = columns[column - 1]
+            column_value = columns[column - 1].strip()
             if data.is_valid(column_value) and not data.is_valid_str(column_value):
                 column_value = format(data.get_value(column_value), 'b')
                 if bits is not None:
@@ -318,7 +318,7 @@ def parse_csv_line(line_str, errors=None):
             return None, None
 
     if data_config_column <= len(columns):
-        column_value = columns[data_config_column - 1]
+        column_value = columns[data_config_column - 1].strip()
         if data.is_valid(column_value) and not data.is_valid_str(column_value):
             column_value = format(data.get_value(column_value), 'b')
             if data_config_bits is not None:
