@@ -1,3 +1,5 @@
+import binary
+
 import re
 
 valid_dec_regex = re.compile('[1-9][0-9]*')
@@ -71,11 +73,9 @@ def get_size(s):
         values = value
         size = 0
         for value in values:
-            bits = value.bit_length()
-            size = max(size, bits + (8 - bits) % 8)  # multiples of 8-bit
+            size = max(size, binary.byte_length(value) * 8)  # multiples of 8-bit
         return size
     elif value is not None:
-        bits = value.bit_length()
-        return bits + (8 - bits) % 8  # multiples of 8-bit
+        return binary.byte_length(value) * 8  # multiples of 8-bit
     else:
         return None
