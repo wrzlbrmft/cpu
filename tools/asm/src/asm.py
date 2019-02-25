@@ -899,7 +899,9 @@ def assemble_asm_file(file_name):
 
 
 def main():
-    if len(sys.argv) < 2:
+    if sys.argv[1] in ['-h', '--help']:
+        pass  # TODO: help
+    elif len(sys.argv) < 2:
         show_error({
             'name': 'NO_ASM_FILE',
             'info': []
