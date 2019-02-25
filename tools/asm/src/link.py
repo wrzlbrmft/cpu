@@ -159,7 +159,7 @@ def link_obj_files(file_names):
 def main():
     global current_obj_file_name
 
-    if sys.argv[1] in ['-h', '--help']:
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
         pass  # TODO: help
     elif len(sys.argv) < 2:
         show_error({

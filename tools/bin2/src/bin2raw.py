@@ -57,7 +57,7 @@ def parse_extract_bits(bits_str):
 def main():
     global data_config_bits
 
-    if sys.argv[1] in ['-h', '--help']:
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
         pass  # TODO: help
     elif len(sys.argv) < 2:
         show_error({

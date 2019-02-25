@@ -462,7 +462,9 @@ def main():
     global addr_config, addr_config_bits, data_config_column, data_config_bits, data_config_flags, extract_bits_from, \
         extract_bits_to
 
-    if len(sys.argv) < 4:
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
+        pass  # TODO: help
+    elif len(sys.argv) < 4:
         show_error({
             'name': 'INSUFFICIENT_ARGUMENTS',
             'info': [len(sys.argv) - 1, 3]

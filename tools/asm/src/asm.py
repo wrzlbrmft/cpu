@@ -1,5 +1,5 @@
+import binary
 import data
-import endianness
 import i18n
 import obj_file
 import symbol_table
@@ -310,7 +310,7 @@ def mnemonic_mov(operands, errors=None):
                 elif validate_operand_data_size(operand2, register1_size, errors):
                     register2_opcode = 0b111
                     data_value = data.get_value(operand2)
-                    opcode_operands.extend(endianness.word_to_le(data_value))
+                    opcode_operands.extend(binary.word_to_le(data_value))
 
                 if register2_opcode is not None:
                     opcode = (register1_opcode << 4) | (register2_opcode << 1)
@@ -348,7 +348,7 @@ def mnemonic_lda(operands, errors=None):
                         'symbol_table_index': symbol_table.get_index(operand2)
                     })
                 else:
-                    opcode_operands.extend(endianness.word_to_le(addr_value))
+                    opcode_operands.extend(binary.word_to_le(addr_value))
             else:
                 opcode = None
 
@@ -383,7 +383,7 @@ def mnemonic_sta(operands, errors=None):
                     'symbol_table_index': symbol_table.get_index(operand1)
                 })
             else:
-                opcode_operands.extend(endianness.word_to_le(addr_value))
+                opcode_operands.extend(binary.word_to_le(addr_value))
 
             if validate_operand_register_size(operand2, 8, errors):
                 register_opcode = get_register_opcode(operand2)
@@ -494,7 +494,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
                     'symbol_table_index': symbol_table.get_index(operand)
                 })
             else:
-                opcode_operands.extend(endianness.word_to_le(addr_value))
+                opcode_operands.extend(binary.word_to_le(addr_value))
 
         # optimized usage of opcodes ...and adjust the bit for M vs. address/symbol name
         if opcode is not None:
@@ -582,10 +582,10 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                     if data.is_valid_str(operand):
                         data_values = data.get_value(operand)
                         for data_value in data_values:
-                            opcode_operands.extend(endianness.word_to_le(data_value))
+                            opcode_operands.extend(binary.word_to_le(data_value))
                     else:
                         data_value = data.get_value(operand)
-                        opcode_operands.extend(endianness.word_to_le(data_value))
+                        opcode_operands.extend(binary.word_to_le(data_value))
                 else:
                     opcode_operands.clear()
                     break
@@ -899,7 +899,7 @@ def assemble_asm_file(file_name):
 
 
 def main():
-    if sys.argv[1] in ['-h', '--help']:
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
         pass  # TODO: help
     elif len(sys.argv) < 2:
         show_error({
