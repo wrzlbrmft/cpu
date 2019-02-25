@@ -1,3 +1,4 @@
+import binary
 import data
 import i18n
 
@@ -365,17 +366,6 @@ def parse_csv_line(line_str, errors=None):
     return addr_value, data_value
 
 
-def extract_bits(value, bits_from, bits_to):
-    value = format(value, 'b').zfill(bits_to + 1)
-    if data_config_bits:
-        value = value.zfill(data_config_bits)
-
-    value = value[len(value) - bits_to - 1:len(value) - bits_from]
-    value = int(value, 2)
-
-    return value
-
-
 def add_to_rom(addr_value, data_value):
     global rom
 
@@ -387,7 +377,7 @@ def add_to_rom(addr_value, data_value):
         data_value = int(data_value, 2)
 
         if extract_bits_from is not None and extract_bits_to is not None:
-            data_value = extract_bits(data_value, extract_bits_from, extract_bits_to)
+            data_value = binary.extract_bits(data_value, extract_bits_from, extract_bits_to, data_config_bits)
 
         if data_value:
             addr_value = int(addr_value[0], 2)
