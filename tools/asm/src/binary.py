@@ -17,10 +17,14 @@ def be_to_word(values):
     return struct.unpack('>H', values)[0]
 
 
-def byte_length(value):
-    bits = value.bit_length()
+def bits_to_bytes(bits):
     bits = bits + (8 - bits) % 8  # multiples of 8-bit
     return bits // 8
+
+
+def byte_length(value):
+    bits = value.bit_length()
+    return bits_to_bytes(bits)
 
 
 def extract_bits(value, bits_from, bits_to, bit_length=None):
