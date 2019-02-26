@@ -1,11 +1,11 @@
-import os
-import sys
-
 import cpu_file
 import i18n
 import obj_file
 import symbol_table
 import symbols
+
+import os
+import sys
 
 total_errors_count = 0
 

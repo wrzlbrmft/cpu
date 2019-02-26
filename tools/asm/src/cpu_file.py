@@ -2,7 +2,7 @@
 #   ? bytes  machine code
 #   --- eof ---
 
-import binary
+import binutils
 import fileutils
 import symbol_table
 import symbols
@@ -29,8 +29,8 @@ def build_cpu_symbols(errors=None, link_base=0, _symbol_table=None, _symbols=Non
 
                 # insert the absolute memory address of the relocated symbol into the machine code of the current symbol
                 # at the correct offset
-                machine_code[relocation['machine_code_offset']] = binary.word_to_le(relocation_symbol_addr)[0]
-                machine_code[relocation['machine_code_offset'] + 1] = binary.word_to_le(relocation_symbol_addr)[1]
+                machine_code[relocation['machine_code_offset']] = binutils.word_to_le(relocation_symbol_addr)[0]
+                machine_code[relocation['machine_code_offset'] + 1] = binutils.word_to_le(relocation_symbol_addr)[1]
             else:
                 if errors is not None:
                     errors.append({

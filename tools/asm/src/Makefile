@@ -5,7 +5,7 @@ all: asm link
 asm:
 	$(eval TEMP_DIR := $(shell mktemp -d))
 	cp -v asm.py $(TEMP_DIR)/__main__.py
-	cp -v binary.py data.py fileutils.py i18n.py obj_file.py symbol_table.py symbols.py $(TEMP_DIR)
+	cp -v binutils.py data.py fileutils.py i18n.py obj_file.py symbol_table.py symbols.py $(TEMP_DIR)
 
 	$(eval TEMP_FILE := $(shell mktemp))
 	zip -rj9X - $(TEMP_DIR) > $(TEMP_FILE)
@@ -20,7 +20,7 @@ asm:
 link:
 	$(eval TEMP_DIR := $(shell mktemp -d))
 	cp -v link.py $(TEMP_DIR)/__main__.py
-	cp -v binary.py cpu_file.py fileutils.py i18n.py obj_file.py symbol_table.py symbols.py $(TEMP_DIR)
+	cp -v binutils.py cpu_file.py fileutils.py i18n.py obj_file.py symbol_table.py symbols.py $(TEMP_DIR)
 
 	$(eval TEMP_FILE := $(shell mktemp))
 	zip -rj9X - $(TEMP_DIR) > $(TEMP_FILE)

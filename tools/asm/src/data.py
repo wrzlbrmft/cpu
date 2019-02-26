@@ -1,4 +1,4 @@
-import binary
+import binutils
 
 import re
 
@@ -73,9 +73,9 @@ def get_size(s):
         values = value
         size = 0
         for value in values:
-            size = max(size, binary.byte_length(value) * 8)  # multiples of 8-bit
+            size = max(size, binutils.byte_length(value) * 8)  # multiples of 8-bit
         return size
     elif value is not None:
-        return binary.byte_length(value) * 8  # multiples of 8-bit
+        return binutils.byte_length(value) * 8  # multiples of 8-bit
     else:
         return None

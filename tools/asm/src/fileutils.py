@@ -1,4 +1,4 @@
-import binary
+import binutils
 
 
 def dump_buffer(buffer):
@@ -36,7 +36,7 @@ def read_byte(file):
 def read_word_le(file):
     values = file.read(2)
     if 2 == len(values):
-        return binary.le_to_word(values)
+        return binutils.le_to_word(values)
     else:
         return None
 
@@ -44,7 +44,7 @@ def read_word_le(file):
 def read_word_be(file):
     values = file.read(2)
     if 2 == len(values):
-        return binary.be_to_word(values)
+        return binutils.be_to_word(values)
     else:
         return None
 

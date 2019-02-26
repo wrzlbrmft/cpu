@@ -28,12 +28,12 @@
 #   1 word   machine code offset
 #   1 word   symbol table index
 
-import os
-
-import binary
+import binutils
 import fileutils
 import symbol_table
 import symbols
+
+import os
 
 obj_file_signature = 'MPO'
 max_obj_file_version = 0
@@ -52,7 +52,7 @@ def build_obj_file_symbol_table(_symbol_table=None):
 
     buffer = bytearray()
     symbol_table_size = len(_symbol_table)
-    buffer.extend(binary.word_to_le(symbol_table_size))
+    buffer.extend(binutils.word_to_le(symbol_table_size))
     for symbol_name in _symbol_table:
         buffer.append(len(symbol_name))
         buffer.extend(map(ord, symbol_name))
@@ -69,14 +69,14 @@ def build_obj_file_symbols(_symbol_table=None, _symbols=None):
             symbol = symbols.get_symbol(symbol_name, _symbols)
 
             machine_code_size = len(symbol['machine_code'])
-            buffer.extend(binary.word_to_le(machine_code_size))
+            buffer.extend(binutils.word_to_le(machine_code_size))
             buffer.extend(symbol['machine_code'])
 
             relocation_table_size = len(symbol['relocation_table'])
-            buffer.extend(binary.word_to_le(relocation_table_size))
+            buffer.extend(binutils.word_to_le(relocation_table_size))
             for relocation in symbol['relocation_table']:
-                buffer.extend(binary.word_to_le(relocation['machine_code_offset']))
-                buffer.extend(binary.word_to_le(relocation['symbol_table_index']))
+                buffer.extend(binutils.word_to_le(relocation['machine_code_offset']))
+                buffer.extend(binutils.word_to_le(relocation['symbol_table_index']))
         else:
             buffer.extend([0, 0])
 

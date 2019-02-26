@@ -1,5 +1,5 @@
-import binary
 import bin_file
+import binutils
 import data
 import i18n
 import raw_file
@@ -379,7 +379,7 @@ def add_to_rom(addr_value, data_value):
         data_value = int(data_value, 2)
 
         if extract_bits_from is not None and extract_bits_to is not None:
-            data_value = binary.extract_bits(data_value, extract_bits_from, extract_bits_to, data_config_bits)
+            data_value = binutils.extract_bits(data_value, extract_bits_from, extract_bits_to, data_config_bits)
 
         if data_value:
             addr_value = int(addr_value[0], 2)
