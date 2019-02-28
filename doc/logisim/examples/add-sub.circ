@@ -66,9 +66,13 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(280,460)" to="(280,620)"/>
     <wire from="(280,620)" to="(310,620)"/>
     <wire from="(350,620)" to="(370,620)"/>
+    <wire from="(480,310)" to="(500,310)"/>
     <wire from="(140,290)" to="(160,290)"/>
     <wire from="(410,90)" to="(410,130)"/>
     <wire from="(440,660)" to="(450,660)"/>
+    <wire from="(280,620)" to="(280,800)"/>
+    <wire from="(410,290)" to="(420,290)"/>
+    <wire from="(480,760)" to="(490,760)"/>
     <wire from="(370,250)" to="(380,250)"/>
     <wire from="(380,160)" to="(390,160)"/>
     <wire from="(360,720)" to="(370,720)"/>
@@ -81,6 +85,7 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(720,560)" to="(730,560)"/>
     <wire from="(720,540)" to="(730,540)"/>
     <wire from="(770,550)" to="(780,550)"/>
+    <wire from="(160,330)" to="(420,330)"/>
     <wire from="(230,290)" to="(290,290)"/>
     <wire from="(270,140)" to="(390,140)"/>
     <wire from="(140,70)" to="(190,70)"/>
@@ -96,6 +101,8 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(290,270)" to="(310,270)"/>
     <wire from="(270,210)" to="(290,210)"/>
     <wire from="(260,620)" to="(280,620)"/>
+    <wire from="(280,800)" to="(490,800)"/>
+    <wire from="(160,290)" to="(160,330)"/>
     <wire from="(510,600)" to="(730,600)"/>
     <wire from="(370,680)" to="(370,720)"/>
     <wire from="(280,460)" to="(750,460)"/>
@@ -109,58 +116,17 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(370,620)" to="(640,620)"/>
     <wire from="(160,110)" to="(160,290)"/>
     <wire from="(720,490)" to="(720,540)"/>
+    <wire from="(480,570)" to="(480,760)"/>
     <wire from="(710,660)" to="(720,660)"/>
     <wire from="(780,550)" to="(780,600)"/>
-    <comp lib="0" loc="(270,140)" name="Pin">
-      <a name="width" val="8"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="A"/>
-    </comp>
-    <comp lib="1" loc="(250,90)" name="XOR Gate">
-      <a name="inputs" val="2"/>
-    </comp>
-    <comp lib="1" loc="(710,660)" name="XOR Gate">
-      <a name="width" val="4"/>
-      <a name="inputs" val="2"/>
-    </comp>
-    <comp lib="0" loc="(270,210)" name="Pin">
-      <a name="width" val="8"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="B"/>
-    </comp>
-    <comp lib="1" loc="(440,660)" name="XOR Gate">
-      <a name="width" val="4"/>
-      <a name="inputs" val="2"/>
-    </comp>
-    <comp lib="0" loc="(420,720)" name="Pin">
-      <a name="width" val="4"/>
-      <a name="tristate" val="false"/>
-    </comp>
-    <comp lib="0" loc="(730,600)" name="Pin">
+    <wire from="(550,780)" to="(560,780)"/>
+    <wire from="(410,170)" to="(410,290)"/>
+    <comp lib="0" loc="(560,780)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
-      <a name="width" val="4"/>
       <a name="tristate" val="false"/>
-    </comp>
-    <comp lib="3" loc="(500,550)" name="Adder">
-      <a name="width" val="4"/>
-    </comp>
-    <comp lib="0" loc="(790,600)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="4"/>
-      <a name="tristate" val="false"/>
-    </comp>
-    <comp lib="0" loc="(360,720)" name="Pin">
-      <a name="width" val="4"/>
-      <a name="tristate" val="false"/>
-    </comp>
-    <comp lib="1" loc="(370,250)" name="XOR Gate">
-      <a name="width" val="8"/>
-      <a name="inputs" val="2"/>
-    </comp>
-    <comp lib="3" loc="(770,550)" name="Adder">
-      <a name="width" val="4"/>
+      <a name="label" val="CARRY"/>
+      <a name="labelloc" val="east"/>
     </comp>
     <comp lib="0" loc="(460,150)" name="Pin">
       <a name="facing" val="west"/>
@@ -168,16 +134,83 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="width" val="8"/>
       <a name="tristate" val="false"/>
     </comp>
+    <comp lib="0" loc="(270,140)" name="Pin">
+      <a name="width" val="8"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="A"/>
+    </comp>
+    <comp lib="0" loc="(270,210)" name="Pin">
+      <a name="width" val="8"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="B"/>
+    </comp>
+    <comp lib="3" loc="(500,550)" name="Adder">
+      <a name="width" val="4"/>
+    </comp>
+    <comp lib="1" loc="(250,90)" name="XOR Gate">
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(360,720)" name="Pin">
+      <a name="width" val="4"/>
+      <a name="tristate" val="false"/>
+    </comp>
+    <comp lib="0" loc="(350,620)" name="Bit Extender">
+      <a name="in_width" val="1"/>
+      <a name="out_width" val="4"/>
+      <a name="type" val="sign"/>
+    </comp>
+    <comp lib="3" loc="(430,150)" name="Adder"/>
+    <comp lib="0" loc="(420,720)" name="Pin">
+      <a name="width" val="4"/>
+      <a name="tristate" val="false"/>
+    </comp>
+    <comp lib="1" loc="(440,660)" name="XOR Gate">
+      <a name="width" val="4"/>
+      <a name="inputs" val="2"/>
+    </comp>
     <comp lib="0" loc="(140,290)" name="Pin">
       <a name="tristate" val="false"/>
       <a name="label" val="SUB"/>
+    </comp>
+    <comp lib="1" loc="(370,250)" name="XOR Gate">
+      <a name="width" val="8"/>
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(260,620)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="SUB"/>
+    </comp>
+    <comp lib="0" loc="(730,600)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="4"/>
+      <a name="tristate" val="false"/>
     </comp>
     <comp lib="0" loc="(440,490)" name="Pin">
       <a name="width" val="4"/>
       <a name="tristate" val="false"/>
     </comp>
-    <comp lib="3" loc="(430,150)" name="Adder"/>
-    <comp lib="0" loc="(500,490)" name="Pin">
+    <comp lib="0" loc="(230,290)" name="Bit Extender">
+      <a name="in_width" val="1"/>
+      <a name="out_width" val="8"/>
+      <a name="type" val="sign"/>
+    </comp>
+    <comp lib="3" loc="(770,550)" name="Adder">
+      <a name="width" val="4"/>
+    </comp>
+    <comp lib="0" loc="(500,310)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="CARRY"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="1" loc="(550,780)" name="XOR Gate">
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(790,600)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
       <a name="width" val="4"/>
       <a name="tristate" val="false"/>
     </comp>
@@ -185,18 +218,16 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="tristate" val="false"/>
       <a name="label" val="CARRY"/>
     </comp>
-    <comp lib="0" loc="(230,290)" name="Bit Extender">
-      <a name="in_width" val="1"/>
-      <a name="out_width" val="8"/>
-      <a name="type" val="sign"/>
+    <comp lib="1" loc="(710,660)" name="XOR Gate">
+      <a name="width" val="4"/>
+      <a name="inputs" val="2"/>
     </comp>
-    <comp lib="0" loc="(260,620)" name="Pin">
+    <comp lib="1" loc="(480,310)" name="XOR Gate">
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(500,490)" name="Pin">
+      <a name="width" val="4"/>
       <a name="tristate" val="false"/>
-    </comp>
-    <comp lib="0" loc="(350,620)" name="Bit Extender">
-      <a name="in_width" val="1"/>
-      <a name="out_width" val="4"/>
-      <a name="type" val="sign"/>
     </comp>
   </circuit>
 </project>
