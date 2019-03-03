@@ -78,6 +78,7 @@ def build_obj_file_symbols(_symbol_table=None, _symbols=None):
                 buffer.extend(binutils.word_to_le(relocation['machine_code_offset']))
                 buffer.extend(binutils.word_to_le(relocation['symbol_table_index']))
         else:
+            # external symbol
             buffer.extend([0, 0])
 
     return buffer
