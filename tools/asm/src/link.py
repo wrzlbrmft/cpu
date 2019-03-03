@@ -120,6 +120,7 @@ def link_symbol(symbol_name):
             _obj_file = get_obj_file(obj_file_names[0])
             obj_file_symbol = symbols.get_symbol(symbol_name, _obj_file['symbols'])
 
+            # adds the symbol name to the symbol table
             symbol_table.get_index(symbol_name)
             symbol = symbols.add_symbol(symbol_name)
 
