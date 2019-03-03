@@ -98,7 +98,7 @@ def read_obj_files(file_names):
                 show_error(errors[0])
 
 
-def link_symbol(symbol_name):
+def link_symbol(symbol_name, file_name=None):
     global link_offset
 
     if not symbols.symbol_exists(symbol_name):
@@ -115,7 +115,7 @@ def link_symbol(symbol_name):
                 'info': [symbol_name]
             })
             return
-        else:
+        elif file_name is None or obj_file_names[0] == file_name:
             # copy the symbol from the object file symbols to the global symbols
             _obj_file = get_obj_file(obj_file_names[0])
             obj_file_symbol = symbols.get_symbol(symbol_name, _obj_file['symbols'])
@@ -146,7 +146,7 @@ def link_obj_file(file_name):
 
     _obj_file = get_obj_file(file_name)
     for symbol_name in _obj_file['symbols'].keys():
-        link_symbol(symbol_name)
+        link_symbol(symbol_name, file_name)
 
 
 def link_obj_files(file_names):
