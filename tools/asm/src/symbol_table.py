@@ -11,6 +11,12 @@ def get_symbol_table(symbol_table=None):
         return symbol_table
 
 
+def set_symbol_table(symbol_table=None):
+    global _symbol_table
+
+    _symbol_table = symbol_table
+
+
 def symbol_exists(symbol_name, symbol_table=None):
     symbol_table = get_symbol_table(symbol_table)
 
@@ -34,3 +40,12 @@ def get_symbol_name(index, symbol_table=None):
         return symbol_table[index]
     else:
         return None
+
+
+def add_symbol(symbol_name, symbol_table=None):
+    get_index(symbol_name, symbol_table)
+
+
+def remove_symbol(symbol_name, symbol_table=None):
+    symbol_table = get_symbol_table(symbol_table)
+    symbol_table.remove(symbol_name)

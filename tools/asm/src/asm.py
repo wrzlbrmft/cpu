@@ -905,8 +905,7 @@ def assemble_asm_file(file_name):
                             if symbol_table.symbol_exists(current_symbol_name):
                                 pass  # TODO: shift symbol table
 
-                            # adds the symbol name to the symbol table
-                            symbol_table.get_index(current_symbol_name)
+                            symbol_table.add_symbol(current_symbol_name)
 
                     if not errors and line['mnemonic']:
                         if not current_symbol_name:
