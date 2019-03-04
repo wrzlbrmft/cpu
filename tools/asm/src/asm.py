@@ -904,12 +904,21 @@ def assemble_asm_file(file_name):
                             current_symbol_name = symbol_name
 
                             if symbol_table.symbol_exists(current_symbol_name):
+                                # if the current symbol was already used as an operand (hence it already exists in the
+                                # symbol table, but with a lower index), move it to the end of the symbol table to keep
+                                # the symbols in the order of their definition
                                 _symbol_table = symbol_table.get_symbol_table()
                                 symbol_table.remove_symbol(current_symbol_name, _symbol_table)
                                 symbol_table.add_symbol(current_symbol_name, _symbol_table)
 
+                                # adjust the symbol table indexes of relocations using the current symbol
                                 for symbol_name in _symbol_table:
-                                    pass
+                                    _symbols = symbols.get_symbols()
+                                    for symbol in _symbols.values():
+                                        relocation_table.adjust_symbol_table_index(
+                                            symbol_table.get_index(symbol_name),
+                                            symbol_table.get_index(symbol_name, _symbol_table),
+                                            symbol['relocation_table'])
 
                                 symbol_table.set_symbol_table(_symbol_table)
                             else:
