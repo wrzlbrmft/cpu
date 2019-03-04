@@ -16,6 +16,7 @@ error_messages = {
     'INCOMPATIBLE_DATA_SIZE': 'incompatible data size (given: {}-bit, max: {}-bit)',
     'INCOMPATIBLE_ADDR_SIZE': 'incompatible address size (given: {}-bit, max: {}-bit)',
     'INCOMPATIBLE_DATA_TYPE': 'incompatible data type',
+    'INVALID_INT': "invalid interrupt '{}'",
     'NO_DATA': 'no data',
 
     'NO_OBJ_FILES': 'no object file(s)',

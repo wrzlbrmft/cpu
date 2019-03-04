@@ -26,6 +26,7 @@ valid_mnemonics = ['nop', 'hlt', 'rst',
                    'jmp', 'jc', 'jnc', 'jz', 'jnz',
                    'call', 'cc', 'cnc', 'cz', 'cnz',
                    'ret', 'rc', 'rnc', 'rz', 'rnz',
+                   'int',
                    'db', 'dw']
 
 valid_registers = {
@@ -601,6 +602,36 @@ def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands, errors=None):
         }
 
 
+def mnemonic_int(operands, errors=None):
+    opcode = None
+    opcode_operands = bytearray()
+
+    if validate_operands_count(operands, 1, errors):
+        operand = operands[0].lower()
+        if validate_operand_data_size(operand, 8, errors):
+            opcode = 0b11011111
+            data_value = data.get_value(operand)
+            if data_value > 63:
+                if errors is not None:
+                    errors.append({
+                        'name': 'INVALID_INT',
+                        'info': [data_value]
+                    })
+            else:
+                opcode_operands.append(data_value)
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        machine_code.extend(opcode_operands)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': []
+        }
+
+
 def mnemonics_db_dw(mnemonic, operands, errors=None):
     opcode_operands = bytearray()
 
@@ -691,6 +722,8 @@ def assemble_asm_line(line, errors=None):
         assembly = mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz']:
         assembly = mnemonics_ret_rc_rnc_rz_rnz(mnemonic_lower, line['operands'], errors)
+    elif 'int' == mnemonic_lower:
+        assembly = mnemonic_int(line['operands'], errors)
     elif mnemonic_lower in ['db', 'dw']:
         assembly = mnemonics_db_dw(mnemonic_lower, line['operands'], errors)
 
