@@ -111,7 +111,7 @@ def link_symbol(symbol_name, file_name=None):
             return
         elif len(obj_file_names) > 1:
             show_error({
-                'name': 'DUPLICATE_SYMBOL',
+                'name': 'AMBIGUOUS_SYMBOL',
                 'info': [symbol_name]
             })
             return
