@@ -2,6 +2,7 @@ import binutils
 import data
 import i18n
 import obj_file
+import relocation_table
 import symbol_table
 import symbols
 
@@ -252,7 +253,7 @@ def mnemonics_nop_hlt_rst(mnemonic, operands, errors=None):
 def mnemonic_mov(operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
-    relocation_table = []
+    _relocation_table = []
 
     if validate_operands_count(operands, 2, errors):
         operand1 = operands[0].lower()
@@ -295,7 +296,7 @@ def mnemonic_mov(operands, errors=None):
                 if is_valid_name(operand2):
                     register2_opcode = 0b111
                     opcode_operands.extend([0, 0])
-                    relocation_table.append({
+                    _relocation_table.append({
                         'machine_code_offset': 1,
                         'symbol_table_index': symbol_table.get_index(operand2)
                     })
@@ -323,14 +324,14 @@ def mnemonic_mov(operands, errors=None):
         machine_code.extend(opcode_operands)
         return {
             'machine_code': machine_code,
-            'relocation_table': relocation_table
+            'relocation_table': _relocation_table
         }
 
 
 def mnemonic_lda(operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
-    relocation_table = []
+    _relocation_table = []
 
     if validate_operands_count(operands, 2, errors):
         operand1 = operands[0].lower()
@@ -343,7 +344,7 @@ def mnemonic_lda(operands, errors=None):
                 addr_value = get_addr_value(operand2)
                 if addr_value is None:
                     opcode_operands.extend([0, 0])
-                    relocation_table.append({
+                    _relocation_table.append({
                         'machine_code_offset': 1,
                         'symbol_table_index': symbol_table.get_index(operand2)
                     })
@@ -360,14 +361,14 @@ def mnemonic_lda(operands, errors=None):
         machine_code.extend(opcode_operands)
         return {
             'machine_code': machine_code,
-            'relocation_table': relocation_table
+            'relocation_table': _relocation_table
         }
 
 
 def mnemonic_sta(operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
-    relocation_table = []
+    _relocation_table = []
 
     if validate_operands_count(operands, 2, errors):
         operand1 = operands[0].lower()
@@ -378,7 +379,7 @@ def mnemonic_sta(operands, errors=None):
             addr_value = get_addr_value(operand1)
             if addr_value is None:
                 opcode_operands.extend([0, 0])
-                relocation_table.append({
+                _relocation_table.append({
                     'machine_code_offset': 1,
                     'symbol_table_index': symbol_table.get_index(operand1)
                 })
@@ -399,7 +400,7 @@ def mnemonic_sta(operands, errors=None):
         machine_code.extend(opcode_operands)
         return {
             'machine_code': machine_code,
-            'relocation_table': relocation_table
+            'relocation_table': _relocation_table
         }
 
 
@@ -519,7 +520,7 @@ def mnemonics_adc_sbb(mnemonic, operands, errors=None):
 def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
-    relocation_table = []
+    _relocation_table = []
 
     if validate_operands_count(operands, 1, errors):
         # jumps are supported to M, an address or a symbol name (using relocation)
@@ -532,7 +533,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
             addr_value = get_addr_value(operand)
             if addr_value is None:
                 opcode_operands.extend([0, 0])
-                relocation_table.append({
+                _relocation_table.append({
                     'machine_code_offset': 1,
                     'symbol_table_index': symbol_table.get_index(operand)
                 })
@@ -570,7 +571,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
         machine_code.extend(opcode_operands)
         return {
             'machine_code': machine_code,
-            'relocation_table': relocation_table
+            'relocation_table': _relocation_table
         }
 
 
