@@ -902,6 +902,9 @@ def assemble_asm_file(file_name):
                         else:
                             current_symbol_name = symbol_name
 
+                            if symbol_table.symbol_exists(current_symbol_name):
+                                pass  # TODO: shift symbol table
+
                             # adds the symbol name to the symbol table
                             symbol_table.get_index(current_symbol_name)
 
