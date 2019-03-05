@@ -3,7 +3,6 @@ main:   jmp int00
 
 ; --------- static interrupt jump table ---------
 
-; # code generator (python):
 ; rom_size = 2048
 ; for i in range(1, 64):
 ;     print("_int{}: jmp 0x{}\n        nop\n".format(
