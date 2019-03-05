@@ -1,193 +1,205 @@
 main:   jmp int00
         nop
 
-_int01: jmp 0x0000
+; --------- static interrupt table ---------
+
+; # generate code
+; rom_size = 2048
+; for i in range(1, 64):
+;     print("_int{}: jmp 0x{}\n        nop\n".format(
+;         hex(i)[2:].zfill(2),
+;         hex(rom_size + (4 * i))[2:].zfill(4)
+;     ))
+
+_int01: jmp 0x0804
         nop
 
-_int02: jmp 0x0000
+_int02: jmp 0x0808
         nop
 
-_int03: jmp 0x0000
+_int03: jmp 0x080c
         nop
 
-_int04: jmp 0x0000
+_int04: jmp 0x0810
         nop
 
-_int05: jmp 0x0000
+_int05: jmp 0x0814
         nop
 
-_int06: jmp 0x0000
+_int06: jmp 0x0818
         nop
 
-_int07: jmp 0x0000
+_int07: jmp 0x081c
         nop
 
-_int08: jmp 0x0000
+_int08: jmp 0x0820
         nop
 
-_int09: jmp 0x0000
+_int09: jmp 0x0824
         nop
 
-_int0a: jmp 0x0000
+_int0a: jmp 0x0828
         nop
 
-_int0b: jmp 0x0000
+_int0b: jmp 0x082c
         nop
 
-_int0c: jmp 0x0000
+_int0c: jmp 0x0830
         nop
 
-_int0d: jmp 0x0000
+_int0d: jmp 0x0834
         nop
 
-_int0e: jmp 0x0000
+_int0e: jmp 0x0838
         nop
 
-_int0f: jmp 0x0000
+_int0f: jmp 0x083c
         nop
 
-_int10: jmp 0x0000
+_int10: jmp 0x0840
         nop
 
-_int11: jmp 0x0000
+_int11: jmp 0x0844
         nop
 
-_int12: jmp 0x0000
+_int12: jmp 0x0848
         nop
 
-_int13: jmp 0x0000
+_int13: jmp 0x084c
         nop
 
-_int14: jmp 0x0000
+_int14: jmp 0x0850
         nop
 
-_int15: jmp 0x0000
+_int15: jmp 0x0854
         nop
 
-_int16: jmp 0x0000
+_int16: jmp 0x0858
         nop
 
-_int17: jmp 0x0000
+_int17: jmp 0x085c
         nop
 
-_int18: jmp 0x0000
+_int18: jmp 0x0860
         nop
 
-_int19: jmp 0x0000
+_int19: jmp 0x0864
         nop
 
-_int1a: jmp 0x0000
+_int1a: jmp 0x0868
         nop
 
-_int1b: jmp 0x0000
+_int1b: jmp 0x086c
         nop
 
-_int1c: jmp 0x0000
+_int1c: jmp 0x0870
         nop
 
-_int1d: jmp 0x0000
+_int1d: jmp 0x0874
         nop
 
-_int1e: jmp 0x0000
+_int1e: jmp 0x0878
         nop
 
-_int1f: jmp 0x0000
+_int1f: jmp 0x087c
         nop
 
-_int20: jmp 0x0000
+_int20: jmp 0x0880
         nop
 
-_int21: jmp 0x0000
+_int21: jmp 0x0884
         nop
 
-_int22: jmp 0x0000
+_int22: jmp 0x0888
         nop
 
-_int23: jmp 0x0000
+_int23: jmp 0x088c
         nop
 
-_int24: jmp 0x0000
+_int24: jmp 0x0890
         nop
 
-_int25: jmp 0x0000
+_int25: jmp 0x0894
         nop
 
-_int26: jmp 0x0000
+_int26: jmp 0x0898
         nop
 
-_int27: jmp 0x0000
+_int27: jmp 0x089c
         nop
 
-_int28: jmp 0x0000
+_int28: jmp 0x08a0
         nop
 
-_int29: jmp 0x0000
+_int29: jmp 0x08a4
         nop
 
-_int2a: jmp 0x0000
+_int2a: jmp 0x08a8
         nop
 
-_int2b: jmp 0x0000
+_int2b: jmp 0x08ac
         nop
 
-_int2c: jmp 0x0000
+_int2c: jmp 0x08b0
         nop
 
-_int2d: jmp 0x0000
+_int2d: jmp 0x08b4
         nop
 
-_int2e: jmp 0x0000
+_int2e: jmp 0x08b8
         nop
 
-_int2f: jmp 0x0000
+_int2f: jmp 0x08bc
         nop
 
-_int30: jmp 0x0000
+_int30: jmp 0x08c0
         nop
 
-_int31: jmp 0x0000
+_int31: jmp 0x08c4
         nop
 
-_int32: jmp 0x0000
+_int32: jmp 0x08c8
         nop
 
-_int33: jmp 0x0000
+_int33: jmp 0x08cc
         nop
 
-_int34: jmp 0x0000
+_int34: jmp 0x08d0
         nop
 
-_int35: jmp 0x0000
+_int35: jmp 0x08d4
         nop
 
-_int36: jmp 0x0000
+_int36: jmp 0x08d8
         nop
 
-_int37: jmp 0x0000
+_int37: jmp 0x08dc
         nop
 
-_int38: jmp 0x0000
+_int38: jmp 0x08e0
         nop
 
-_int39: jmp 0x0000
+_int39: jmp 0x08e4
         nop
 
-_int3a: jmp 0x0000
+_int3a: jmp 0x08e8
         nop
 
-_int3b: jmp 0x0000
+_int3b: jmp 0x08ec
         nop
 
-_int3c: jmp 0x0000
+_int3c: jmp 0x08f0
         nop
 
-_int3d: jmp 0x0000
+_int3d: jmp 0x08f4
         nop
 
-_int3e: jmp 0x0000
+_int3e: jmp 0x08f8
         nop
 
-_int3f: jmp 0x0000
+_int3f: jmp 0x08fc
         nop
+
+; ------------------------------------------
 
 int00:  mov sp, 0xffff  ; initialize stack pointer
