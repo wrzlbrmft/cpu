@@ -1,15 +1,17 @@
 main:   jmp int00
         nop
 
-; --------- static interrupt table ---------
+; --------- static interrupt jump table ---------
 
-; # generate code
+; # code generator (python):
 ; rom_size = 2048
 ; for i in range(1, 64):
 ;     print("_int{}: jmp 0x{}\n        nop\n".format(
 ;         hex(i)[2:].zfill(2),
 ;         hex(rom_size + (4 * i))[2:].zfill(4)
 ;     ))
+
+; --- bios interrupts ---
 
 _int01: jmp 0x0804
         nop
@@ -103,6 +105,8 @@ _int1e: jmp 0x0878
 
 _int1f: jmp 0x087c
         nop
+
+; --- os interrupts ---
 
 _int20: jmp 0x0880
         nop
