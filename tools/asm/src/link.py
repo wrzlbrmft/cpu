@@ -1,6 +1,7 @@
 import cpu_file
 import i18n
 import obj_file
+import relocation_table
 import symbol_table
 import symbols
 
@@ -124,14 +125,10 @@ def link_symbol(symbol_name, file_name=None):
             symbol = symbols.add_symbol(symbol_name)
 
             symbol['machine_code'] = obj_file_symbol['machine_code']
-            for relocation in obj_file_symbol['relocation_table']:
-                # rebuild the relocation table using the symbol name indexes from the global symbol table
-                relocation_symbol_name = symbol_table.get_symbol_name(
-                    relocation['symbol_table_index'], _obj_file['symbol_table'])
-                symbol['relocation_table'].append({
-                    'machine_code_offset': relocation['machine_code_offset'],
-                    'symbol_table_index': symbol_table.get_index(relocation_symbol_name)
-                })
+            symbol['relocation_table'] = obj_file_symbol['relocation_table']
+
+            # rebuild the relocation table using the symbol name indexes from the global symbol table
+            relocation_table.rebuild(symbol['relocation_table'], _obj_file['symbol_table'])
 
             # set the machine code base to the current link offset and increment it for the next symbol to be linked
             symbol['machine_code_base'] = link_offset
