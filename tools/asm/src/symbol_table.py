@@ -11,7 +11,7 @@ def get_symbol_table(symbol_table=None):
         return symbol_table
 
 
-def set_symbol_table(symbol_table=None):
+def set_symbol_table(symbol_table):
     global _symbol_table
 
     _symbol_table = symbol_table
