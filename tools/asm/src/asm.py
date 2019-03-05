@@ -940,7 +940,7 @@ def assemble_asm_file(file_name):
                                 # if the current symbol was already used as an operand (hence it already exists in the
                                 # symbol table, but with a lower index), move it to the end of the symbol table to keep
                                 # the symbols in the order of their definition
-                                _symbol_table = symbol_table.get_symbol_table()
+                                _symbol_table = symbol_table.get_symbol_table().copy()
                                 symbol_table.remove_symbol(current_symbol_name, _symbol_table)
                                 symbol_table.add_symbol(current_symbol_name, _symbol_table)
 
