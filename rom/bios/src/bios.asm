@@ -204,6 +204,6 @@ _int3e: jmp 0x08f8
 _int3f: jmp 0x08fc
         nop
 
-; ------------------------------------------
+; -----------------------------------------------
 
 int00:  mov sp, 0xffff  ; initialize stack pointer
