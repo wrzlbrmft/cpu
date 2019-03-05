@@ -206,4 +206,80 @@ _int3f: jmp 0x08fc
 
 ; -----------------------------------------------
 
+; --------- bios interrupt routine address table ---------
+
+; TODO: table with addresses of bios interrupt routines
+
+; --------------------------------------------------------
+
+; --------- bios interrupt routines ---------
+
 int00:  mov sp, 0xffff  ; initialize stack pointer
+
+        ; TODO: ...load os...
+
+        jmp 0x0800      ; jump into os
+
+int01:  ret
+
+int02:  ret
+
+int03:  ret
+
+int04:  ret
+
+int05:  ret
+
+int06:  ret
+
+int07:  ret
+
+int08:  ret
+
+int09:  ret
+
+int0a:  ret
+
+int0b:  ret
+
+int0c:  ret
+
+int0d:  ret
+
+int0e:  ret
+
+int0f:  ret
+
+int10:  ret
+
+int11:  ret
+
+int12:  ret
+
+int13:  ret
+
+int14:  ret
+
+int15:  ret
+
+int16:  ret
+
+int17:  ret
+
+int18:  ret
+
+int19:  ret
+
+int1a:  ret
+
+int1b:  ret
+
+int1c:  ret
+
+int1d:  ret
+
+int1e:  ret
+
+int1f:  ret
+
+; -------------------------------------------
