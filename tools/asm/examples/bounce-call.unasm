@@ -1,5 +1,5 @@
-0000    mov sp,0xffff
-0003    mov a,0x00
+0000    mov sp, 0xffff
+0003    mov a, 0x00
 0005    nop
 0006    call 0x0018
 0009    cmp 0x0f

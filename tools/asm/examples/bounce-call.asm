@@ -1,5 +1,5 @@
 main:   mov sp, 0xffff  ; initialize stack pointer
-        mov a,0
+        mov a, 0
 
 up:     nop     ; print(a)
         call inc

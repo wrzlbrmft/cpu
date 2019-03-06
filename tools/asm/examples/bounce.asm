@@ -1,4 +1,4 @@
-main:   mov a,0
+main:   mov a, 0
 
 up:     nop     ; print(a)
         add 1
