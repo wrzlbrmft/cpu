@@ -1,6 +1,4 @@
-main:   nop
-        nop
-        nop
+main:   jmp boot
         nop
 
 ; --------- dynamic interrupt jump table ---------
@@ -329,3 +327,9 @@ int3e:  ret
 int3f:  ret
 
 ; -----------------------------------------
+
+; --------- boot code ---------
+
+boot:   nop
+
+; -----------------------------
