@@ -207,7 +207,10 @@ _int3f: jmp 0x08fc
 
 ; --------- bios interrupt routine address table ---------
 
-; TODO: table with addresses of bios interrupt routines
+        dw  int00, int01, int02, int03, int04, int05, int06, int07
+        dw  int08, int09, int0a, int0b, int0c, int0d, int0e, int0f
+        dw  int10, int11, int12, int13, int14, int15, int16, int17
+        dw  int18, int19, int1a, int1b, int1c, int1d, int1e, int1f
 
 ; --------------------------------------------------------
 
