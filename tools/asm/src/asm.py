@@ -634,6 +634,7 @@ def mnemonic_int(operands, errors=None):
 
 def mnemonics_db_dw(mnemonic, operands, errors=None):
     opcode_operands = bytearray()
+    _relocation_table = []
 
     if operands:
         if 'db' == mnemonic:
@@ -653,7 +654,13 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
         elif 'dw' == mnemonic:
             # words support max. 16-bit data, a single character or a string both including unicode
             for operand in operands:
-                if validate_operand_data_size(operand, 16, errors):
+                if is_valid_name(operand):
+                    opcode_operands.extend([0, 0])
+                    _relocation_table.append({
+                        'machine_code_offset': len(opcode_operands) - 2,
+                        'symbol_table_index': symbol_table.get_index(operand)
+                    })
+                elif validate_operand_data_size(operand, 16, errors):
                     if data.is_valid_str(operand):
                         data_values = data.get_value(operand)
                         for data_value in data_values:
@@ -678,7 +685,7 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
         machine_code.extend(opcode_operands)
         return {
             'machine_code': machine_code,
-            'relocation_table': []
+            'relocation_table': _relocation_table
         }
 
 
@@ -962,7 +969,7 @@ def assemble_asm_file(file_name):
                             assembly = assemble_asm_line(line, errors)
 
                             if not errors:
-                                # dump_assembly(assembly)
+                                dump_assembly(assembly)
 
                                 symbol = symbols.add_symbol(current_symbol_name)
 
