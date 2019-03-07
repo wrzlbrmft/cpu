@@ -1,3 +1,5 @@
+;.base   0x0800
+
 main:   jmp boot
         nop
 
