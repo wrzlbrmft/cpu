@@ -330,6 +330,7 @@ int3f:  ret
 
 ; --------- boot code ---------
 
+; copy bios interrupt addresses from static to dynamic interrupt jump table
 boot:   mov b, 0x02     ; start with interrupt 0x01
         mov c, 0x04
 
