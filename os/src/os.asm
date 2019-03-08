@@ -365,7 +365,7 @@ i0:     mov h, 0x08
         add 0x02
         mov c, a
 
-        jmp i0x
+        jmp i0
 
 cpb:    mov h, 0x01     ; read byte from 0x0100+b
         mov l, b
