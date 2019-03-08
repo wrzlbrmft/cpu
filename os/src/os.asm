@@ -356,7 +356,7 @@ i0:     mov h, 0x08
         call cpb        ; copy high-order byte of interrupt address
 
         cmp 0x7e        ; reached high-order byte of address of interrupt 0x1f
-        jz  ok
+        jz  i0x
 
         mov a, b        ; b += 1
         add 0x01
