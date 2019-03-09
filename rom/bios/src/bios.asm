@@ -1,3 +1,5 @@
+.base 0x0000
+
 main:   jmp int00
         nop
 
