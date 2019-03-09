@@ -17,7 +17,8 @@ obj_files = {}
 
 # this is the memory address to which a program is loaded before it is executed by the cpu
 # the value is used when determining the absolute memory address of a relocated symbol
-link_base = 0
+# using the .base directive, the assembler allows setting the link base which is then stored in the object file header
+link_base = None
 
 # this is the current size of the byte-stream of machine code of all symbols linked so far
 # the value is set as the machine code base of the next symbol to be linked, which is its offset in the byte-stream
@@ -100,7 +101,7 @@ def read_obj_files(file_names):
 
 
 def link_symbol(symbol_name, file_name=None):
-    global link_offset
+    global link_base, link_offset
 
     if not symbols.symbol_exists(symbol_name):
         obj_file_names = get_symbol_obj_file_names(symbol_name)
@@ -192,7 +193,7 @@ def main():
                     errors = []
 
                     cpu_file_name = os.path.splitext(os.path.basename(main_obj_file_names[0]))[0] + '.cpu'
-                    cpu_file.write_cpu_file(cpu_file_name, errors, link_base)
+                    cpu_file.write_cpu_file(cpu_file_name, errors, link_base=link_base)
 
                     if errors:
                         show_error(errors[0], '')

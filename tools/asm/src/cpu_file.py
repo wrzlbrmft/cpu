@@ -7,9 +7,13 @@ import fileutils
 import symbol_table
 import symbols
 
+default_link_base = 0x0000
 
-def build_cpu_symbols(errors=None, link_base=0, _symbol_table=None, _symbols=None):
+
+def build_cpu_symbols(errors=None, _symbol_table=None, _symbols=None, link_base=None):
     _symbols = symbols.get_symbols(_symbols)
+    if link_base is None:
+        link_base = default_link_base
 
     buffer = bytearray()
 
@@ -43,8 +47,8 @@ def build_cpu_symbols(errors=None, link_base=0, _symbol_table=None, _symbols=Non
     return buffer
 
 
-def write_cpu_file(file_name, errors=None, link_base=0, _symbol_table=None, _symbols=None):
-    cpu_symbols = build_cpu_symbols(errors, link_base, _symbol_table, _symbols)
+def write_cpu_file(file_name, errors=None, _symbol_table=None, _symbols=None, link_base=None):
+    cpu_symbols = build_cpu_symbols(errors, _symbol_table, _symbols, link_base)
 
     if not errors:
         buffer = bytearray()
