@@ -120,6 +120,17 @@ def link_symbol(symbol_name, file_name=None):
         elif file_name is None or obj_file_names[0] == file_name:
             # copy the symbol from the object file symbols to the global symbols
             _obj_file = get_obj_file(obj_file_names[0])
+
+            if _obj_file['header']['link_base'] is not None:
+                if link_base is not None and _obj_file['header']['link_base'] != link_base:
+                    show_error({
+                        'name': 'AMBIGUOUS_LINK_BASE',
+                        'info': [link_base, obj_file_names[0], _obj_file['header']['link_base']]
+                    })
+                    return
+                else:
+                    link_base = _obj_file['header']['link_base']
+
             obj_file_symbol = symbols.get_symbol(symbol_name, _obj_file['symbols'])
 
             symbol_table.add_symbol(symbol_name)

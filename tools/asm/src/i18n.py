@@ -30,5 +30,6 @@ error_messages = {
     'CORRUPT_MACHINE_CODE': 'corrupt machine code',
     'CORRUPT_RELOCATION_TABLE': 'corrupt relocation table',
     'UNKNOWN_SYMBOL': "unknown symbol '{}'",
-    'AMBIGUOUS_SYMBOL': "ambiguous symbol '{}'"
+    'AMBIGUOUS_SYMBOL': "ambiguous symbol '{}'",
+    'AMBIGUOUS_LINK_BASE': "ambiguous link base (first: {}, {}: {})"
 }
