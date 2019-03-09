@@ -7,7 +7,7 @@ import fileutils
 import symbol_table
 import symbols
 
-default_link_base = 0x0000
+default_link_base = 0x0800  # TODO: for the time being...
 
 
 def build_cpu_symbols(errors=None, _symbol_table=None, _symbols=None, link_base=None):
