@@ -7,7 +7,7 @@
 #
 # header:
 #   3 bytes  file signature ('MPO')
-#   1 byte   file version
+#   1 byte   object file version
 #
 # symbol table:
 #   1 word   number of symbol names in symbol table
