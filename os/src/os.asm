@@ -338,7 +338,8 @@ boot:   mov b, 0x02     ; start with interrupt 0x01
 
 i0:     mov h, 0x08
         mov l, c
-        mov m, 0x77     ; opcode for 'jmp addr'
+        mov d, 0x77     ; opcode for 'jmp addr'
+        mov m, d
 
         mov a, c        ; c += 1
         add 0x01
