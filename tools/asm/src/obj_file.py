@@ -8,6 +8,7 @@
 # header:
 #   3 bytes  file signature ('MPO')
 #   1 byte   object file version
+#   1 word   link base
 #
 # symbol table:
 #   1 word   number of symbol names in symbol table
@@ -36,13 +37,17 @@ import symbols
 import os
 
 obj_file_signature = 'MPO'
-max_obj_file_version = 0
+max_obj_file_version = 1
 
 
-def build_obj_file_header():
+def build_obj_file_header(link_base=None):
+    if link_base is None:
+        link_base = 0xffff  # # 0xffff means NULL
+
     buffer = bytearray()
     buffer.extend(map(ord, obj_file_signature))
     buffer.append(max_obj_file_version)
+    buffer.extend(binutils.word_to_le(link_base))
 
     return buffer
 
@@ -84,8 +89,8 @@ def build_obj_file_symbols(_symbol_table=None, _symbols=None):
     return buffer
 
 
-def write_obj_file(file_name, _symbol_table=None, _symbols=None):
-    obj_file_header = build_obj_file_header()
+def write_obj_file(file_name, _symbol_table=None, _symbols=None, link_base=None):
+    obj_file_header = build_obj_file_header(link_base)
     obj_file_symbol_table = build_obj_file_symbol_table(_symbol_table)
     obj_file_symbols = build_obj_file_symbols(_symbol_table, _symbols)
 
@@ -125,10 +130,23 @@ def read_obj_file_header(file, errors=None):
                     'info': []
                 })
             return None
+
+        link_base = fileutils.read_word_le(file)
+        if link_base is None:
+            if errors is not None:
+                errors.append({
+                    'name': 'UNEXPECTED_EOF',
+                    'info': []
+                })
+            return None
         else:
-            return {
-                'obj_file_version': obj_file_version
-            }
+            if 0xffff == link_base:
+                link_base = None  # 0xffff means NULL
+
+        return {
+            'obj_file_version': obj_file_version,
+            'link_base': link_base
+        }
     else:
         if errors is not None:
             errors.append({

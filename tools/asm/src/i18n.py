@@ -18,6 +18,7 @@ error_messages = {
     'INCOMPATIBLE_DATA_TYPE': 'incompatible data type',
     'INVALID_INT': "invalid interrupt '{}'",
     'NO_DATA': 'no data',
+    'DUPLICATE_DIRECTIVE': "duplicate directive '{}'",
 
     'NO_OBJ_FILES': 'no object file(s)',
     'DUPLICATE_OBJ_FILE': "duplicate object file '{}'",

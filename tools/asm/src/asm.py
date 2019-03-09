@@ -18,7 +18,7 @@ current_line_num = 0
 current_line_str = None
 current_symbol_name = None
 
-valid_directives = ['end']
+valid_directives = ['base', 'end']
 
 valid_mnemonics = ['nop', 'hlt', 'rst',
                    'mov', 'lda', 'sta', 'push', 'pop',
@@ -44,6 +44,8 @@ valid_registers = {
 valid_operands = list(valid_registers.keys()) + ['m']
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]{,254}', re.IGNORECASE)
+
+link_base = None
 
 
 def is_valid_directive(s):
@@ -740,6 +742,27 @@ def assemble_asm_line(line, errors=None):
         return assembly
 
 
+def directive_base(operands, errors=None):
+    global link_base
+
+    if link_base is not None:
+        if errors is not None:
+            errors.append({
+                'name': 'DUPLICATE_DIRECTIVE',
+                'info': ['base']
+            })
+    elif validate_operands_count(operands, 1, errors):
+        operand = operands[0]
+        if is_valid_name(operand):
+            if errors is not None:
+                errors.append({
+                    'name': 'INVALID_OPERAND',
+                    'info': [operand]
+                })
+        elif validate_operand_addr_size(operand, 16, errors):
+            link_base = data.get_value(operand)
+
+
 def show_error(error, symbol_name=None, line_str=None, line_num=None, file_name=None):
     global total_errors_count
 
@@ -915,6 +938,8 @@ def assemble_asm_file(file_name):
                             'info': [',']
                         })
                         return
+                    elif 'base' == directive_lower:
+                        directive_base(line['operands'], errors)
                     elif 'end' == directive_lower:
                         # the .end directive simply exists the line-by-line loop (skipping the rest of the file)
                         break
@@ -1010,7 +1035,7 @@ def main():
 
         if not total_errors_count:
             obj_file_name = os.path.splitext(os.path.basename(asm_file_name))[0] + '.obj'
-            obj_file.write_obj_file(obj_file_name)
+            obj_file.write_obj_file(obj_file_name, link_base=link_base)
 
 
 if '__main__' == __name__:
