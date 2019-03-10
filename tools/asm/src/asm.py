@@ -611,7 +611,13 @@ def mnemonic_int(operands, errors=None):
 
     if validate_operands_count(operands, 1, errors):
         operand = operands[0].lower()
-        if validate_operand_data_size(operand, 8, errors):
+        if data.is_valid_str(operand) or data.is_valid_chr(operand):
+            if errors is not None:
+                errors.append({
+                    'name': 'UNSUPPORTED_OPERAND',
+                    'info': [operand]
+                })
+        elif validate_operand_data_size(operand, 8, errors):
             opcode = 0b11011111
             data_value = data.get_value(operand)
             if data_value > 63:
@@ -758,7 +764,7 @@ def directive_base(operands, errors=None):
         if is_valid_name(operand):
             if errors is not None:
                 errors.append({
-                    'name': 'INVALID_OPERAND',
+                    'name': 'UNSUPPORTED_OPERAND',
                     'info': [operand]
                 })
         elif validate_operand_addr_size(operand, 16, errors):
