@@ -8,7 +8,7 @@
 # header:
 #   3 bytes  file signature ('MPO')
 #   1 byte   object file version
-#   1 word   link base
+#   1 word   link base (0xffff = NULL)
 #
 # symbol table:
 #   1 word   number of symbol names in symbol table
@@ -19,7 +19,7 @@
 #   ? bytes  symbol name
 #
 # a symbol
-#   1 word   size of machine code (0=external)
+#   1 word   size of machine code (0x0000 = external)
 #   --- if not external ---
 #   ? bytes  machine code
 #   1 word   number of relocations
@@ -42,7 +42,7 @@ max_obj_file_version = 1
 
 def build_obj_file_header(link_base=None):
     if link_base is None:
-        link_base = 0xffff  # # 0xffff means NULL
+        link_base = 0xffff  # 0xffff = NULL
 
     buffer = bytearray()
     buffer.extend(map(ord, obj_file_signature))
@@ -141,7 +141,7 @@ def read_obj_file_header(file, errors=None):
             return None
         else:
             if 0xffff == link_base:
-                link_base = None  # 0xffff means NULL
+                link_base = None  # 0xffff = NULL
 
         return {
             'obj_file_version': obj_file_version,

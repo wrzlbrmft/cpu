@@ -371,6 +371,7 @@ def parse_csv_line(line_str, errors=None):
 def add_to_rom(addr_value, data_value):
     global rom
 
+    # recursion when using bits with placeholders, e.g. 11xx00xx
     addr_value = addr_value.split('x', 1)
     if len(addr_value) > 1:
         add_to_rom('0'.join(addr_value), data_value)

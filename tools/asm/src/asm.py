@@ -45,6 +45,7 @@ valid_operands = list(valid_registers.keys()) + ['m']
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]{,254}', re.IGNORECASE)
 
+# using the .base directive, the assembler allows setting the link base which is then stored in the object file header
 link_base = None
 
 
@@ -654,7 +655,8 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                     opcode_operands.clear()
                     break
         elif 'dw' == mnemonic:
-            # words support max. 16-bit data, a single character or a string both including unicode
+            # words support a symbol name (using relocation), max. 16-bit data, a single character or a string both
+            # including unicode
             for operand in operands:
                 if is_valid_name(operand):
                     opcode_operands.extend([0, 0])

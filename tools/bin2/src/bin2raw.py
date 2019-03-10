@@ -8,6 +8,7 @@ import sys
 
 total_errors_count = 0
 
+# number of zero-bytes to fill in at the beginning of the raw file
 zero_fill = 0x0800  # TODO: for the time being...
 
 
