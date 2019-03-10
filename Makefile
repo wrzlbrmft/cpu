@@ -20,18 +20,21 @@ clean:
 	$(MAKE) -C tools/asm/src clean
 	$(MAKE) -C tools/bin2/src clean
 	$(MAKE) -C tools/rom/src clean
+
 	$(MAKE) -C os/src clean
+
 	$(MAKE) -C rom/bios/src clean
+
 	$(MAKE) -C rom/microcode clean
 
-	rm -rf asm/example/*.obj
-	rm -rf asm/example/*.cpu
-	rm -rf asm/example/*.raw
+	rm -rf tools/asm/example/*.obj
+	rm -rf tools/asm/example/*.cpu
+	rm -rf tools/asm/example/*.raw
+	rm -rf tools/asm/src/*.obj
+	rm -rf tools/asm/src/*.cpu
+	rm -rf tools/asm/src/*.raw
 
-	rm -rf asm/src/*.obj
-	rm -rf asm/src/*.cpu
-	rm -rf asm/src/*.raw
+	rm -rf tools/bin2/src/*.raw
 
-	rm -rf asm/src/*.obj
-	rm -rf asm/src/*.cpu
-	rm -rf asm/src/*.raw
+	rm -rf tools/rom/examples/*.raw
+	rm -rf tools/rom/src/*.raw
