@@ -9,6 +9,7 @@ import sys
 total_errors_count = 0
 
 # number of zero-bytes to fill in at the beginning of the raw file
+# should match the default memory address to which a program is loaded before it is executed by the cpu
 zero_fill = 0x0800  # TODO: for the time being...
 
 

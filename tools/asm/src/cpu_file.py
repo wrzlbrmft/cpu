@@ -7,6 +7,7 @@ import fileutils
 import symbol_table
 import symbols
 
+# default memory address to which a program is loaded before it is executed by the cpu
 default_link_base = 0x0800  # TODO: for the time being...
 
 
