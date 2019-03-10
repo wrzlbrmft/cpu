@@ -2,10 +2,10 @@ import binutils
 
 import re
 
-valid_dec_regex = re.compile('[1-9][0-9]*')
-valid_hex_regex = re.compile('0x[0-9a-f]+', re.IGNORECASE)
-valid_bin_regex = re.compile('0b[0-1]+', re.IGNORECASE)
-valid_oct_regex = re.compile('0o[0-7]+')
+valid_dec_regex = re.compile('[1-9][0-9_]*')
+valid_hex_regex = re.compile('0x[0-9a-f][0-9a-f_]*', re.IGNORECASE)
+valid_bin_regex = re.compile('0b[0-1][0-1_]*', re.IGNORECASE)
+valid_oct_regex = re.compile('0o[0-7][0-7_]*')
 valid_chr_regex = re.compile('(\'.\'|\".\")', re.IGNORECASE)
 valid_str_regex = re.compile('(\'.{2,}\'|\".{2,}\")', re.IGNORECASE)
 
@@ -48,13 +48,13 @@ def get_value(s):
     if '0' == s:
         return 0
     elif is_valid_dec(s):
-        return int(s)
+        return int(s.replace('_', ''))
     elif is_valid_hex(s):
-        return int(s[2:], 16)
+        return int(s[2:].replace('_', ''), 16)
     elif is_valid_bin(s):
-        return int(s[2:], 2)
+        return int(s[2:].replace('_', ''), 2)
     elif is_valid_oct(s):
-        return int(s[1:], 8)
+        return int(s[2:].replace('_', ''), 8)
     elif is_valid_chr(s):
         return ord(s[1])
     elif is_valid_str(s):

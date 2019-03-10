@@ -22,7 +22,7 @@ data_config_bits = 0
 data_config_flags = {}
 
 valid_name_regex = re.compile('[_a-z][_a-z0-9]*', re.IGNORECASE)
-valid_bits_regex = re.compile('0b[0-1x]+', re.IGNORECASE)
+valid_bits_regex = re.compile('0b[0-1x][0-1x_]*', re.IGNORECASE)
 
 extract_bits_from = None
 extract_bits_to = None
@@ -40,7 +40,7 @@ def is_valid_bits(s):
 
 def get_bits_value(s):
     if is_valid_bits(s):
-        return s[2:]
+        return s[2:].replace('_', '')
     else:
         return None
 
