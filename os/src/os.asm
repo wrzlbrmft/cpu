@@ -1,4 +1,4 @@
-.base   0x0800
+.base   0x0800  ; start address of ram
 
 main:   jmp boot
         nop
@@ -336,7 +336,7 @@ int3f:  ret
 boot:   mov b, 0x02     ; start with interrupt 0x01
         mov c, 0x04
 
-i0:     mov h, 0x08
+i0:     mov h, 0x08     ; 0x0800+c
         mov l, c
         mov d, 0x77     ; opcode for 'jmp addr'
         mov m, d
@@ -356,8 +356,8 @@ i0:     mov h, 0x08
 
         call cpb        ; copy high-order byte of interrupt address
 
-        cmp 0x7e        ; reached high-order byte of address of interrupt 0x1f
-        jz  i0x
+        cmp 0x7e        ; just copied address of interrupt 0x1f?
+        jz i0x          ; if yes, exit loop
 
         mov a, b        ; b += 1
         add 0x01
@@ -376,7 +376,7 @@ cpb:    mov h, 0x01     ; read byte from 0x0100+b
         mov m, d
         ret
 
-i0x:    hlt             ; done copying interrupt addresses
+i0x:    hlt             ; done copying bios interrupt addresses
 
 ; -----------------------------
 

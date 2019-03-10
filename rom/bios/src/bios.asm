@@ -1,15 +1,15 @@
-.base 0x0000
+.base 0x0000    ; start address of rom
 
 main:   jmp int00
         nop
 
 ; --------- static interrupt jump table ---------
 
-; rom_size = 2048
+; dynamic_interrupt_jump_table = 0x0800  # start address of ram
 ; for i in range(1, 64):
 ;     print("_int{}: jmp 0x{}\n        nop\n".format(
 ;         hex(i)[2:].zfill(2),
-;         hex(rom_size + (4 * i))[2:].zfill(4)
+;         hex(dynamic_interrupt_jump_table + (4 * i))[2:].zfill(4)
 ;     ))
 
 ; --- bios interrupts ---
@@ -209,10 +209,10 @@ _int3f: jmp 0x08fc
 
 ; --------- bios interrupt address table ---------
 
-        dw  int00, int01, int02, int03, int04, int05, int06, int07
-        dw  int08, int09, int0a, int0b, int0c, int0d, int0e, int0f
-        dw  int10, int11, int12, int13, int14, int15, int16, int17
-        dw  int18, int19, int1a, int1b, int1c, int1d, int1e, int1f
+        dw int00, int01, int02, int03, int04, int05, int06, int07
+        dw int08, int09, int0a, int0b, int0c, int0d, int0e, int0f
+        dw int10, int11, int12, int13, int14, int15, int16, int17
+        dw int18, int19, int1a, int1b, int1c, int1d, int1e, int1f
 
 ; ------------------------------------------------
 
@@ -222,7 +222,7 @@ int00:  mov sp, 0xffff  ; initialize stack pointer
 
         ; TODO: ...load os...
 
-        jmp 0x0800      ; jump into os
+        jmp 0x0800      ; jump into os, start address of ram
 
 int01:  ret
 
