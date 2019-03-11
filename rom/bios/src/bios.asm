@@ -1,9 +1,11 @@
 .base 0x0000    ; start address of rom
 
+; --------- static interrupt jump table ---------
+
+; --- bios interrupts ---
+
 main:   jmp int00
         nop
-
-; --------- static interrupt jump table ---------
 
 ; dynamic_interrupt_jump_table = 0x0800  # start address of ram
 ; for i in range(1, 64):
@@ -11,8 +13,6 @@ main:   jmp int00
 ;         hex(i)[2:].zfill(2),
 ;         hex(dynamic_interrupt_jump_table + (4 * i))[2:].zfill(4)
 ;     ))
-
-; --- bios interrupts ---
 
 _int01: jmp 0x0804
         nop

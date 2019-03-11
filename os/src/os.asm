@@ -1,11 +1,11 @@
 .base   0x0800  ; start address of ram
 
-main:   jmp boot
-        nop
-
 ; --------- dynamic interrupt jump table ---------
 
 ; --- bios interrupts ---
+
+main:   jmp boot
+        nop
 
 _int01: ret
         nop
