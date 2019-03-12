@@ -225,7 +225,52 @@ _int3f: jmp 0x08fc
 
 int00:  mov sp, 0xffff  ; initialize stack pointer
 
-        ; TODO: populate dynamic interrupt jump table with bios interrupt addresses
+        ; populate dynamic interrupt jump table with bios interrupt addresses
+
+        mov b, 0x02     ; start with interrupt 0x01
+        mov c, 0x04
+
+i0:     mov h, 0x08     ; 0x0800+c
+        mov l, c
+        mov d, 0x77     ; opcode for 'jmp addr'
+        mov m, d
+
+        mov a, c        ; c += 1
+        add 0x01
+        mov c, a
+
+        call cpb        ; copy low-order byte of interrupt address
+
+        mov a, b        ; b += 1
+        add 0x01
+        mov b, a
+        mov a, c        ; c += 1
+        add 0x01
+        mov c, a
+
+        call cpb        ; copy high-order byte of interrupt address
+
+        cmp 0x7e        ; just copied address of interrupt 0x1f?
+        jz i0x          ; if yes, exit loop
+
+        mov a, b        ; b += 1
+        add 0x01
+        mov b, a
+        mov a, c        ; c += 2 (skip nop)
+        add 0x02
+        mov c, a
+
+        jmp i0
+
+cpb:    mov h, 0x01     ; read byte from 0x0100+b
+        mov l, b
+        mov d, m
+        mov h, 0x08     ; write byte to 0x0800+c
+        mov l, c
+        mov m, d
+        ret
+
+i0x:    nop             ; done copying bios interrupt addresses
 
         ; TODO: load os
 
