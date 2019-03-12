@@ -270,7 +270,7 @@ cpb:    mov h, 0x01     ; copy byte from 0x0100+b
         mov m, d
         ret
 
-i0x:    nop             ; done populating dynamic interrupt jump table
+i0x:    nop             ; done copying bios interrupt addresses
 
         ; TODO: load os
 
