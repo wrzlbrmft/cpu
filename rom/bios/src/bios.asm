@@ -227,8 +227,8 @@ int00:  mov sp, 0xffff  ; initialize stack pointer
 
         ; populate dynamic interrupt jump table with bios interrupt addresses
 
-        mov b, 0x02     ; start with interrupt 0x01
-        mov c, 0x04
+        mov b, 0x02     ; copy from 0x0100+0x02
+        mov c, 0x04     ; to 0x0800+0x04 onwards
 
 i0:     mov h, 0x08     ; 0x0800+c
         mov l, c
@@ -250,13 +250,13 @@ i0:     mov h, 0x08     ; 0x0800+c
 
         call cpb        ; copy high-order byte of interrupt address
 
-        cmp 0x7e        ; just copied address of interrupt 0x1f?
+        cmp 0x7e        ; just copied last bios interrupt address (int 0x1f)?
         jz i0x          ; if yes, exit loop
 
         mov a, b        ; b += 1
         add 0x01
         mov b, a
-        mov a, c        ; c += 2 (skip nop)
+        mov a, c        ; c += 2 (skip 4th byte)
         add 0x02
         mov c, a
 
