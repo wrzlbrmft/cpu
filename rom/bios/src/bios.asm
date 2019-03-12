@@ -227,12 +227,12 @@ int00:  mov sp, 0xffff  ; initialize stack pointer
 
         ; populate dynamic interrupt jump table with bios interrupt addresses
 
-        mov b, 0x02     ; copy from 0x0100+0x02
-        mov c, 0x04     ; to 0x0800+0x04 onwards
+        mov b, 0x02     ; copy from h+0x02
+        mov c, 0x04     ; to h+0x04
 
 i0:     mov h, 0x08     ; 0x0800+c
         mov l, c
-        mov d, 0x77     ; opcode for 'jmp addr'
+        mov d, 0x77     ; opcode for 'jmp addr' instruction
         mov m, d
 
         mov a, c        ; c += 1
@@ -262,15 +262,15 @@ i0:     mov h, 0x08     ; 0x0800+c
 
         jmp i0
 
-cpb:    mov h, 0x01     ; read byte from 0x0100+b
+cpb:    mov h, 0x01     ; copy byte from 0x0100+b
         mov l, b
         mov d, m
-        mov h, 0x08     ; write byte to 0x0800+c
+        mov h, 0x08     ; to 0x0800+c
         mov l, c
         mov m, d
         ret
 
-i0x:    nop             ; done copying bios interrupt addresses
+i0x:    nop             ; done populating dynamic interrupt jump table
 
         ; TODO: load os
 
