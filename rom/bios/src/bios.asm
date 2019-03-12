@@ -1,11 +1,16 @@
-.base 0x0000    ; start address of rom
+.base 0x0000    ; bios entry point
 
 ; --------- static interrupt jump table ---------
+; the INT microcode jumps into the static interrupt jump table
 
 ; --- bios interrupts ---
 
+; int 0x00 is fixed and does not jump into the dynamic interrupt jump table
+; it is the bios entry point at 0x0000 when the cpu is powered on
 main:   jmp int00
         nop
+
+; all other interrupts use the dynamic interrupt jump table
 
 ; dynamic_interrupt_jump_table = 0x0800  # start address of ram
 ; for i in range(1, 64):
@@ -207,22 +212,24 @@ _int3f: jmp 0x08fc
 
 ; -----------------------------------------------
 
-; --------- bios interrupt address table ---------
+; --------- bios interrupt address table at 0x0100 ---------
 
         dw int00, int01, int02, int03, int04, int05, int06, int07
         dw int08, int09, int0a, int0b, int0c, int0d, int0e, int0f
         dw int10, int11, int12, int13, int14, int15, int16, int17
         dw int18, int19, int1a, int1b, int1c, int1d, int1e, int1f
 
-; ------------------------------------------------
+; ----------------------------------------------------------
 
 ; --------- bios interrupt routines ---------
 
 int00:  mov sp, 0xffff  ; initialize stack pointer
 
-        ; TODO: ...load os...
+        ; TODO: populate dynamic interrupt jump table with bios interrupt addresses
 
-        jmp 0x0800      ; jump into os, start address of ram
+        ; TODO: load os
+
+        jmp 0x0900      ; jump into os
 
 int01:  ret
 
