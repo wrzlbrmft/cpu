@@ -8,7 +8,7 @@ import symbol_table
 import symbols
 
 # default memory address to which a program is loaded before it is executed by the cpu
-default_link_base = 0x0800  # TODO: for the time being...
+default_link_base = 0x0900  # TODO: for the time being...
 
 
 def build_cpu_symbols(errors=None, _symbol_table=None, _symbols=None, link_base=None):
