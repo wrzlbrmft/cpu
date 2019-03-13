@@ -82,11 +82,51 @@ int3f:  ret
 
 ; --------- boot routine ---------
 
-boot:   nop
+; populate dynamic interrupt jump table with os interrupt addresses
+boot:   mov b, 0x04     ; copy from h+0x04
+        mov c, 0x80     ; to h+0x80
 
-        ; TODO: populate dynamic interrupt jump table with os interrupt addresses
+i0:     mov h, 0x08     ; 0x0800+c
+        mov l, c
+        mov d, 0x77     ; opcode for 'jmp addr' instruction
+        mov m, d
 
-        hlt
+        mov a, c        ; c += 1
+        add 0x01
+        mov c, a
+
+        call cpb        ; copy low-order byte of interrupt address
+
+        mov a, b        ; b += 1
+        add 0x01
+        mov b, a
+        mov a, c        ; c += 1
+        add 0x01
+        mov c, a
+
+        call cpb        ; copy high-order byte of interrupt address
+
+        cmp 0xfe        ; just copied last os interrupt address (int 0x3f)?
+        jz i0x          ; if yes, exit loop
+
+        mov a, b        ; b += 1
+        add 0x01
+        mov b, a
+        mov a, c        ; c += 2 (skip 4th byte)
+        add 0x02
+        mov c, a
+
+        jmp i0
+
+cpb:    mov h, 0x09     ; copy byte from 0x0900+b
+        mov l, b
+        mov d, m
+        mov h, 0x08     ; to 0x0800+c
+        mov l, c
+        mov m, d
+        ret
+
+i0x:    hlt             ; done copying os interrupt addresses
 
 ; --------------------------------
 
