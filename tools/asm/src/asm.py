@@ -967,12 +967,6 @@ def assemble_asm_file(file_name):
                                 'info': [symbol_name]
                             }, '')
                             return
-                        elif not line['mnemonic']:
-                            show_error({
-                                'name': 'SYMBOL_WITHOUT_INSTRUCTION',
-                                'info': []
-                            })
-                            return
                         else:
                             current_symbol_name = symbol_name
 

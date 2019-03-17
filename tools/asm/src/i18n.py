@@ -5,7 +5,6 @@ error_messages = {
     'INVALID_DIRECTIVE': "invalid directive '{}'",
     'INVALID_SYMBOL_NAME': "invalid symbol name '{}'",
     'DUPLICATE_SYMBOL': "duplicate symbol '{}'",
-    'SYMBOL_WITHOUT_INSTRUCTION': 'symbol without instruction',
     'INSTRUCTION_WITHOUT_SYMBOL': 'instruction without symbol',
     'INVALID_MNEMONIC': "invalid mnemonic '{}'",
     'INSUFFICIENT_OPERANDS': 'insufficient operands (given: {}, required: {})',
