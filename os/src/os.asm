@@ -82,8 +82,8 @@ int3f:  ret
 
 ; --------- boot routine ---------
 
-; populate dynamic interrupt jump table with os interrupt addresses
-boot:   mov b, 0x04     ; copy from h+0x04
+boot:   ; populate dynamic interrupt jump table with os interrupt addresses
+        mov b, 0x04     ; copy from h+0x04
         mov c, 0x80     ; to h+0x80
 
 i0:     mov h, 0x08     ; 0x0800+c

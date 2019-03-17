@@ -226,7 +226,6 @@ _int3f: jmp 0x08fc
 int00:  mov sp, 0xffff  ; initialize stack pointer
 
         ; populate dynamic interrupt jump table with bios interrupt addresses
-
         mov b, 0x02     ; copy from h+0x02
         mov c, 0x04     ; to h+0x04
 
