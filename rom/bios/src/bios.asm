@@ -224,7 +224,8 @@ bios_int_addr_tbl:
 
 ; --------- bios interrupt routines ---------
 
-int00:  mov sp, 0xffff  ; initialize stack pointer
+int00:  ; power on
+        mov sp, 0xffff  ; initialize stack pointer
 
         ; copy bios interrupt address table
         mov b, 0x1f     ; number of interrupt addresses to copy
