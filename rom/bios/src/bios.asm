@@ -214,6 +214,7 @@ _int3f: jmp 0x08fc
 
 ; --------- bios interrupt address table at 0x0100 ---------
 
+bios_int_addr_tbl:
         dw int00, int01, int02, int03, int04, int05, int06, int07
         dw int08, int09, int0a, int0b, int0c, int0d, int0e, int0f
         dw int10, int11, int12, int13, int14, int15, int16, int17
@@ -225,57 +226,73 @@ _int3f: jmp 0x08fc
 
 int00:  mov sp, 0xffff  ; initialize stack pointer
 
-        ; populate dynamic interrupt jump table with bios interrupt addresses
-        mov b, 0x02     ; copy from h+0x02
-        mov c, 0x04     ; to h+0x04
-
-i0:     mov h, 0x08     ; 0x0800+c
-        mov l, c
-        mov d, 0x77     ; opcode for 'jmp addr' instruction
-        mov m, d
-
-        mov a, c        ; c += 1
-        add 0x01
-        mov c, a
-
-        call cpb        ; copy low-order byte of interrupt address
-
-        mov a, b        ; b += 1
-        add 0x01
-        mov b, a
-        mov a, c        ; c += 1
-        add 0x01
-        mov c, a
-
-        call cpb        ; copy high-order byte of interrupt address
-
-        cmp 0x7e        ; just copied last bios interrupt address (int 0x1f)?
-        jz i0x          ; if yes, exit loop
-
-        mov a, b        ; b += 1
-        add 0x01
-        mov b, a
-        mov a, c        ; c += 2 (skip 4th byte)
+        ; copy bios interrupt address table
+        mov b, 0x1f     ; number of interrupt addresses to copy
+        mov c, 0x01     ; first destination interrupt in dynamic interrupt jump table
+        mov hl, bios_int_addr_tbl
+        mov a, l        ; l += 2 (skip interrupt 0x00)
         add 0x02
-        mov c, a
-
-        jmp i0
-
-cpb:    mov h, 0x01     ; copy byte from 0x0100+b
-        mov l, b
-        mov d, m
-        mov h, 0x08     ; to 0x0800+c
-        mov l, c
-        mov m, d
-        ret
-
-i0x:    nop             ; done copying bios interrupt addresses
+        mov l, a
+        call int01      ; direct interrupt call (dynamic interrupt jump table not ready)
 
         ; TODO: load os
 
         jmp 0x0900      ; jump into os
 
-int01:  ret
+int01:  ; copy interrupt address table
+        ;   b = number of interrupt addresses to copy
+        ;   c = first destination interrupt in dynamic interrupt jump table
+        ;   hl = address of interrupt address table
+        mov a, c        ; c *= 4
+        add a
+        add a
+        mov c, a        ; write to 0x0800+c onwards
+        mov a, b        ; use the a register as counter
+        mov b, l        ; read from h+b onwards
+
+i0:     push a          ; push counter
+
+        mov d, m        ; read low-order byte of interrupt address
+        mov a, l        ; b = l + 1
+        add 0x01
+        mov b, a
+
+        push h
+        mov h, 0x08
+        mov l, c        ; 0x0800+c
+        mov a, 0x77     ; opcode for 'jmp addr' instruction
+        mov m, a
+        mov a, l        ; l += 1
+        add 0x01
+        mov l, a
+        mov m, d        ; write low-order byte of interrupt address
+        mov a, l        ; c = l + 1
+        add 0x01
+        mov c, a
+        pop h
+
+        mov l, b        ; h+b
+        mov d, m        ; read high-order byte of interrupt address
+        mov a, l        ; b = l + 1
+        add 0x01
+        mov b, a
+
+        push h
+        mov h, 0x08
+        mov l, c        ; 0x0800+c
+        mov m, d        ; write high-order byte of interrupt address
+        mov a, l        ; c = l + 2
+        add 0x02
+        mov c, a
+        pop h
+
+        pop a           ; pop counter
+        sub 0x01
+        rz              ; done
+
+        mov l, b        ; h+l
+
+        jmp i0          ; next interrupt address
 
 int02:  ret
 
