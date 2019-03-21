@@ -83,7 +83,7 @@ int3f:  ret
 
 ; --------- boot routine ---------
 
-boot:   ; copy bios interrupt address table
+boot:   ; copy os interrupt address table
         mov b, 0x20     ; number of interrupt addresses to copy
         mov c, 0x20     ; first destination interrupt in dynamic interrupt jump table
         mov hl, os_int_addr_tbl
