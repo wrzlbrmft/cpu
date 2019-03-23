@@ -943,7 +943,7 @@ def assemble_asm_file(file_name):
                     if not is_valid_directive(directive_lower):
                         show_error({
                             'name': 'INVALID_DIRECTIVE',
-                            'info': [',']
+                            'info': [directive]
                         })
                         return
                     elif 'base' == directive_lower:
