@@ -1,5 +1,7 @@
 .base 0x0000    ; bios entry point
 
+.proc   main
+
 ; --------- static interrupt jump table ---------
 ; the INT microcode jumps into the static interrupt jump table
 
@@ -7,7 +9,7 @@
 
 ; int 0x00 is fixed and does not jump into the dynamic interrupt jump table
 ; it is the bios entry point at 0x0000 when the cpu is powered on
-main:   jmp int00
+_int00: jmp int00
         nop
 
 ; all other interrupts use the dynamic interrupt jump table
@@ -222,9 +224,12 @@ bios_int_addr_tbl:
 
 ; ----------------------------------------------------------
 
+.endproc
+
 ; --------- bios interrupt routines ---------
 
-int00:  ; power on
+.proc   int00
+        ; power on
         mov sp, 0xffff  ; initialize stack pointer
 
         ; copy bios interrupt address table
@@ -239,8 +244,10 @@ int00:  ; power on
         ; TODO: load os
 
         jmp 0x0900      ; jump into os
+.endproc
 
-int01:  ; copy interrupt address table
+.proc   int01
+        ; copy interrupt address table
         ;   b = number of interrupt addresses to copy
         ;   c = first destination interrupt in dynamic interrupt jump table
         ;   hl = address of interrupt address table
@@ -294,66 +301,127 @@ i0:     push a          ; push counter
         mov l, b        ; h+l
 
         jmp i0          ; next interrupt address
+.endproc
 
-int02:  ret
+.proc   int02
+        ret
+.endproc
 
-int03:  ret
+.proc   int03
+        ret
+.endproc
 
-int04:  ret
+.proc   int04
+        ret
+.endproc
 
-int05:  ret
+.proc   int05
+        ret
+.endproc
 
-int06:  ret
+.proc   int06
+        ret
+.endproc
 
-int07:  ret
+.proc   int07
+        ret
+.endproc
 
-int08:  ret
+.proc   int08
+        ret
+.endproc
 
-int09:  ret
+.proc   int09
+        ret
+.endproc
 
-int0a:  ret
+.proc   int0a
+        ret
+.endproc
 
-int0b:  ret
+.proc   int0b
+        ret
+.endproc
 
-int0c:  ret
+.proc   int0c
+        ret
+.endproc
 
-int0d:  ret
+.proc   int0d
+        ret
+.endproc
 
-int0e:  ret
+.proc   int0e
+        ret
+.endproc
 
-int0f:  ret
+.proc   int0f
+        ret
+.endproc
 
-int10:  ret
+.proc   int10
+        ret
+.endproc
 
-int11:  ret
+.proc   int11
+        ret
+.endproc
 
-int12:  ret
+.proc   int12
+        ret
+.endproc
 
-int13:  ret
+.proc   int13
+        ret
+.endproc
 
-int14:  ret
+.proc   int14
+        ret
+.endproc
 
-int15:  ret
+.proc   int15
+        ret
+.endproc
 
-int16:  ret
+.proc   int16
+        ret
+.endproc
 
-int17:  ret
+.proc   int17
+        ret
+.endproc
 
-int18:  ret
+.proc   int18
+        ret
+.endproc
 
-int19:  ret
+.proc   int19
+        ret
+.endproc
 
-int1a:  ret
+.proc   int1a
+        ret
+.endproc
 
-int1b:  ret
+.proc   int1b
+        ret
+.endproc
 
-int1c:  ret
+.proc   int1c
+        ret
+.endproc
 
-int1d:  ret
+.proc   int1d
+        ret
+.endproc
 
-int1e:  ret
+.proc   int1e
+        ret
+.endproc
 
-int1f:  ret
+.proc   int1f
+        ret
+.endproc
 
 ; -------------------------------------------
 

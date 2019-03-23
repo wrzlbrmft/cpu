@@ -1,6 +1,7 @@
 .base   0x0900  ; os entry point
 
-main:   jmp boot
+.proc   main
+        jmp boot
         nop
 
 ; --------- os interrupt address table at 0x0904 ---------
@@ -13,83 +14,151 @@ os_int_addr_tbl:
 
 ; --------------------------------------------------------
 
+.endproc
+
 ; --------- os interrupt routines ---------
 
-int20:  ret
+.proc   int20
+        ret
+.endproc
 
-int21:  ret
+.proc   int21
+        ret
+.endproc
 
-int22:  ret
+.proc   int22
+        ret
+.endproc
 
-int23:  ret
+.proc   int23
+        ret
+.endproc
 
-int24:  ret
+.proc   int24
+        ret
+.endproc
 
-int25:  ret
+.proc   int25
+        ret
+.endproc
 
-int26:  ret
+.proc   int26
+        ret
+.endproc
 
-int27:  ret
+.proc   int27
+        ret
+.endproc
 
-int28:  ret
+.proc   int28
+        ret
+.endproc
 
-int29:  ret
+.proc   int29
+        ret
+.endproc
 
-int2a:  ret
+.proc   int2a
+        ret
+.endproc
 
-int2b:  ret
+.proc   int2b
+        ret
+.endproc
 
-int2c:  ret
+.proc   int2c
+        ret
+.endproc
 
-int2d:  ret
+.proc   int2d
+        ret
+.endproc
 
-int2e:  ret
+.proc   int2e
+        ret
+.endproc
 
-int2f:  ret
+.proc   int2f
+        ret
+.endproc
 
-int30:  ret
+.proc   int30
+        ret
+.endproc
 
-int31:  ret
+.proc   int31
+        ret
+.endproc
 
-int32:  ret
+.proc   int32
+        ret
+.endproc
 
-int33:  ret
+.proc   int33
+        ret
+.endproc
 
-int34:  ret
+.proc   int34
+        ret
+.endproc
 
-int35:  ret
+.proc   int35
+        ret
+.endproc
 
-int36:  ret
+.proc   int36
+        ret
+.endproc
 
-int37:  ret
+.proc   int37
+        ret
+.endproc
 
-int38:  ret
+.proc   int38
+        ret
+.endproc
 
-int39:  ret
+.proc   int39
+        ret
+.endproc
 
-int3a:  ret
+.proc   int3a
+        ret
+.endproc
 
-int3b:  ret
+.proc   int3b
+        ret
+.endproc
 
-int3c:  ret
+.proc   int3c
+        ret
+.endproc
 
-int3d:  ret
+.proc   int3d
+        ret
+.endproc
 
-int3e:  ret
+.proc   int3e
+        ret
+.endproc
 
-int3f:  ret
+.proc   int3f
+        ret
+.endproc
 
 ; -----------------------------------------
 
 ; --------- boot routine ---------
 
-boot:   ; copy os interrupt address table
+.proc   boot
+        ; copy os interrupt address table
         mov b, 0x20     ; number of interrupt addresses to copy
         mov c, 0x20     ; first destination interrupt in dynamic interrupt jump table
         mov hl, os_int_addr_tbl
         int 0x01
 
         hlt
+.endproc
 
 ; --------------------------------
 
