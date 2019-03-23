@@ -1016,12 +1016,19 @@ def assemble_asm_file(file_name):
                             symbol_table.remove_symbol(current_symbol_name)
                             symbol_table.add_symbol(current_symbol_name)
 
-                            # rebuild all relocation tables to use the new symbol indexes
+                            # rebuild all symbols to use the new symbol indexes
                             _symbols = symbols.get_symbols()
                             for symbol in _symbols.values():
+                                # procedure
+                                proc_name = symbol_table.get_symbol_name(symbol['proc_index'], old_symbol_table)
+                                symbol['proc_index'] = symbol_table.get_index(proc_name)
+
+                                # relocation table
                                 relocation_table.rebuild(symbol['relocation_table'], old_symbol_table)
                         else:
                             symbol_table.add_symbol(current_symbol_name)
+
+                        symbols.add_symbol(current_symbol_name, current_proc_name)
 
                 if not errors and line['mnemonic']:
                     if not current_symbol_name:
@@ -1036,7 +1043,7 @@ def assemble_asm_file(file_name):
                         if not errors:
                             # dump_assembly(assembly)
 
-                            symbol = symbols.add_symbol(current_symbol_name)
+                            symbol = symbols.get_symbol(current_symbol_name)
 
                             for relocation in assembly['relocation_table']:
                                 # adjust the machine code offset to be relative to the current symbol

@@ -53,8 +53,7 @@ def build_obj_file_header(link_base=None):
 
 
 def build_obj_file_symbol_table(_symbol_table=None):
-    # remove index 0 (global)
-    _symbol_table = symbol_table.get_symbol_table(_symbol_table)[1:]
+    _symbol_table = symbol_table.get_symbol_table(_symbol_table)[1:]  # remove index 0 (global)
 
     buffer = bytearray()
     symbol_table_size = len(_symbol_table)
@@ -67,11 +66,10 @@ def build_obj_file_symbol_table(_symbol_table=None):
 
 
 def build_obj_file_symbols(_symbol_table=None, _symbols=None):
-    # remove index 0 (global)
-    _symbol_table = symbol_table.get_symbol_table(_symbol_table)[1:]
+    _symbol_table = symbol_table.get_symbol_table(_symbol_table)
 
     buffer = bytearray()
-    for symbol_name in _symbol_table:
+    for symbol_name in _symbol_table[1:]:  # skip index 0 (global)
         if symbols.symbol_exists(symbol_name, _symbols):
             symbol = symbols.get_symbol(symbol_name, _symbols)
 
@@ -168,8 +166,7 @@ def read_obj_file_symbol_table(file, errors=None):
             })
         return None
     else:
-        # add index 0 (global)
-        _symbol_table = [None]
+        _symbol_table = [None]  # add index 0 (global)
         for i in range(0, symbol_table_size):
             symbol_name = fileutils.read_str(file)
             if symbol_name is None:
@@ -193,11 +190,10 @@ def read_obj_file_symbol_table(file, errors=None):
 
 
 def read_obj_file_symbols(file, _symbol_table=None, errors=None):
-    # remove index 0 (global)
-    _symbol_table = symbol_table.get_symbol_table(_symbol_table)[1:]
+    _symbol_table = symbol_table.get_symbol_table(_symbol_table)
 
     _symbols = {}
-    for symbol_name in _symbol_table:
+    for symbol_name in _symbol_table[1:]:  # skip index 0 (global)
         machine_code_size = fileutils.read_word_le(file)
         if machine_code_size is None:
             if errors is not None:
@@ -207,7 +203,7 @@ def read_obj_file_symbols(file, _symbol_table=None, errors=None):
                 })
             return None
         elif machine_code_size:
-            symbol = symbols.add_symbol(symbol_name, _symbols)
+            symbol = symbols.add_symbol(symbol_name, None, _symbols, _symbol_table)
 
             machine_code = file.read(machine_code_size)
             if len(machine_code) == machine_code_size:

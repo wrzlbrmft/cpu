@@ -1,6 +1,6 @@
 # a symbol table is an array of symbol names
 # relocation tables are using the array index of the symbol name as the reference
-# index 0 represents 'global' and is used for procedures or symbols not inside of procedures
+# index 0 represents 'global' and is used for symbols not inside of procedures
 
 # add index 0 (global)
 _symbol_table = [None]
