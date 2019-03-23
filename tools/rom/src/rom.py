@@ -485,3 +485,6 @@ def main():
 
 if '__main__' == __name__:
     main()
+
+    if total_errors_count:
+        sys.exit(1)
