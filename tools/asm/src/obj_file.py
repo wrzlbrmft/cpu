@@ -21,6 +21,7 @@
 # a symbol
 #   1 word   size of machine code (0xffff = external symbol)
 #   --- if not external symbol ---
+#   1 word   procedure index
 #   ? bytes  machine code
 #   1 word   number of relocations
 #   ? bytes  the relocations
@@ -75,6 +76,9 @@ def build_obj_file_symbols(_symbol_table=None, _symbols=None):
 
             machine_code_size = len(symbol['machine_code'])
             buffer.extend(binutils.word_to_le(machine_code_size))
+
+            buffer.extend(binutils.word_to_le(symbol['proc_index']))
+
             buffer.extend(symbol['machine_code'])
 
             relocation_table_size = len(symbol['relocation_table'])
@@ -205,6 +209,17 @@ def read_obj_file_symbols(file, _symbol_table=None, errors=None):
         elif machine_code_size != 0xffff:
             # if not external symbol
             symbol = symbols.add_symbol(symbol_name, None, _symbols, _symbol_table)
+
+            proc_index = fileutils.read_word_le(file)
+            if proc_index is None:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED_EOF',
+                        'info': []
+                    })
+                return None
+            else:
+                symbol['proc_index'] = proc_index
 
             machine_code = file.read(machine_code_size)
             if len(machine_code) == machine_code_size:
