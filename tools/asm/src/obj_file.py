@@ -19,7 +19,7 @@
 #   ? bytes  symbol name
 #
 # a symbol
-#   1 word   size of machine code (0x0000 = external symbol)
+#   1 word   size of machine code (0xffff = external symbol)
 #   --- if not external symbol ---
 #   ? bytes  machine code
 #   1 word   number of relocations
@@ -84,7 +84,7 @@ def build_obj_file_symbols(_symbol_table=None, _symbols=None):
                 buffer.extend(binutils.word_to_le(relocation['symbol_index']))
         else:
             # external symbol
-            buffer.extend([0, 0])
+            buffer.extend([0xff, 0xff])
 
     return buffer
 
@@ -202,7 +202,8 @@ def read_obj_file_symbols(file, _symbol_table=None, errors=None):
                     'info': []
                 })
             return None
-        elif machine_code_size:
+        elif machine_code_size != 0xffff:
+            # if not external symbol
             symbol = symbols.add_symbol(symbol_name, None, _symbols, _symbol_table)
 
             machine_code = file.read(machine_code_size)
