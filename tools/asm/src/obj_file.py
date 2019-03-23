@@ -53,7 +53,8 @@ def build_obj_file_header(link_base=None):
 
 
 def build_obj_file_symbol_table(_symbol_table=None):
-    _symbol_table = symbol_table.get_symbol_table(_symbol_table)
+    # remove index 0 (global)
+    _symbol_table = symbol_table.get_symbol_table(_symbol_table)[1:]
 
     buffer = bytearray()
     symbol_table_size = len(_symbol_table)
@@ -66,7 +67,8 @@ def build_obj_file_symbol_table(_symbol_table=None):
 
 
 def build_obj_file_symbols(_symbol_table=None, _symbols=None):
-    _symbol_table = symbol_table.get_symbol_table(_symbol_table)
+    # remove index 0 (global)
+    _symbol_table = symbol_table.get_symbol_table(_symbol_table)[1:]
 
     buffer = bytearray()
     for symbol_name in _symbol_table:
@@ -166,7 +168,8 @@ def read_obj_file_symbol_table(file, errors=None):
             })
         return None
     else:
-        _symbol_table = []
+        # add index 0 (global)
+        _symbol_table = [None]
         for i in range(0, symbol_table_size):
             symbol_name = fileutils.read_str(file)
             if symbol_name is None:
@@ -190,7 +193,8 @@ def read_obj_file_symbol_table(file, errors=None):
 
 
 def read_obj_file_symbols(file, _symbol_table=None, errors=None):
-    _symbol_table = symbol_table.get_symbol_table(_symbol_table)
+    # remove index 0 (global)
+    _symbol_table = symbol_table.get_symbol_table(_symbol_table)[1:]
 
     _symbols = {}
     for symbol_name in _symbol_table:

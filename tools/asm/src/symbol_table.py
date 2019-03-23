@@ -1,7 +1,9 @@
 # a symbol table is an array of symbol names
-# note: relocation tables are using the array index of the symbol name as the reference
+# relocation tables are using the array index of the symbol name as the reference
+# index 0 represents 'global' and is used as the scope for procedures or symbols not inside of procedures
 
-_symbol_table = []
+# add index 0 (global)
+_symbol_table = [None]
 
 
 def get_symbol_table(symbol_table=None):
