@@ -24,7 +24,7 @@ def build_cpu_symbols(errors=None, _symbol_table=None, _symbols=None, link_base=
         machine_code = symbol['machine_code']
         # do the relocation...
         for relocation in symbol['relocation_table']:
-            relocation_symbol_name = symbol_table.get_symbol_name(relocation['symbol_table_index'], _symbol_table)
+            relocation_symbol_name = symbol_table.get_symbol_name(relocation['symbol_index'], _symbol_table)
             if symbols.symbol_exists(relocation_symbol_name, _symbols):
                 # determine the absolute memory address of the relocated symbol by adding its machine code base to the
                 # link base (the machine code base was set when linking the relocated symbol)

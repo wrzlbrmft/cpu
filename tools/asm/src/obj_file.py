@@ -27,7 +27,7 @@
 #
 # a relocation:
 #   1 word   machine code offset
-#   1 word   symbol table index
+#   1 word   symbol index
 
 import binutils
 import fileutils
@@ -83,7 +83,7 @@ def build_obj_file_symbols(_symbol_table=None, _symbols=None):
             buffer.extend(binutils.word_to_le(relocation_table_size))
             for relocation in symbol['relocation_table']:
                 buffer.extend(binutils.word_to_le(relocation['machine_code_offset']))
-                buffer.extend(binutils.word_to_le(relocation['symbol_table_index']))
+                buffer.extend(binutils.word_to_le(relocation['symbol_index']))
         else:
             # external symbol
             buffer.extend([0, 0])
@@ -231,8 +231,8 @@ def read_obj_file_symbols(file, _symbol_table=None, errors=None):
             else:
                 for i in range(0, relocation_table_size):
                     machine_code_offset = fileutils.read_word_le(file)
-                    symbol_table_index = fileutils.read_word_le(file)
-                    if machine_code_offset is None or symbol_table_index is None:
+                    symbol_index = fileutils.read_word_le(file)
+                    if machine_code_offset is None or symbol_index is None:
                         if errors is not None:
                             errors.append({
                                 'name': 'CORRUPT_RELOCATION_TABLE',
@@ -242,7 +242,7 @@ def read_obj_file_symbols(file, _symbol_table=None, errors=None):
                     else:
                         symbol['relocation_table'].append({
                             'machine_code_offset': machine_code_offset,
-                            'symbol_table_index': symbol_table_index
+                            'symbol_index': symbol_index
                         })
 
     return _symbols

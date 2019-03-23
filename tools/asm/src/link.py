@@ -139,7 +139,7 @@ def link_symbol(symbol_name, file_name=None):
             symbol['machine_code'] = obj_file_symbol['machine_code']
             symbol['relocation_table'] = obj_file_symbol['relocation_table']
 
-            # rebuild the relocation table using the symbol name indexes from the global symbol table
+            # rebuild the relocation table to use the symbol indexes from the global symbol table
             relocation_table.rebuild(symbol['relocation_table'], _obj_file['symbol_table'])
 
             # set the machine code base to the current link offset and increment it for the next symbol to be linked

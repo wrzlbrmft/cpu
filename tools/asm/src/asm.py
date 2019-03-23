@@ -303,7 +303,7 @@ def mnemonic_mov(operands, errors=None):
                     opcode_operands.extend([0, 0])
                     _relocation_table.append({
                         'machine_code_offset': 1,
-                        'symbol_table_index': symbol_table.get_index(operand2)
+                        'symbol_index': symbol_table.get_index(operand2)
                     })
                 elif is_valid_register(operand2):
                     if validate_operand_register_size(operand2, register1_size, errors):
@@ -351,7 +351,7 @@ def mnemonic_lda(operands, errors=None):
                     opcode_operands.extend([0, 0])
                     _relocation_table.append({
                         'machine_code_offset': 1,
-                        'symbol_table_index': symbol_table.get_index(operand2)
+                        'symbol_index': symbol_table.get_index(operand2)
                     })
                 else:
                     opcode_operands.extend(binutils.word_to_le(addr_value))
@@ -386,7 +386,7 @@ def mnemonic_sta(operands, errors=None):
                 opcode_operands.extend([0, 0])
                 _relocation_table.append({
                     'machine_code_offset': 1,
-                    'symbol_table_index': symbol_table.get_index(operand1)
+                    'symbol_index': symbol_table.get_index(operand1)
                 })
             else:
                 opcode_operands.extend(binutils.word_to_le(addr_value))
@@ -540,7 +540,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
                 opcode_operands.extend([0, 0])
                 _relocation_table.append({
                     'machine_code_offset': 1,
-                    'symbol_table_index': symbol_table.get_index(operand)
+                    'symbol_index': symbol_table.get_index(operand)
                 })
             else:
                 opcode_operands.extend(binutils.word_to_le(addr_value))
@@ -669,7 +669,7 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                     opcode_operands.extend([0, 0])
                     _relocation_table.append({
                         'machine_code_offset': len(opcode_operands) - 2,
-                        'symbol_table_index': symbol_table.get_index(operand)
+                        'symbol_index': symbol_table.get_index(operand)
                     })
                 elif validate_operand_data_size(operand, 16, errors):
                     if data.is_valid_str(operand):
@@ -707,7 +707,7 @@ def dump_assembly(assembly):
     print(current_line_str.strip())
     for relocation in assembly['relocation_table']:
         print('   ' * relocation['machine_code_offset'], end='')
-        print(f"^ {relocation['symbol_table_index']}: {symbol_table.get_symbol_name(relocation['symbol_table_index'])}")
+        print(f"^ {relocation['symbol_index']}: {symbol_table.get_symbol_name(relocation['symbol_index'])}")
 
 
 def assemble_asm_line(line, errors=None):
@@ -1016,7 +1016,7 @@ def assemble_asm_file(file_name):
                             symbol_table.remove_symbol(current_symbol_name)
                             symbol_table.add_symbol(current_symbol_name)
 
-                            # rebuild relocation tables to use the new symbol name indexes
+                            # rebuild all relocation tables to use the new symbol indexes
                             _symbols = symbols.get_symbols()
                             for symbol in _symbols.values():
                                 relocation_table.rebuild(symbol['relocation_table'], old_symbol_table)
