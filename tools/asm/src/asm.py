@@ -17,8 +17,9 @@ current_file_name = None
 current_line_num = 0
 current_line_str = None
 current_symbol_name = None
+current_proc_name = None
 
-valid_directives = ['base', 'end']
+valid_directives = ['base', 'proc', 'endproc', 'end']
 
 valid_mnemonics = ['nop', 'hlt', 'rst',
                    'mov', 'lda', 'sta', 'push', 'pop',
@@ -771,6 +772,22 @@ def directive_base(operands, errors=None):
             link_base = data.get_value(operand)
 
 
+def directive_proc(operands, errors=None):
+    if validate_operands_count(operands, 1, errors):
+        operand = operands[0]
+        if is_valid_name(operand):
+            return operand
+        else:
+            if errors is not None:
+                errors.append({
+                    'name': 'INVALID_PROC_NAME',
+                    'info': [operand]
+                })
+            return None
+    else:
+        return None
+
+
 def show_error(error, symbol_name=None, line_str=None, line_num=None, file_name=None):
     global total_errors_count
 
@@ -919,7 +936,7 @@ def parse_asm_line_str(line_str, errors=None):
 
 
 def assemble_asm_file(file_name):
-    global current_file_name, current_line_num, current_line_str, current_symbol_name
+    global current_file_name, current_line_num, current_line_str, current_symbol_name, current_proc_name
 
     if os.path.isfile(file_name):
         with open(file_name, 'r') as asm:
@@ -948,63 +965,84 @@ def assemble_asm_file(file_name):
                         return
                     elif 'base' == directive_lower:
                         directive_base(line['operands'], errors)
-                    elif 'end' == directive_lower:
-                        # the .end directive simply exists the line-by-line loop (skipping the rest of the file)
-                        break
-                else:
-                    if not errors and line['symbol_name']:
-                        symbol_name = line['symbol_name']
-
-                        if not is_valid_name(symbol_name):
-                            show_error({
-                                'name': 'INVALID_SYMBOL_NAME',
-                                'info': [symbol_name]
-                            }, '')
-                            return
-                        elif symbols.symbol_exists(symbol_name):
-                            show_error({
-                                'name': 'DUPLICATE_SYMBOL',
-                                'info': [symbol_name]
-                            }, '')
-                            return
+                    elif 'proc' == directive_lower:
+                        if current_proc_name is None:
+                            current_proc_name = directive_proc(line['operands'], errors)
+                            if not errors:
+                                line['symbol_name'] = current_proc_name
                         else:
-                            current_symbol_name = symbol_name
-
-                            if symbol_table.symbol_exists(current_symbol_name):
-                                # if the current symbol was already used as an operand (hence it already exists in the
-                                # symbol table, but with a lower index), move it to the end of the symbol table to keep
-                                # the symbols in the order of their definition
-                                old_symbol_table = symbol_table.get_symbol_table().copy()
-                                symbol_table.remove_symbol(current_symbol_name)
-                                symbol_table.add_symbol(current_symbol_name)
-
-                                # rebuild relocation tables to use the new symbol name indexes
-                                _symbols = symbols.get_symbols()
-                                for symbol in _symbols.values():
-                                    relocation_table.rebuild(symbol['relocation_table'], old_symbol_table)
-                            else:
-                                symbol_table.add_symbol(current_symbol_name)
-
-                    if not errors and line['mnemonic']:
-                        if not current_symbol_name:
                             show_error({
-                                'name': 'INSTRUCTION_WITHOUT_SYMBOL',
+                                'name': 'UNEXPECTED_PROC',
                                 'info': []
                             })
                             return
+                    elif 'endproc' == directive_lower:
+                        if current_proc_name is not None:
+                            current_proc_name = None
+                            current_symbol_name = None
                         else:
-                            assembly = assemble_asm_line(line, errors)
+                            show_error({
+                                'name': 'UNEXPECTED_ENDPROC',
+                                'info': []
+                            })
+                            return
+                    elif 'end' == directive_lower:
+                        # the .end directive simply exists the line-by-line loop (skipping the rest of the file)
+                        break
 
-                            if not errors:
-                                # dump_assembly(assembly)
+                if not errors and line['symbol_name']:
+                    symbol_name = line['symbol_name']
 
-                                symbol = symbols.add_symbol(current_symbol_name)
+                    if not is_valid_name(symbol_name):
+                        show_error({
+                            'name': 'INVALID_SYMBOL_NAME',
+                            'info': [symbol_name]
+                        }, '')
+                        return
+                    elif symbols.symbol_exists(symbol_name):
+                        show_error({
+                            'name': 'DUPLICATE_SYMBOL',
+                            'info': [symbol_name]
+                        }, '')
+                        return
+                    else:
+                        current_symbol_name = symbol_name
 
-                                for relocation in assembly['relocation_table']:
-                                    # adjust the machine code offset to be relative to the current symbol
-                                    relocation['machine_code_offset'] += len(symbol['machine_code'])
-                                symbol['relocation_table'].extend(assembly['relocation_table'])
-                                symbol['machine_code'].extend(assembly['machine_code'])
+                        if symbol_table.symbol_exists(current_symbol_name):
+                            # if the current symbol was already used as an operand (hence it already exists in the
+                            # symbol table, but with a lower index), move it to the end of the symbol table to keep
+                            # the symbols in the order of their definition
+                            old_symbol_table = symbol_table.get_symbol_table().copy()
+                            symbol_table.remove_symbol(current_symbol_name)
+                            symbol_table.add_symbol(current_symbol_name)
+
+                            # rebuild relocation tables to use the new symbol name indexes
+                            _symbols = symbols.get_symbols()
+                            for symbol in _symbols.values():
+                                relocation_table.rebuild(symbol['relocation_table'], old_symbol_table)
+                        else:
+                            symbol_table.add_symbol(current_symbol_name)
+
+                if not errors and line['mnemonic']:
+                    if not current_symbol_name:
+                        show_error({
+                            'name': 'INSTRUCTION_WITHOUT_SYMBOL',
+                            'info': []
+                        })
+                        return
+                    else:
+                        assembly = assemble_asm_line(line, errors)
+
+                        if not errors:
+                            # dump_assembly(assembly)
+
+                            symbol = symbols.add_symbol(current_symbol_name)
+
+                            for relocation in assembly['relocation_table']:
+                                # adjust the machine code offset to be relative to the current symbol
+                                relocation['machine_code_offset'] += len(symbol['machine_code'])
+                            symbol['relocation_table'].extend(assembly['relocation_table'])
+                            symbol['machine_code'].extend(assembly['machine_code'])
 
                 # end of line
 
