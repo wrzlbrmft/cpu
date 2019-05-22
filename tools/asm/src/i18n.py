@@ -20,8 +20,8 @@ error_messages = {
     'INCOMPATIBLE_DATA_TYPE': 'incompatible data type',
     'INVALID_INT': "invalid interrupt '{}'",
     'UNSUPPORTED_MULTIPLIER': "unsupported multiplier '{}'",
-    'INVALID_MULTIPLIER_SIZE': 'invalid multiplier size (given: {}-bit, max: {}-bit)',
-    'INVALID_MULTIPLIER_VALUE': "invalid multiplier value '{}'",
+    'INVALID_MULTIPLIER': "invalid multiplier '{}'",
+    'UNSUPPORTED_MULTIPLIER_SIZE': 'unsupported multiplier size (given: {}-bit, max: {}-bit)',
     'NO_DATA': 'no data',
     'DUPLICATE_DIRECTIVE': "duplicate directive '{}'",
 

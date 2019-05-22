@@ -652,32 +652,31 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
             if len(operand_splits) == 4 and '(' == operand_splits[-3] and ')' == operand_splits[-1]:
                 operand = operand_splits[0]
                 multiplier = operand_splits[-2]
-                if is_valid_name(multiplier) or data.is_valid_str(multiplier) or data.is_valid_chr(multiplier):
-                    if errors is None:
+                if data.is_valid_str(multiplier) or data.is_valid_chr(multiplier):
+                    if errors is not None:
                         errors.append({
                             'name': 'UNSUPPORTED_MULTIPLIER',
                             'info': [multiplier]
                         })
                     opcode_operands.clear()
                     break
-                elif data.get_size(multiplier) > 16:
-                    if errors is None:
+                elif data.get_size(multiplier) is None or data.get_value(multiplier) < 1:
+                    if errors is not None:
                         errors.append({
-                            'name': 'INVALID_MULTIPLIER_SIZE',
+                            'name': 'INVALID_MULTIPLIER',
+                            'info': [multiplier]
+                        })
+                    opcode_operands.clear()
+                    break
+                elif data.get_size(multiplier) > 16:
+                    if errors is not None:
+                        errors.append({
+                            'name': 'UNSUPPORTED_MULTIPLIER_SIZE',
                             'info': [data.get_size(multiplier), 16]
                         })
                     opcode_operands.clear()
                     break
-
                 multiplier_value = data.get_value(multiplier)
-                if multiplier_value < 1:
-                    if errors is None:
-                        errors.append({
-                            'name': 'INVALID_MULTIPLIER_VALUE',
-                            'info': [multiplier_value]
-                        })
-                    opcode_operands.clear()
-                    break
             else:
                 multiplier_value = 1
 
@@ -685,12 +684,12 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                 # bytes support max. 8-bit data, a single character or a string
                 if validate_operand_data_size(operand, 8, errors):
                     if data.is_valid_str(operand):
-                        data_values = data.get_value(operand)
+                        data_values = data.get_value(operand) * multiplier_value
                         for data_value in data_values:
                             opcode_operands.append(data_value)
                     else:
                         data_value = data.get_value(operand)
-                        opcode_operands.append(data_value)
+                        opcode_operands.extend([data_value] * multiplier_value)
                 else:
                     opcode_operands.clear()
                     break
@@ -705,12 +704,12 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                     })
                 elif validate_operand_data_size(operand, 16, errors):
                     if data.is_valid_str(operand):
-                        data_values = data.get_value(operand)
+                        data_values = data.get_value(operand) * multiplier_value
                         for data_value in data_values:
                             opcode_operands.extend(binutils.word_to_le(data_value))
                     else:
                         data_value = data.get_value(operand)
-                        opcode_operands.extend(binutils.word_to_le(data_value))
+                        opcode_operands.extend(binutils.word_to_le(data_value) * multiplier_value)
                 else:
                     opcode_operands.clear()
                     break
@@ -1073,7 +1072,7 @@ def assemble_asm_file(file_name):
                         assembly = assemble_asm_line(line, errors)
 
                         if not errors:
-                            # dump_assembly(assembly)
+                            dump_assembly(assembly)
 
                             symbol = symbols.get_symbol(current_symbol_name)
 
