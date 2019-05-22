@@ -647,9 +647,42 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
     _relocation_table = []
 
     if operands:
-        if 'db' == mnemonic:
-            # bytes support max. 8-bit data, a single character or a string
-            for operand in operands:
+        for operand in operands:
+            operand_splits = operand.rsplit(None, 3)
+            if len(operand_splits) == 4 and '(' == operand_splits[-3] and ')' == operand_splits[-1]:
+                operand = operand_splits[0]
+                multiplier = operand_splits[-2]
+                if is_valid_name(multiplier) or data.is_valid_str(multiplier) or data.is_valid_chr(multiplier):
+                    if errors is None:
+                        errors.append({
+                            'name': 'INVALID_MULTIPLIER',
+                            'info': [multiplier]
+                        })
+                    opcode_operands.clear()
+                    break
+                elif data.get_size(multiplier) > 16:
+                    if errors is None:
+                        errors.append({
+                            'name': 'INVALID_MULTIPLIER_SIZE',
+                            'info': [data.get_size(multiplier), 16]
+                        })
+                    opcode_operands.clear()
+                    break
+
+                multiplier_value = data.get_value(multiplier)
+                if multiplier_value < 1:
+                    if errors is None:
+                        errors.append({
+                            'name': 'INVALID_MULTIPLIER_VALUE',
+                            'info': [multiplier_value]
+                        })
+                    opcode_operands.clear()
+                    break
+            else:
+                multiplier_value = 1
+
+            if 'db' == mnemonic:
+                # bytes support max. 8-bit data, a single character or a string
                 if validate_operand_data_size(operand, 8, errors):
                     if data.is_valid_str(operand):
                         data_values = data.get_value(operand)
@@ -661,10 +694,9 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                 else:
                     opcode_operands.clear()
                     break
-        elif 'dw' == mnemonic:
-            # words support a symbol name (using relocation), max. 16-bit data, a single character or a string both
-            # including unicode
-            for operand in operands:
+            elif 'dw' == mnemonic:
+                # words support a symbol name (using relocation), max. 16-bit data, a single character or a string both
+                # including unicode
                 if is_valid_name(operand):
                     opcode_operands.extend([0, 0])
                     _relocation_table.append({
