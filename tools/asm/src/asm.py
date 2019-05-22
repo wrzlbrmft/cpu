@@ -1072,7 +1072,7 @@ def assemble_asm_file(file_name):
                         assembly = assemble_asm_line(line, errors)
 
                         if not errors:
-                            dump_assembly(assembly)
+                            # dump_assembly(assembly)
 
                             symbol = symbols.get_symbol(current_symbol_name)
 
