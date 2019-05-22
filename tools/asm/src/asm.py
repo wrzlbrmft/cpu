@@ -655,7 +655,7 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                 if is_valid_name(multiplier) or data.is_valid_str(multiplier) or data.is_valid_chr(multiplier):
                     if errors is None:
                         errors.append({
-                            'name': 'INVALID_MULTIPLIER',
+                            'name': 'UNSUPPORTED_MULTIPLIER',
                             'info': [multiplier]
                         })
                     opcode_operands.clear()
