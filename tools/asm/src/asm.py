@@ -685,8 +685,7 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                 if validate_operand_data_size(operand, 8, errors):
                     if data.is_valid_str(operand):
                         data_values = data.get_value(operand) * multiplier_value
-                        for data_value in data_values:
-                            opcode_operands.append(data_value)
+                        opcode_operands.extend(data_values)
                     else:
                         data_value = data.get_value(operand)
                         opcode_operands.extend([data_value] * multiplier_value)
