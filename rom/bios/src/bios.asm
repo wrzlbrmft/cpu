@@ -1,4 +1,4 @@
-.base 0x0000    ; bios entry point
+.base   0x0000  ; bios entry point
 
 .proc   main
 
