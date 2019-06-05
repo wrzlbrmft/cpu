@@ -236,9 +236,8 @@ bios_int_addr_tbl:
         mov b, 0x1f     ; number of interrupt addresses to copy
         mov c, 0x01     ; first destination interrupt in dynamic interrupt jump table
         mov hl, bios_int_addr_tbl
-        mov a, l        ; l += 2 (skip interrupt 0x00)
-        add 0x02
-        mov l, a
+        inc l           ; l += 2 (skip interrupt 0x00)
+        inc l
         call int01      ; direct interrupt call (dynamic interrupt jump table not ready)
 
         ; TODO: load os
@@ -261,37 +260,32 @@ bios_int_addr_tbl:
 i0:     push a          ; push counter
 
         mov d, m        ; read low-order byte of interrupt address
-        mov a, l        ; b = l + 1
-        add 0x01
-        mov b, a
+        mov b, l        ; b = l + 1
+        inc b
 
         push h
         mov h, 0x08
         mov l, c        ; 0x0800+c
         mov a, 0x77     ; opcode for 'jmp addr' instruction
         mov m, a
-        mov a, l        ; l += 1
-        add 0x01
-        mov l, a
+        inc l           ; l += 1
         mov m, d        ; write low-order byte of interrupt address
-        mov a, l        ; c = l + 1
-        add 0x01
-        mov c, a
+        mov c, l        ; c = l + 1
+        inc c
         pop h
 
         mov l, b        ; h+b
         mov d, m        ; read high-order byte of interrupt address
-        mov a, l        ; b = l + 1
-        add 0x01
-        mov b, a
+        mov b, l        ; b = l + 1
+        inc b
 
         push h
         mov h, 0x08
         mov l, c        ; 0x0800+c
         mov m, d        ; write high-order byte of interrupt address
-        mov a, l        ; c = l + 2
-        add 0x02
-        mov c, a
+        mov c, l        ; c = l + 2 (skip an additional byte)
+        inc c
+        inc c
         pop h
 
         pop a           ; pop counter
