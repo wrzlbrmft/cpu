@@ -242,7 +242,7 @@ def mnemonics_nop_hlt_rst(mnemonic, operands, errors=None):
         elif 'hlt' == mnemonic:
             opcode = 0b11111111
         elif 'rst' == mnemonic:
-            opcode = 0b11111110
+            opcode = 0b11110111
 
     if errors:
         return None
