@@ -28,7 +28,8 @@ valid_mnemonics = ['nop', 'hlt', 'rst',
                    'call', 'cc', 'cnc', 'cz', 'cnz',
                    'ret', 'rc', 'rnc', 'rz', 'rnz',
                    'int',
-                   'db', 'dw']
+                   'db', 'dw',
+                   'inc', 'dec']
 
 valid_registers = {
     'a': {'size': 8, 'opcode': 0b000},
@@ -730,6 +731,35 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
         }
 
 
+def mnemonics_inc_dec(mnemonic, operands, errors=None):
+    opcode = None
+
+    if validate_operands_count(operands, 1, errors):
+        # increment and decrement are supported with M and any 8-bit register
+        operand = operands[0].lower()
+        if 'm' == operand:
+            opcode = 0b110
+        elif validate_operand_register_size(operand, 8, errors):
+            register_opcode = get_register_opcode(operand)
+            opcode = register_opcode
+
+        if opcode is not None:
+            if 'inc' == mnemonic:
+                opcode = 0b11110000 | opcode
+            elif 'dec' == mnemonic:
+                opcode = 0b11111000 | opcode
+
+    if errors:
+        return None
+    else:
+        machine_code = bytearray()
+        machine_code.append(opcode)
+        return {
+            'machine_code': machine_code,
+            'relocation_table': []
+        }
+
+
 def dump_assembly(assembly):
     for byte in assembly['machine_code']:
         print(hex(byte)[2:].upper().zfill(2), '', end='')
@@ -774,6 +804,8 @@ def assemble_asm_line(line, errors=None):
         assembly = mnemonic_int(line['operands'], errors)
     elif mnemonic_lower in ['db', 'dw']:
         assembly = mnemonics_db_dw(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['inc', 'dec']:
+        assembly = mnemonics_inc_dec(mnemonic_lower, line['operands'], errors)
 
     if errors:
         return None
