@@ -45,7 +45,7 @@ valid_registers = {
 
 valid_operands = list(valid_registers.keys()) + ['m']
 
-valid_name_regex = re.compile('[_a-z][_a-z0-9]{,254}', re.IGNORECASE)
+valid_name_regex = re.compile('[@_a-z][_a-z0-9]{,254}', re.IGNORECASE)
 
 # using the .base directive, the assembler allows setting the link base which is then stored in the object file header
 link_base = None
@@ -234,6 +234,18 @@ def validate_operand_addr_size(operand, size_valid, errors=None):
         return False
 
 
+def expand_local_symbol_name(symbol_name):
+    global current_proc_name
+
+    if '@' == symbol_name[0]:
+        if current_proc_name is not None:
+            symbol_name = current_proc_name + '_' + symbol_name[1:]
+        else:
+            symbol_name = '_' + symbol_name[1:]
+
+    return symbol_name
+
+
 def mnemonics_nop_hlt_rst(mnemonic, operands, errors=None):
     opcode = None
 
@@ -300,6 +312,7 @@ def mnemonic_mov(operands, errors=None):
                 # register or using max. 16-bit data or a single character including unicode (no string)
                 register2_opcode = None
                 if is_valid_name(operand2):
+                    operand2 = expand_local_symbol_name(operand2)
                     register2_opcode = 0b111
                     opcode_operands.extend([0, 0])
                     _relocation_table.append({
@@ -349,6 +362,7 @@ def mnemonic_lda(operands, errors=None):
             if validate_operand_addr_size(operand2, 16, errors):
                 addr_value = get_addr_value(operand2)
                 if addr_value is None:
+                    operand2 = expand_local_symbol_name(operand2)
                     opcode_operands.extend([0, 0])
                     _relocation_table.append({
                         'machine_code_offset': 1,
@@ -384,6 +398,7 @@ def mnemonic_sta(operands, errors=None):
             # register
             addr_value = get_addr_value(operand1)
             if addr_value is None:
+                operand1 = expand_local_symbol_name(operand1)
                 opcode_operands.extend([0, 0])
                 _relocation_table.append({
                     'machine_code_offset': 1,
@@ -538,6 +553,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
             opcode = 0b1
             addr_value = get_addr_value(operand)
             if addr_value is None:
+                operand = expand_local_symbol_name(operand)
                 opcode_operands.extend([0, 0])
                 _relocation_table.append({
                     'machine_code_offset': 1,
@@ -697,6 +713,7 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
                 # words support a symbol name (using relocation), max. 16-bit data, a single character or a string both
                 # including unicode
                 if is_valid_name(operand):
+                    operand = expand_local_symbol_name(operand)
                     opcode_operands.extend([0, 0])
                     _relocation_table.append({
                         'machine_code_offset': len(opcode_operands) - 2,
@@ -837,7 +854,7 @@ def directive_base(operands, errors=None):
 def directive_proc(operands, errors=None):
     if validate_operands_count(operands, 1, errors):
         operand = operands[0]
-        if is_valid_name(operand):
+        if is_valid_name(operand) and '@' != operand[0]:
             return operand
         else:
             if errors is not None:
@@ -896,7 +913,7 @@ def parse_asm_line_str(line_str, errors=None):
 
     parser = shlex.shlex(line_str)
     parser.commenters = ';'
-    parser.wordchars += '.:'
+    parser.wordchars += '.:@'
 
     for token in parser:
         if '.' == token[0]:
@@ -912,6 +929,13 @@ def parse_asm_line_str(line_str, errors=None):
                     errors.append({
                         'name': 'UNEXPECTED',
                         'info': [':']
+                    })
+                break
+            elif '@' in token:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': ['@']
                     })
                 break
             else:
@@ -930,6 +954,13 @@ def parse_asm_line_str(line_str, errors=None):
                     errors.append({
                         'name': 'UNEXPECTED',
                         'info': ['.']
+                    })
+                break
+            elif '@' in token[1:]:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': ['@']
                     })
                 break
             else:
@@ -962,6 +993,13 @@ def parse_asm_line_str(line_str, errors=None):
                     errors.append({
                         'name': 'UNEXPECTED',
                         'info': [':']
+                    })
+                break
+            elif '@' in token[1:]:
+                if errors is not None:
+                    errors.append({
+                        'name': 'UNEXPECTED',
+                        'info': ['@']
                     })
                 break
             elif directive or mnemonic:
@@ -1061,7 +1099,10 @@ def assemble_asm_file(file_name):
                             'info': [symbol_name]
                         }, '')
                         return
-                    elif symbols.symbol_exists(symbol_name):
+
+                    symbol_name = expand_local_symbol_name(symbol_name)
+
+                    if symbols.symbol_exists(symbol_name):
                         show_error({
                             'name': 'DUPLICATE_SYMBOL',
                             'info': [symbol_name]
