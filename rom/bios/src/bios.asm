@@ -257,7 +257,7 @@ bios_int_addr_tbl:
         mov a, b        ; use the a register as counter
         mov b, l        ; read from h+b onwards
 
-i0:     push a          ; push counter
+@0:     push a          ; push counter
 
         mov d, m        ; read low-order byte of interrupt address
         mov b, l        ; b = l + 1
@@ -294,7 +294,7 @@ i0:     push a          ; push counter
 
         mov l, b        ; h+l
 
-        jmp i0          ; next interrupt address
+        jmp @0          ; next interrupt address
 .endproc
 
 .proc   int02
