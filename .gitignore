@@ -8,3 +8,7 @@ __pycache__/
 *.bin
 *.raw
 bin/
+tools/asm/src/asm
+tools/asm/src/link
+tools/bin2/src/bin2raw
+tools/rom/src/rom
