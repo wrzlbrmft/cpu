@@ -781,7 +781,7 @@ def dump_assembly(assembly):
     print(current_line_str.strip())
     for relocation in assembly['relocation_table']:
         print('   ' * relocation['machine_code_offset'], end='')
-        print(f"^ {relocation['symbol_index']}: {symbol_table.get_symbol_name(relocation['symbol_index'])}")
+        print(f"^ {symbol_table.get_symbol_name(relocation['symbol_index'])}")
 
 
 def assemble_asm_line(line, errors=None):
