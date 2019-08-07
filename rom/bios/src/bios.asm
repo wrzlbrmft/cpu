@@ -289,7 +289,7 @@ bios_int_addr_tbl:
         pop h
 
         pop a           ; pop counter
-        sub 0x01
+        dec a
         rz              ; done
 
         mov l, b        ; h+l
