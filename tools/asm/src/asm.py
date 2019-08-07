@@ -23,7 +23,7 @@ valid_directives = ['base', 'proc', 'endproc', 'end']
 
 valid_mnemonics = ['nop', 'hlt', 'rst',
                    'mov', 'lda', 'sta', 'push', 'pop',
-                   'add', 'sub', 'cmp', 'adc', 'sbb',
+                   'add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or',
                    'jmp', 'jc', 'jnc', 'jz', 'jnz',
                    'call', 'cc', 'cnc', 'cz', 'cnz',
                    'ret', 'rc', 'rnc', 'rz', 'rnz',
@@ -450,58 +450,13 @@ def mnemonics_push_pop(mnemonic, operands, errors=None):
         }
 
 
-def mnemonics_add_sub_cmp(mnemonic, operands, errors=None):
+def mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic, operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
 
     if validate_operands_count(operands, 1, errors):
-        # add, subtract and compare are supported with M, any 8-bit register or max. 8-bit data or a single character
-        # (no string)
-        operand = operands[0].lower()
-        if 'm' == operand:
-            opcode = 0b1100
-        elif is_valid_register(operand):
-            if validate_operand_register_size(operand, 8, errors):
-                register_opcode = get_register_opcode(operand)
-                opcode = (register_opcode << 1)
-        elif data.is_valid_str(operand):
-            if errors is not None:
-                errors.append({
-                    'name': 'INCOMPATIBLE_DATA_TYPE',
-                    'info': []
-                })
-        elif validate_operand_data_size(operand, 8, errors):
-            opcode = 0b1110
-            data_value = data.get_value(operand)
-            opcode_operands.append(data_value)
-
-        if opcode is not None:
-            if 'add' == mnemonic:
-                opcode = 0b01100000 | opcode
-            elif 'sub' == mnemonic:
-                opcode = 0b01100001 | opcode
-            elif 'cmp' == mnemonic:
-                opcode = 0b01110000 | opcode
-
-    if errors:
-        return None
-    else:
-        machine_code = bytearray()
-        machine_code.append(opcode)
-        machine_code.extend(opcode_operands)
-        return {
-            'machine_code': machine_code,
-            'relocation_table': []
-        }
-
-
-def mnemonics_adc_sbb(mnemonic, operands, errors=None):
-    opcode = None
-    opcode_operands = bytearray()
-
-    if validate_operands_count(operands, 1, errors):
-        # add with carry and subtract with borrow are supported with M, any 8-bit register or max. 8-bit data or a
-        # single character (no string)
+        # add (with carry), subtract (with borrow), compare, and and or are supported with M, any 8-bit register or max.
+        # 8-bit data or a single character (no string)
         operand = operands[0].lower()
         if 'm' == operand:
             opcode = 0b110
@@ -521,10 +476,20 @@ def mnemonics_adc_sbb(mnemonic, operands, errors=None):
             opcode_operands.append(data_value)
 
         if opcode is not None:
-            if 'adc' == mnemonic:
+            if 'add' == mnemonic:
+                opcode = 0b01100000 | (opcode << 1)
+            elif 'sub' == mnemonic:
+                opcode = 0b01100001 | (opcode << 1)
+            elif 'cmp' == mnemonic:
+                opcode = 0b01110000 | (opcode << 1)
+            elif 'adc' == mnemonic:
                 opcode = 0b01010000 | opcode
             elif 'sbb' == mnemonic:
                 opcode = 0b01011000 | opcode
+            elif 'and' == mnemonic:
+                opcode = 0b00110000 | opcode
+            elif 'or' == mnemonic:
+                opcode = 0b00111000 | opcode
 
     if errors:
         return None
@@ -809,10 +774,8 @@ def assemble_asm_line(line, errors=None):
         assembly = mnemonic_sta(line['operands'], errors)
     elif mnemonic_lower in ['push', 'pop']:
         assembly = mnemonics_push_pop(mnemonic_lower, line['operands'], errors)
-    elif mnemonic_lower in ['add', 'sub', 'cmp']:
-        assembly = mnemonics_add_sub_cmp(mnemonic_lower, line['operands'], errors)
-    elif mnemonic_lower in ['adc', 'sbb']:
-        assembly = mnemonics_adc_sbb(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or']:
+        assembly = mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['jmp', 'jc', 'jnc', 'jz', 'jnz', 'call', 'cc', 'cnc', 'cz', 'cnz']:
         assembly = mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz']:
