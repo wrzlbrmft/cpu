@@ -31,7 +31,7 @@ valid_mnemonics = ['nop', 'hlt', 'rst',
                    'ret', 'rc', 'rnc', 'rz', 'rnz',
                    'int',
                    'db', 'dw',
-                   'inc', 'dec']
+                   'inc', 'dec', 'not', 'shl', 'shr']
 
 valid_registers = {
     'a': {'size': 8, 'opcode': 0b000},
@@ -719,14 +719,17 @@ def mnemonics_db_dw(mnemonic, operands, errors=None):
         }
 
 
-def mnemonics_inc_dec(mnemonic, operands, errors=None):
+def mnemonics_inc_dec_not_shl_shr(mnemonic, operands, errors=None):
     opcode = None
 
     if validate_operands_count(operands, 1, errors):
         # increment and decrement are supported with M or any 8-bit register
         operand = operands[0].lower()
         if 'm' == operand:
-            opcode = 0b110
+            if mnemonic in ['not', 'shl', 'shr']:
+                opcode = 0b111
+            else:
+                opcode = 0b110
         elif validate_operand_register_size(operand, 8, errors):
             register_opcode = get_register_opcode(operand)
             opcode = register_opcode
@@ -736,6 +739,12 @@ def mnemonics_inc_dec(mnemonic, operands, errors=None):
                 opcode = 0b11110000 | opcode
             elif 'dec' == mnemonic:
                 opcode = 0b11111000 | opcode
+            elif 'not' == mnemonic:
+                opcode = 0b00001000 | opcode
+            elif 'shl' == mnemonic:
+                opcode = 0b00011000 | opcode
+            elif 'shr' == mnemonic:
+                opcode = 0b00101000 | opcode
 
     if errors:
         return None
@@ -790,8 +799,8 @@ def assemble_asm_line(line, errors=None):
         assembly = mnemonic_int(line['operands'], errors)
     elif mnemonic_lower in ['db', 'dw']:
         assembly = mnemonics_db_dw(mnemonic_lower, line['operands'], errors)
-    elif mnemonic_lower in ['inc', 'dec']:
-        assembly = mnemonics_inc_dec(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['inc', 'dec', 'not', 'shl', 'shr']:
+        assembly = mnemonics_inc_dec_not_shl_shr(mnemonic_lower, line['operands'], errors)
 
     if errors:
         return None
@@ -1113,7 +1122,7 @@ def assemble_asm_file(file_name):
                         assembly = assemble_asm_line(line, errors)
 
                         if not errors:
-                            # dump_assembly(assembly)
+                            dump_assembly(assembly)
 
                             symbol = symbols.get_symbol(current_symbol_name)
 
