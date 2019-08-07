@@ -514,13 +514,14 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
     _relocation_table = []
 
     if validate_operands_count(operands, 1, errors):
-        # jumps are supported to M, an address or a symbol name (using relocation)
-        # note: M vs. address/symbol name is distinguished using one bit in the opcode
+        # jumps and calls are supported to M, an address or a symbol name (using
+        # relocation); note: M vs. address/symbol name is distinguished using a
+        # bit in the opcode
         operand = operands[0].lower()
         if 'm' == operand:
-            opcode = 0b0
+            opcode_bit = 0b0
         elif validate_operand_addr_size(operand, 16, errors):
-            opcode = 0b1
+            opcode_bit = 0b1
             addr_value = get_addr_value(operand)
             if addr_value is None:
                 operand = expand_local_symbol_name(operand)
@@ -533,27 +534,27 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
                 opcode_operands.extend(binutils.word_to_le(addr_value))
 
         # optimized usage of opcodes ...and adjust the bit for M vs. address/symbol name
-        if opcode is not None:
+        if opcode_bit is not None:
             if 'jmp' == mnemonic:
-                opcode = 0b01110101 | (opcode << 1)
+                opcode = 0b01110101 | (opcode_bit << 1)
             elif 'jc' == mnemonic:
-                opcode = 0b01111001 | (opcode << 1)
+                opcode = 0b01111001 | (opcode_bit << 1)
             elif 'jnc' == mnemonic:
-                opcode = 0b01111101 | (opcode << 1)
+                opcode = 0b01111101 | (opcode_bit << 1)
             elif 'jz' == mnemonic:
-                opcode = 0b10001111 | (opcode << 4)
+                opcode = 0b10001111 | (opcode_bit << 4)
             elif 'jnz' == mnemonic:
-                opcode = 0b10101111 | (opcode << 4)
+                opcode = 0b10101111 | (opcode_bit << 4)
             elif 'call' == mnemonic:
-                opcode = 0b11000001 | (opcode << 1)
+                opcode = 0b11000001 | (opcode_bit << 1)
             elif 'cc' == mnemonic:
-                opcode = 0b11000101 | (opcode << 1)
+                opcode = 0b11000101 | (opcode_bit << 1)
             elif 'cnc' == mnemonic:
-                opcode = 0b11001011 | (opcode << 2)
+                opcode = 0b11001011 | (opcode_bit << 2)
             elif 'cz' == mnemonic:
-                opcode = 0b11010001 | (opcode << 1)
+                opcode = 0b11010001 | (opcode_bit << 1)
             elif 'cnz' == mnemonic:
-                opcode = 0b11010101 | (opcode << 1)
+                opcode = 0b11010101 | (opcode_bit << 1)
 
     if errors:
         return None
@@ -722,7 +723,7 @@ def mnemonics_inc_dec(mnemonic, operands, errors=None):
     opcode = None
 
     if validate_operands_count(operands, 1, errors):
-        # increment and decrement are supported with M and any 8-bit register
+        # increment and decrement are supported with M or any 8-bit register
         operand = operands[0].lower()
         if 'm' == operand:
             opcode = 0b110
