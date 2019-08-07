@@ -22,10 +22,12 @@ current_proc_name = None
 valid_directives = ['base', 'proc', 'endproc', 'end']
 
 valid_mnemonics = ['nop', 'hlt', 'rst',
-                   'mov', 'lda', 'sta', 'push', 'pop',
+                   'mov',
+                   'lda',
+                   'sta',
+                   'push', 'pop',
                    'add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or',
-                   'jmp', 'jc', 'jnc', 'jz', 'jnz',
-                   'call', 'cc', 'cnc', 'cz', 'cnz',
+                   'jmp', 'jc', 'jnc', 'jz', 'jnz', 'call', 'cc', 'cnc', 'cz', 'cnz',
                    'ret', 'rc', 'rnc', 'rz', 'rnz',
                    'int',
                    'db', 'dw',
