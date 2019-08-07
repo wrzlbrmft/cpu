@@ -28,8 +28,11 @@ valid_mnemonics = ['nop', 'hlt', 'rst',
                    'push', 'pop', 'in', 'out',
                    'add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or',
                    'jmp', 'jc', 'jnc', 'jz', 'jnz', 'ja', 'jna',
+                   'jb', 'jnb', 'je', 'jne', 'jae', 'jnae', 'jbe', 'jnbe',
                    'call', 'cc', 'cnc', 'cz', 'cnz', 'ca', 'cna',
+                   'cb', 'cnb', 'ce', 'cne', 'cae', 'cnae', 'cbe', 'cnbe',
                    'ret', 'rc', 'rnc', 'rz', 'rnz', 'ra', 'rna',
+                   'rb', 'rnb', 're', 'rne', 'rae', 'rnae', 'rbe', 'rnbe',
                    'int',
                    'db', 'dw',
                    'inc', 'dec', 'not', 'shl', 'shr']
@@ -538,32 +541,32 @@ def mnemonics_jmps_calls(mnemonic, operands, errors=None):
         if opcode is not None:
             if 'jmp' == mnemonic:
                 opcode = 0b01110101 | (opcode << 1)
-            elif 'jc' == mnemonic:
+            elif mnemonic in ['jc', 'jb', 'jnae']:
                 opcode = 0b01111001 | (opcode << 1)
-            elif 'jnc' == mnemonic:
+            elif mnemonic in ['jnc', 'jnb', 'jae']:
                 opcode = 0b01111101 | (opcode << 1)
-            elif 'jz' == mnemonic:
+            elif mnemonic in ['jz', 'je']:
                 opcode = 0b10001111 | (opcode << 4)
-            elif 'jnz' == mnemonic:
+            elif mnemonic in ['jnz', 'jne']:
                 opcode = 0b10101111 | (opcode << 4)
-            elif 'ja' == mnemonic:
+            elif mnemonic in ['ja', 'jnbe']:
                 opcode = 0b00000001 | (opcode << 1)
-            elif 'jna' == mnemonic:
+            elif mnemonic in ['jna', 'jbe']:
                 opcode = 0b00000110 | opcode
 
             elif 'call' == mnemonic:
                 opcode = 0b11000001 | (opcode << 1)
-            elif 'cc' == mnemonic:
+            elif mnemonic in ['cc', 'cb', 'cnae']:
                 opcode = 0b11000101 | (opcode << 1)
-            elif 'cnc' == mnemonic:
+            elif mnemonic in ['cnc', 'cnb', 'cae']:
                 opcode = 0b11001011 | (opcode << 2)
-            elif 'cz' == mnemonic:
+            elif mnemonic in ['cz', 'ce']:
                 opcode = 0b11010001 | (opcode << 1)
-            elif 'cnz' == mnemonic:
+            elif mnemonic in ['cnz', 'cne']:
                 opcode = 0b11010101 | (opcode << 1)
-            elif 'ca' == mnemonic:
+            elif mnemonic in ['ca', 'cnbe']:
                 opcode = 0b00010010 | opcode
-            elif 'cna' == mnemonic:
+            elif mnemonic in ['cna', 'cbe']:
                 opcode = 0b00010110 | opcode
 
     if errors:
@@ -584,17 +587,17 @@ def mnemonics_rets(mnemonic, operands, errors=None):
     if validate_operands_count(operands, 0, errors):
         if 'ret' == mnemonic:
             opcode = 0b00000101
-        elif 'rc' == mnemonic:
+        elif mnemonic in ['rc', 'rb', 'rnae']:
             opcode = 0b00010001
-        elif 'rnc' == mnemonic:
+        elif mnemonic in ['rnc', 'rnb', 'rae']:
             opcode = 0b00010101
-        elif 'rz' == mnemonic:
+        elif mnemonic in ['rz', 're']:
             opcode = 0b00100001
-        elif 'rnz' == mnemonic:
+        elif mnemonic in ['rnz', 'rne']:
             opcode = 0b00100011
-        elif 'ra' == mnemonic:
+        elif mnemonic in ['ra', 'rnbe']:
             opcode = 0b10000011
-        elif 'rna' == mnemonic:
+        elif mnemonic in ['rna', 'rbe']:
             opcode = 0b10000101
 
     if errors:
@@ -806,9 +809,12 @@ def assemble_asm_line(line, errors=None):
     elif mnemonic_lower in ['add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or']:
         assembly = mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['jmp', 'jc', 'jnc', 'jz', 'jnz', 'ja', 'jna',
-                            'call', 'cc', 'cnc', 'cz', 'cnz', 'ca', 'cna']:
+                            'jb', 'jnb', 'je', 'jne', 'jae', 'jnae', 'jbe', 'jnbe',
+                            'call', 'cc', 'cnc', 'cz', 'cnz', 'ca', 'cna',
+                            'cb', 'cnb', 'ce', 'cne', 'cae', 'cnae', 'cbe', 'cnbe']:
         assembly = mnemonics_jmps_calls(mnemonic_lower, line['operands'], errors)
-    elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz', 'ra', 'rna']:
+    elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz', 'ra', 'rna',
+                            'rb', 'rnb', 're', 'rne', 'rae', 'rnae', 'rbe', 'rnbe']:
         assembly = mnemonics_rets(mnemonic_lower, line['operands'], errors)
     elif 'int' == mnemonic_lower:
         assembly = mnemonic_int(line['operands'], errors)
@@ -1137,7 +1143,7 @@ def assemble_asm_file(file_name):
                         assembly = assemble_asm_line(line, errors)
 
                         if not errors:
-                            dump_assembly(assembly)
+                            # dump_assembly(assembly)
 
                             symbol = symbols.get_symbol(current_symbol_name)
 
