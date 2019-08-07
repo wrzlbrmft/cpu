@@ -508,7 +508,7 @@ def mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic, operands, errors=None):
         }
 
 
-def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=None):
+def mnemonics_jmps_calls(mnemonic, operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
     _relocation_table = []
@@ -568,7 +568,7 @@ def mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic, operands, errors=No
         }
 
 
-def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands, errors=None):
+def mnemonics_rets(mnemonic, operands, errors=None):
     opcode = None
 
     if validate_operands_count(operands, 0, errors):
@@ -792,9 +792,9 @@ def assemble_asm_line(line, errors=None):
     elif mnemonic_lower in ['add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or']:
         assembly = mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['jmp', 'jc', 'jnc', 'jz', 'jnz', 'call', 'cc', 'cnc', 'cz', 'cnz']:
-        assembly = mnemonics_jmp_jc_jnc_jz_jnz_call_cc_cnc_cz_cnz(mnemonic_lower, line['operands'], errors)
+        assembly = mnemonics_jmps_calls(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz']:
-        assembly = mnemonics_ret_rc_rnc_rz_rnz(mnemonic_lower, line['operands'], errors)
+        assembly = mnemonics_rets(mnemonic_lower, line['operands'], errors)
     elif 'int' == mnemonic_lower:
         assembly = mnemonic_int(line['operands'], errors)
     elif mnemonic_lower in ['db', 'dw']:
