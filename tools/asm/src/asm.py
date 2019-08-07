@@ -575,13 +575,13 @@ def mnemonics_ret_rc_rnc_rz_rnz(mnemonic, operands, errors=None):
         if 'ret' == mnemonic:
             opcode = 0b00000101
         elif 'rc' == mnemonic:
-            opcode = 0b00001111
-        elif 'rnc' == mnemonic:
             opcode = 0b00010001
-        elif 'rz' == mnemonic:
+        elif 'rnc' == mnemonic:
             opcode = 0b00010101
+        elif 'rz' == mnemonic:
+            opcode = 0b00100001
         elif 'rnz' == mnemonic:
-            opcode = 0b00011111
+            opcode = 0b00100011
 
     if errors:
         return None
