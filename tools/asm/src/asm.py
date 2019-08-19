@@ -25,7 +25,7 @@ valid_mnemonics = ['nop', 'hlt', 'rst',
                    'mov',
                    'lda',
                    'sta',
-                   'push', 'pop', 'in', 'out',
+                   'push', 'pop',
                    'add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or',
                    'jmp', 'jc', 'jnc', 'jz', 'jnz', 'ja', 'jna',
                    'jb', 'jnb', 'je', 'jne', 'jae', 'jnae', 'jbe', 'jnbe',
@@ -431,7 +431,7 @@ def mnemonic_sta(operands, errors=None):
         }
 
 
-def mnemonics_push_pop_in_out(mnemonic, operands, errors=None):
+def mnemonics_push_pop(mnemonic, operands, errors=None):
     opcode = None
 
     if validate_operands_count(operands, 1, errors):
@@ -443,10 +443,6 @@ def mnemonics_push_pop_in_out(mnemonic, operands, errors=None):
                 opcode = 0b10000000 | (register_opcode << 4) | (register_opcode << 1)
             elif 'pop' == mnemonic:
                 opcode = 0b10000001 | (register_opcode << 4) | (register_opcode << 1)
-            elif 'in' == mnemonic:
-                opcode = 0b01000000 | register_opcode
-            elif 'out' == mnemonic:
-                opcode = 0b01001000 | register_opcode
 
     if errors:
         return None
@@ -804,8 +800,8 @@ def assemble_asm_line(line, errors=None):
         assembly = mnemonic_lda(line['operands'], errors)
     elif 'sta' == mnemonic_lower:
         assembly = mnemonic_sta(line['operands'], errors)
-    elif mnemonic_lower in ['push', 'pop', 'in', 'out']:
-        assembly = mnemonics_push_pop_in_out(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['push', 'pop']:
+        assembly = mnemonics_push_pop(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or']:
         assembly = mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['jmp', 'jc', 'jnc', 'jz', 'jnz', 'ja', 'jna',
