@@ -744,7 +744,7 @@ def mnemonics_inc_dec_not_shl_shr(mnemonic, operands, errors=None):
         operand = operands[0].lower()
         if 'm' == operand:
             if mnemonic in ['not', 'shl', 'shr']:
-                opcode = 0b111
+                opcode = 0b111  # note: m is 111 here, instead the usual 110
             else:
                 opcode = 0b110
         elif validate_operand_register_size(operand, 8, errors):
