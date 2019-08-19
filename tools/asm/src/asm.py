@@ -26,7 +26,7 @@ valid_mnemonics = ['nop', 'hlt', 'rst',
                    'lda',
                    'sta',
                    'push', 'pop',
-                   'add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or',
+                   'add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or', 'xor',
                    'jmp', 'jc', 'jnc', 'jz', 'jnz', 'ja', 'jna',
                    'jb', 'jnb', 'je', 'jne', 'jae', 'jnae', 'jbe', 'jnbe',
                    'call', 'cc', 'cnc', 'cz', 'cnz', 'ca', 'cna',
@@ -455,13 +455,13 @@ def mnemonics_push_pop(mnemonic, operands, errors=None):
         }
 
 
-def mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic, operands, errors=None):
+def mnemonics_add_sub_cmp_adc_sbb_and_or_xor(mnemonic, operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
 
     if validate_operands_count(operands, 1, errors):
-        # add (with carry), subtract (with borrow), compare, and and or are supported with M, any 8-bit register or max.
-        # 8-bit data or a single character (no string)
+        # add (with carry), subtract (with borrow), compare, and, or and xor are supported with M, any 8-bit register or
+        # max. 8-bit data or a single character (no string)
         operand = operands[0].lower()
         if 'm' == operand:
             opcode = 0b110
@@ -495,6 +495,8 @@ def mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic, operands, errors=None):
                 opcode = 0b00110000 | opcode
             elif 'or' == mnemonic:
                 opcode = 0b00111000 | opcode
+            elif 'xor' == mnemonic:
+                opcode = 0b01000000 | opcode
 
     if errors:
         return None
@@ -802,8 +804,8 @@ def assemble_asm_line(line, errors=None):
         assembly = mnemonic_sta(line['operands'], errors)
     elif mnemonic_lower in ['push', 'pop']:
         assembly = mnemonics_push_pop(mnemonic_lower, line['operands'], errors)
-    elif mnemonic_lower in ['add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or']:
-        assembly = mnemonics_add_sub_cmp_adc_sbb_and_or(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or', 'xor']:
+        assembly = mnemonics_add_sub_cmp_adc_sbb_and_or_xor(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['jmp', 'jc', 'jnc', 'jz', 'jnz', 'ja', 'jna',
                             'jb', 'jnb', 'je', 'jne', 'jae', 'jnae', 'jbe', 'jnbe',
                             'call', 'cc', 'cnc', 'cz', 'cnz', 'ca', 'cna',
