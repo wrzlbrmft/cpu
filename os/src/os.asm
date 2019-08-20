@@ -19,131 +19,131 @@ os_int_addr_tbl:
 ; --------- os interrupt routines ---------
 
 .proc   int20
-        ret
+        iret
 .endproc
 
 .proc   int21
-        ret
+        iret
 .endproc
 
 .proc   int22
-        ret
+        iret
 .endproc
 
 .proc   int23
-        ret
+        iret
 .endproc
 
 .proc   int24
-        ret
+        iret
 .endproc
 
 .proc   int25
-        ret
+        iret
 .endproc
 
 .proc   int26
-        ret
+        iret
 .endproc
 
 .proc   int27
-        ret
+        iret
 .endproc
 
 .proc   int28
-        ret
+        iret
 .endproc
 
 .proc   int29
-        ret
+        iret
 .endproc
 
 .proc   int2a
-        ret
+        iret
 .endproc
 
 .proc   int2b
-        ret
+        iret
 .endproc
 
 .proc   int2c
-        ret
+        iret
 .endproc
 
 .proc   int2d
-        ret
+        iret
 .endproc
 
 .proc   int2e
-        ret
+        iret
 .endproc
 
 .proc   int2f
-        ret
+        iret
 .endproc
 
 .proc   int30
-        ret
+        iret
 .endproc
 
 .proc   int31
-        ret
+        iret
 .endproc
 
 .proc   int32
-        ret
+        iret
 .endproc
 
 .proc   int33
-        ret
+        iret
 .endproc
 
 .proc   int34
-        ret
+        iret
 .endproc
 
 .proc   int35
-        ret
+        iret
 .endproc
 
 .proc   int36
-        ret
+        iret
 .endproc
 
 .proc   int37
-        ret
+        iret
 .endproc
 
 .proc   int38
-        ret
+        iret
 .endproc
 
 .proc   int39
-        ret
+        iret
 .endproc
 
 .proc   int3a
-        ret
+        iret
 .endproc
 
 .proc   int3b
-        ret
+        iret
 .endproc
 
 .proc   int3c
-        ret
+        iret
 .endproc
 
 .proc   int3d
-        ret
+        iret
 .endproc
 
 .proc   int3e
-        ret
+        iret
 .endproc
 
 .proc   int3f
-        ret
+        iret
 .endproc
 
 ; -----------------------------------------

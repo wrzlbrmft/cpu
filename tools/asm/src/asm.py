@@ -33,6 +33,7 @@ valid_mnemonics = ['nop', 'hlt', 'rst', 'pushf', 'popf',
                    'cb', 'cnb', 'ce', 'cne', 'cae', 'cnae', 'cbe', 'cnbe',
                    'ret', 'rc', 'rnc', 'rz', 'rnz', 'ra', 'rna',
                    'rb', 'rnb', 're', 'rne', 'rae', 'rnae', 'rbe', 'rnbe',
+                   'iret',
                    'int',
                    'db', 'dw',
                    'inc', 'dec', 'not', 'shl', 'shr']
@@ -583,7 +584,7 @@ def mnemonics_jmps_calls(mnemonic, operands, errors=None):
         }
 
 
-def mnemonics_rets(mnemonic, operands, errors=None):
+def mnemonics_rets_iret(mnemonic, operands, errors=None):
     opcode = None
 
     if validate_operands_count(operands, 0, errors):
@@ -601,6 +602,8 @@ def mnemonics_rets(mnemonic, operands, errors=None):
             opcode = 0b10000011
         elif mnemonic in ['rna', 'rbe']:
             opcode = 0b10000101
+        elif 'iret' == mnemonic:
+            opcode = 0b10110101
 
     if errors:
         return None
@@ -816,8 +819,9 @@ def assemble_asm_line(line, errors=None):
                             'cb', 'cnb', 'ce', 'cne', 'cae', 'cnae', 'cbe', 'cnbe']:
         assembly = mnemonics_jmps_calls(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['ret', 'rc', 'rnc', 'rz', 'rnz', 'ra', 'rna',
-                            'rb', 'rnb', 're', 'rne', 'rae', 'rnae', 'rbe', 'rnbe']:
-        assembly = mnemonics_rets(mnemonic_lower, line['operands'], errors)
+                            'rb', 'rnb', 're', 'rne', 'rae', 'rnae', 'rbe', 'rnbe',
+                            'iret']:
+        assembly = mnemonics_rets_iret(mnemonic_lower, line['operands'], errors)
     elif 'int' == mnemonic_lower:
         assembly = mnemonic_int(line['operands'], errors)
     elif mnemonic_lower in ['db', 'dw']:

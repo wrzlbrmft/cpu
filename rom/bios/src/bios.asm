@@ -238,6 +238,7 @@ bios_int_addr_tbl:
         mov hl, bios_int_addr_tbl
         inc l           ; l += 2 (skip interrupt 0x00)
         inc l
+        pushf           ; manually push flags for interrupt call
         call int01      ; direct interrupt call (dynamic interrupt jump table not ready)
 
         ; TODO: load os
@@ -268,7 +269,7 @@ bios_int_addr_tbl:
         mov l, c        ; 0x0800+c
         mov a, 0x77     ; opcode for 'jmp addr' instruction
         mov m, a
-        inc l           ; l += 1
+        inc l           ; l++
         mov m, d        ; write low-order byte of interrupt address
         mov c, l        ; c = l + 1
         inc c
@@ -290,131 +291,133 @@ bios_int_addr_tbl:
 
         pop a           ; pop counter
         dec a
-        rz              ; done
+        jz @1           ; done
 
         mov l, b        ; h+l
 
         jmp @0          ; next interrupt address
+
+@1:     iret
 .endproc
 
 .proc   int02
-        ret
+        iret
 .endproc
 
 .proc   int03
-        ret
+        iret
 .endproc
 
 .proc   int04
-        ret
+        iret
 .endproc
 
 .proc   int05
-        ret
+        iret
 .endproc
 
 .proc   int06
-        ret
+        iret
 .endproc
 
 .proc   int07
-        ret
+        iret
 .endproc
 
 .proc   int08
-        ret
+        iret
 .endproc
 
 .proc   int09
-        ret
+        iret
 .endproc
 
 .proc   int0a
-        ret
+        iret
 .endproc
 
 .proc   int0b
-        ret
+        iret
 .endproc
 
 .proc   int0c
-        ret
+        iret
 .endproc
 
 .proc   int0d
-        ret
+        iret
 .endproc
 
 .proc   int0e
-        ret
+        iret
 .endproc
 
 .proc   int0f
-        ret
+        iret
 .endproc
 
 .proc   int10
-        ret
+        iret
 .endproc
 
 .proc   int11
-        ret
+        iret
 .endproc
 
 .proc   int12
-        ret
+        iret
 .endproc
 
 .proc   int13
-        ret
+        iret
 .endproc
 
 .proc   int14
-        ret
+        iret
 .endproc
 
 .proc   int15
-        ret
+        iret
 .endproc
 
 .proc   int16
-        ret
+        iret
 .endproc
 
 .proc   int17
-        ret
+        iret
 .endproc
 
 .proc   int18
-        ret
+        iret
 .endproc
 
 .proc   int19
-        ret
+        iret
 .endproc
 
 .proc   int1a
-        ret
+        iret
 .endproc
 
 .proc   int1b
-        ret
+        iret
 .endproc
 
 .proc   int1c
-        ret
+        iret
 .endproc
 
 .proc   int1d
-        ret
+        iret
 .endproc
 
 .proc   int1e
-        ret
+        iret
 .endproc
 
 .proc   int1f
-        ret
+        iret
 .endproc
 
 ; -------------------------------------------
