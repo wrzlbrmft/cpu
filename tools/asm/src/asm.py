@@ -21,7 +21,7 @@ current_proc_name = None
 
 valid_directives = ['base', 'proc', 'endproc', 'end']
 
-valid_mnemonics = ['nop', 'hlt', 'rst', 'pushf', 'popf',
+valid_mnemonics = ['nop', 'hlt', 'rst', 'pushf', 'popf', 'inchl', 'dechl',
                    'mov',
                    'loda',
                    'stoa',
@@ -253,7 +253,7 @@ def expand_local_symbol_name(symbol_name):
     return symbol_name
 
 
-def mnemonics_nop_hlt_rst_pushf_popf(mnemonic, operands, errors=None):
+def mnemonics_nop_hlt_rst_pushf_popf_inchl_dechl(mnemonic, operands, errors=None):
     opcode = None
 
     if validate_operands_count(operands, 0, errors):
@@ -267,6 +267,10 @@ def mnemonics_nop_hlt_rst_pushf_popf(mnemonic, operands, errors=None):
             opcode = 0b10000111
         elif 'popf' == mnemonic:
             opcode = 0b11011001
+        elif 'inchl' == mnemonic:
+            opcode = 0b10010111
+        elif 'dechl' == mnemonic:
+            opcode = 0b10100111
 
     if errors:
         return None
@@ -801,8 +805,8 @@ def assemble_asm_line(line, errors=None):
                 'name': 'INVALID_MNEMONIC',
                 'info': [mnemonic]
             })
-    elif mnemonic_lower in ['nop', 'hlt', 'rst', 'pushf', 'popf']:
-        assembly = mnemonics_nop_hlt_rst_pushf_popf(mnemonic_lower, line['operands'], errors)
+    elif mnemonic_lower in ['nop', 'hlt', 'rst', 'pushf', 'popf', 'inchl', 'dechl']:
+        assembly = mnemonics_nop_hlt_rst_pushf_popf_inchl_dechl(mnemonic_lower, line['operands'], errors)
     elif 'mov' == mnemonic_lower:
         assembly = mnemonic_mov(line['operands'], errors)
     elif 'loda' == mnemonic_lower:
