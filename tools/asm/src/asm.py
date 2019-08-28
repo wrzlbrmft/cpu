@@ -23,8 +23,8 @@ valid_directives = ['base', 'proc', 'endproc', 'end']
 
 valid_mnemonics = ['nop', 'hlt', 'rst', 'pushf', 'popf',
                    'mov',
-                   'lda',
-                   'sta',
+                   'loda',
+                   'stoa',
                    'push', 'pop',
                    'add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or', 'xor',
                    'jmp', 'jc', 'jnc', 'jz', 'jnz', 'ja', 'jna',
@@ -358,7 +358,7 @@ def mnemonic_mov(operands, errors=None):
         }
 
 
-def mnemonic_lda(operands, errors=None):
+def mnemonic_loda(operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
     _relocation_table = []
@@ -396,7 +396,7 @@ def mnemonic_lda(operands, errors=None):
         }
 
 
-def mnemonic_sta(operands, errors=None):
+def mnemonic_stoa(operands, errors=None):
     opcode = None
     opcode_operands = bytearray()
     _relocation_table = []
@@ -805,10 +805,10 @@ def assemble_asm_line(line, errors=None):
         assembly = mnemonics_nop_hlt_rst_pushf_popf(mnemonic_lower, line['operands'], errors)
     elif 'mov' == mnemonic_lower:
         assembly = mnemonic_mov(line['operands'], errors)
-    elif 'lda' == mnemonic_lower:
-        assembly = mnemonic_lda(line['operands'], errors)
-    elif 'sta' == mnemonic_lower:
-        assembly = mnemonic_sta(line['operands'], errors)
+    elif 'loda' == mnemonic_lower:
+        assembly = mnemonic_loda(line['operands'], errors)
+    elif 'stoa' == mnemonic_lower:
+        assembly = mnemonic_stoa(line['operands'], errors)
     elif mnemonic_lower in ['push', 'pop']:
         assembly = mnemonics_push_pop(mnemonic_lower, line['operands'], errors)
     elif mnemonic_lower in ['add', 'sub', 'cmp', 'adc', 'sbb', 'and', 'or', 'xor']:
