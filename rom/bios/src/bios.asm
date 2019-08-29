@@ -217,7 +217,9 @@ _int3f: jmp 0x08fc
 ; --------- bios interrupt address table at 0x0100 ---------
 
 bios_int_addr_tbl:
-        dw int00, int01, int02, int03, int04, int05, int06, int07
+        dw int00
+bios_int_addr_tbl_int01:
+        dw        int01, int02, int03, int04, int05, int06, int07
         dw int08, int09, int0a, int0b, int0c, int0d, int0e, int0f
         dw int10, int11, int12, int13, int14, int15, int16, int17
         dw int18, int19, int1a, int1b, int1c, int1d, int1e, int1f
@@ -232,14 +234,12 @@ bios_int_addr_tbl:
         ; power on
         mov sp, 0xffff  ; initialize stack pointer
 
-        ; copy bios interrupt address table
+        ; copy bios interrupt address table to dynamic interrupt jump table
+        mov a, 0x01     ; first destination interrupt in dynamic interrupt jump table (skip interrupt 0x00)
         mov b, 0x1f     ; number of interrupt addresses to copy
-        mov c, 0x01     ; first destination interrupt in dynamic interrupt jump table
-        mov hl, bios_int_addr_tbl
-        inc l           ; l += 2 (skip interrupt 0x00)
-        inc l
-        pushf           ; manually push flags for interrupt call
-        call int01      ; direct interrupt call (dynamic interrupt jump table not ready)
+        mov hl, bios_int_addr_tbl_int01 ; address of source interrupt address table (starting at interrupt 0x01)
+        pushf           ; manually push flags for direct interrupt call
+        call int01      ; direct interrupt call (to not use dynamic interrupt jump table; not ready)
 
         ; TODO: load os
 
@@ -247,57 +247,49 @@ bios_int_addr_tbl:
 .endproc
 
 .proc   int01
-        ; copy interrupt address table
+        ; copy interrupt address table to dynamic interrupt jump table
+        ;   a = first destination interrupt in dynamic interrupt jump table
         ;   b = number of interrupt addresses to copy
-        ;   c = first destination interrupt in dynamic interrupt jump table
-        ;   hl = address of interrupt address table
-        mov a, c        ; c *= 4
+        ;   hl = address of source interrupt address table
+        push c
+        push d
+
+        ; calculate destination address in dynamic interrupt jump table
+        add a           ; a *= 4
         add a
-        add a
-        mov c, a        ; write to 0x0800+c onwards
-        mov a, b        ; use the a register as counter
-        mov b, l        ; read from h+b onwards
 
-@0:     push a          ; push counter
+@0:     mov c, m        ; read low-order byte
+        inchl
+        mov d, m        ; read high-order byte
+        inchl
 
-        mov d, m        ; read low-order byte of interrupt address
-        mov b, l        ; b = l + 1
-        inc b
+        pushhl          ; save source address
 
-        push h
-        mov h, 0x08
-        mov l, c        ; 0x0800+c
+        mov h, 0x08     ; write to 0x0800+a
+        mov l, a
         mov a, 0x77     ; opcode for 'jmp addr' instruction
         mov m, a
-        inc l           ; l++
-        mov m, d        ; write low-order byte of interrupt address
-        mov c, l        ; c = l + 1
-        inc c
-        pop h
+        inc l
+        mov m, c        ; write low-order byte
+        inc l
+        mov m, d        ; write high-order byte
 
-        mov l, b        ; h+b
-        mov d, m        ; read high-order byte of interrupt address
-        mov b, l        ; b = l + 1
-        inc b
-
-        push h
-        mov h, 0x08
-        mov l, c        ; 0x0800+c
-        mov m, d        ; write high-order byte of interrupt address
-        mov c, l        ; c = l + 2 (skip an additional byte)
-        inc c
-        inc c
-        pop h
-
-        pop a           ; pop counter
-        dec a
+        dec b
         jz @1           ; done
 
-        mov l, b        ; h+l
+        mov a, l        ; skip 4th byte
+        add 0x02
+
+        pophl           ; restore source address
 
         jmp @0          ; next interrupt address
 
-@1:     iret
+@1:     pophl           ; restore source address
+
+        pop d
+        pop c
+
+        iret
 .endproc
 
 .proc   int02

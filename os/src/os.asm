@@ -151,10 +151,10 @@ os_int_addr_tbl:
 ; --------- boot routine ---------
 
 .proc   boot
-        ; copy os interrupt address table
+        ; copy os interrupt address table to dynamic interrupt jump table
+        mov a, 0x20     ; first destination interrupt in dynamic interrupt jump table
         mov b, 0x20     ; number of interrupt addresses to copy
-        mov c, 0x20     ; first destination interrupt in dynamic interrupt jump table
-        mov hl, os_int_addr_tbl
+        mov hl, os_int_addr_tbl ; address of source interrupt address table
         int 0x01
 
         hlt
