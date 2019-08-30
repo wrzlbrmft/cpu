@@ -252,6 +252,7 @@ bios_int_addr_tbl_int01:
         ;   b = number of interrupt addresses to copy
         ;   hl = address of source interrupt address table
         push a
+        push b
         push c
         push d
         pushhl
@@ -291,6 +292,7 @@ bios_int_addr_tbl_int01:
         pophl
         pop d
         pop c
+        pop b
         pop a
 
         iret
