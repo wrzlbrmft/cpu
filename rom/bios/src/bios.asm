@@ -16,7 +16,7 @@ _int00: jmp int00
 
 ; dynamic_interrupt_jump_table = 0x0800  # start address of ram
 ; for i in range(1, 64):
-;     print("_int{}: jmp 0x{}\n        nop\n".format(
+;     print('_int{}: jmp 0x{}\n        nop\n'.format(
 ;         hex(i)[2:].zfill(2),
 ;         hex(dynamic_interrupt_jump_table + (4 * i))[2:].zfill(4)
 ;     ))

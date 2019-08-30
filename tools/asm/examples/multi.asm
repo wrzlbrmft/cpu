@@ -1,3 +1,3 @@
 main:
-    db "Hello World!"(3)
+    db 'Hello World!'(3)
 .end
