@@ -251,8 +251,10 @@ bios_int_addr_tbl_int01:
         ;   a = first destination interrupt in dynamic interrupt jump table
         ;   b = number of interrupt addresses to copy
         ;   hl = address of source interrupt address table
+        push a
         push c
         push d
+        pushhl
 
         ; calculate destination address in dynamic interrupt jump table
         add a           ; a *= 4
@@ -286,13 +288,87 @@ bios_int_addr_tbl_int01:
 
 @1:     pophl           ; restore source address
 
+        pophl
         pop d
         pop c
+        pop a
 
         iret
 .endproc
 
 .proc   int02
+        ; get/set interrupt address in dynamic interrupt jump table
+        ; b = 0x01: get interrupt address
+        ;   a = interrupt number
+        ;   return:
+        ;       hl = interrupt address
+        ; b = 0x02: set interrupt address
+        ;   a = interrupt number
+        ;   hl = interrupt address
+        push b
+
+        dec b
+        jz @1
+        dec b
+        jz @2
+
+        pop b
+
+        iret
+
+; get interrupt address
+@1:     pop b
+        push a
+        push c
+        push d
+
+        ; calculate destination address in dynamic interrupt jump table
+        add a           ; a *= 4
+        add a
+        inc a           ; skip 1st byte (opcode for 'jmp addr' instruction)
+
+        mov h, 0x08     ; read from 0x0800+a
+        mov l, a
+
+        mov c, m        ; read low-order byte
+        inchl
+        mov d, m        ; read high-order byte
+
+        mov h, d        ; set high-order byte
+        mov l, c        ; set low-order byte
+
+        pop d
+        pop c
+        pop a
+
+        iret
+
+; set interrupt address
+@2:     pop b
+        push a
+        push c
+        push d
+        pushhl
+
+        ; calculate destination address in dynamic interrupt jump table
+        add a           ; a *= 4
+        add a
+        inc a           ; skip 1st byte (opcode for 'jmp addr' instruction)
+
+        mov c, l        ; set low-order byte
+        mov d, h        ; set high-order byte
+
+        mov h, 0x08     ; write to 0x0800+a
+        mov l, a
+        mov m, c        ; write low-order byte
+        inc l
+        mov m, d        ; write high-order byte
+
+        pophl
+        pop d
+        pop c
+        pop a
+
         iret
 .endproc
 
