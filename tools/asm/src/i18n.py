@@ -36,5 +36,5 @@ error_messages = {
     'CORRUPT_RELOCATION_TABLE': 'corrupt relocation table',
     'UNKNOWN_SYMBOL': "unknown symbol '{}'",
     'AMBIGUOUS_SYMBOL': "ambiguous symbol '{}'",
-    'AMBIGUOUS_LINK_BASE': "ambiguous link base (first: {}, {}: {})"
+    'AMBIGUOUS_LINK_BASE': 'ambiguous link base (first: {}, {}: {})'
 }

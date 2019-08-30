@@ -8,7 +8,7 @@ error_messages = {
     'FILE_NOT_FOUND': "file not found '{}'",
     'INVALID_FLAG_VALUE': "invalid flag value '{}'",
     'INVALID_FLAG_NAME': "invalid flag name '{}'",
-    'FLAGS_EXCEEDING_BIT_WIDTH': "flags exceeding bit width (flags: {}-bit, given: {}-bit)",
+    'FLAGS_EXCEEDING_BIT_WIDTH': 'flags exceeding bit width (flags: {}-bit, given: {}-bit)',
     'INVALID_ADDR_VALUE': "invalid address value '{}'",
     'ADDR_COLUMN_NOT_FOUND': "address column not found '{}'",
     'INCOMPATIBLE_ADDR_SIZE': 'incompatible address size (given: {}-bit, max: {}-bit)',
