@@ -237,7 +237,7 @@ bios_int_addr_tbl_int01:
         ; copy bios interrupt address table to dynamic interrupt jump table
         mov a, 0x01     ; first destination interrupt in dynamic interrupt jump table (skip interrupt 0x00)
         mov b, 0x1f     ; number of interrupt addresses to copy
-        mov hl, bios_int_addr_tbl_int01 ; address of source interrupt address table (starting at interrupt 0x01)
+        mov hl, bios_int_addr_tbl_int01 ; address of source interrupt address table (start at interrupt 0x01)
         pushf           ; manually push flags for direct interrupt call
         call int01      ; direct interrupt call (to not use dynamic interrupt jump table; not ready)
 
