@@ -2,7 +2,7 @@
 # relocation tables are using the array index of the symbol name as the reference
 # index 0 represents 'global' and is used for symbols not inside of procedures
 
-# add index 0 (global)
+# add index 0 (global scope, might be obsolete, because instructions now require a symbol)
 _symbol_table = [None]
 
 

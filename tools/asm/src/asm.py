@@ -245,6 +245,7 @@ def expand_local_symbol_name(symbol_name):
     global current_proc_name
 
     if '@' == symbol_name[0]:
+        # if a symbol name starts with an @, the symbol becomes local by prepending the current procedure name
         if current_proc_name is not None:
             symbol_name = current_proc_name + '_' + symbol_name[1:]
         else:
@@ -306,7 +307,7 @@ def mnemonic_mov(operands, errors=None):
             register1_opcode = get_register_opcode(operand1)
             if 8 == register1_size:
                 # move into an 8-bit register is supported from M, another 8-bit register or using max. 8-bit data or a
-                # single character (no string)
+                # single character but no string
                 register2_opcode = None
                 if 'm' == operand2:
                     register2_opcode = 0b110
@@ -328,7 +329,7 @@ def mnemonic_mov(operands, errors=None):
                     opcode = 0b10000000 | (register1_opcode << 4) | (register2_opcode << 1)
             elif 16 == register1_size:
                 # move into a 16-bit register is supported from a symbol name (using relocation), another 16-bit
-                # register or using max. 16-bit data or a single character including unicode (no string)
+                # register or using max. 16-bit data or a single character including unicode but no string
                 register2_opcode = None
                 if is_valid_name(operand2):
                     operand2 = expand_local_symbol_name(operand2)
@@ -450,7 +451,7 @@ def mnemonics_push_pop(mnemonic, operands, errors=None):
     if validate_operands_count(operands, 1, errors):
         operand = operands[0].lower()
         if validate_operand_register_size(operand, 8, errors):
-            # push, pop, in and out are supported with any 8-bit register
+            # push and pop are supported with any 8-bit register
             register_opcode = get_register_opcode(operand)
             if 'push' == mnemonic:
                 opcode = 0b10000000 | (register_opcode << 4) | (register_opcode << 1)
@@ -474,7 +475,7 @@ def mnemonics_add_sub_cmp_adc_sbb_and_or_xor(mnemonic, operands, errors=None):
 
     if validate_operands_count(operands, 1, errors):
         # add (with carry), subtract (with borrow), compare, and, or and xor are supported with M, any 8-bit register or
-        # max. 8-bit data or a single character (no string)
+        # max. 8-bit data or a single character but no string
         operand = operands[0].lower()
         if 'm' == operand:
             opcode = 0b110
@@ -531,7 +532,7 @@ def mnemonics_jmps_calls(mnemonic, operands, errors=None):
     if validate_operands_count(operands, 1, errors):
         # jumps and calls are supported to M, an address or a symbol name (using
         # relocation); note: M vs. address/symbol name is distinguished using a
-        # bit in the opcode
+        # flip-bit in the opcode
         operand = operands[0].lower()
         if 'm' == operand:
             opcode = 0b0
@@ -548,7 +549,7 @@ def mnemonics_jmps_calls(mnemonic, operands, errors=None):
             else:
                 opcode_operands.extend(binutils.word_to_le(addr_value))
 
-        # optimized usage of opcodes ...and adjust the bit for M vs. address/symbol name
+        # optimized usage of opcodes ...and flip the bit for M vs. address/symbol name
         if opcode is not None:
             if 'jmp' == mnemonic:
                 opcode = 0b01110101 | (opcode << 1)
@@ -637,6 +638,7 @@ def mnemonic_int(operands, errors=None):
                     'info': [operand]
                 })
         elif validate_operand_data_size(operand, 8, errors):
+            # call interrupt is supported with max. 8-bit data with a value up to 63 (for 64 interrupts)
             opcode = 0b11011111
             data_value = data.get_value(operand)
             if data_value > 63:
@@ -753,11 +755,11 @@ def mnemonics_inc_dec_not_shl_shr(mnemonic, operands, errors=None):
     opcode = None
 
     if validate_operands_count(operands, 1, errors):
-        # increment and decrement are supported with M or any 8-bit register
+        # increment, decrement, not, shift left and shift right are supported with M or any 8-bit register
         operand = operands[0].lower()
         if 'm' == operand:
             if mnemonic in ['not', 'shl', 'shr']:
-                opcode = 0b111  # note: m is 111 here, instead the usual 110
+                opcode = 0b111  # note: for not, shift left and shift right M is 111, instead of the usual 110
             else:
                 opcode = 0b110
         elif validate_operand_register_size(operand, 8, errors):

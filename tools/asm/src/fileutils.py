@@ -5,7 +5,7 @@ def dump_buffer(buffer):
     row = 0
     col = 0
 
-    for i in range(0, len(buffer)):
+    for i in range(len(buffer)):
         if 0 == col:
             print(hex(row)[2:].upper().zfill(4), '   ', end='')
 
