@@ -1,3 +1,5 @@
+# usage: asm [asm file]
+
 import binutils
 import data
 import i18n

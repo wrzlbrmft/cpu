@@ -1,3 +1,5 @@
+# usage: link [obj files...]
+
 import cpu_file
 import i18n
 import obj_file
