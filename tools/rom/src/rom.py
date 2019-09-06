@@ -1,3 +1,40 @@
+# usage: rom [csv file] [address config] [data config] [output file] ([extract bits])
+#     csv file: columns separated by semicolon, no headers, no quotes, no escapes
+#
+#     address config: how to build the rom address from the csv file
+#         a comma-separated list of tuples, where each tuple consists of a column number and a bit width, separated by a
+#         colon, e.g. 4:1,5:3,6:8 - this will build a 12-bit rom address, taking bits 0-7 from column 6, bits 8-10 from
+#         column 5 and bit 11 from column 4 of the csv file. column content is supported in dec, hex, bin and oct; bin
+#         supports ignoring bits by using x, e.g. 0b1x0 - this will populate both rom addresses of 0b100 and 0b110.
+#
+#     data config: how to build the rom data from the csv file
+#         a comma-separated list of tuples just like the address config; instead of a bit width, you can also specify a
+#         flags file (see below). column content is supported in dec, hex, bin and oct; ignoring bits is not supported.
+#
+#         when specifying a flags file for a column, the bit width is either auto-determined by processing the flags
+#         file, or can be specified after the flags file name, e.g. 3:flags.txt:5 - this will interpret column 3 of the
+#         csv file using the flags file flags.txt, building 5 bits of data. for flags, the column content in the csv
+#         file is a comma-separated list of flag names, which are all combined with logical or.
+#
+#     output file: currently only raw files are supported, determined by the output file extension of .raw
+#
+#     extract bits (optional): which bit(s) of the rom data to write to the output file
+#         this can either be a single bit, like 1, or a bit range like 0-7. this is useful when separating wide data
+#         across multiple eeproms; by default, all bits will be extracted.
+#
+# flags file format:
+# one flag per line; each line is either just a flag name, or can also contain a bit mask, separated by semicolon. each
+# flag will set the next bit left to the current bit width. a bit mask represents the full value and will extend the
+# bit width to at least the bit width of that value. this is useful when using decoders. the next flag without a bit
+# mask will again set the next bit left to the current bit width, e.g.
+#
+#     FLAG_A
+#     FLAG_B;0b110
+#     FLAG_C
+#     FLAG_D;0b1001
+#
+# The total bit width is 4 bits, where FLAG_A is 0b0001, FLAG_B is 0b0110, FLAG_C is 0b1000 and FLAG_D is 0b1001.
+
 import bin_file
 import binutils
 import data

@@ -1,3 +1,7 @@
+# usage: bin2raw [bin file] ([zero fill])
+#     zero fill (optional): number of zero-bytes to prepend to the actual data
+#         by default, zero fill is 0.
+
 import bin_file
 import data
 import i18n
