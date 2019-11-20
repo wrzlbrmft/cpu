@@ -1,2 +1,5 @@
 #!/usr/bin/env sh
-export PATH=$PWD/bin:$PATH
+if [ -z "${VIRTUAL_ENV}" ]; then
+    source venv/bin/activate
+fi
+export PATH=${PWD}/bin:${PATH}
