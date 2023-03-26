@@ -1,5 +1,4 @@
-# usage: asm [asm file]
-
+import argparse
 import binutils
 import data
 import i18n
@@ -247,7 +246,8 @@ def expand_local_symbol_name(symbol_name):
     global current_proc_name
 
     if '@' == symbol_name[0]:
-        # if a symbol name starts with an @, the symbol becomes local by prepending the current procedure name
+        # if a symbol name starts with an @ sign, the symbol becomes local by automatically putting the current
+        # procedure name at the beginning of the symbol name, or at least an underscore
         if current_proc_name is not None:
             symbol_name = current_proc_name + '_' + symbol_name[1:]
         else:
@@ -1052,7 +1052,7 @@ def parse_asm_line_str(line_str, errors=None):
         }
 
 
-def assemble_asm_file(file_name):
+def assemble_asm_file(file_name, dump=False):
     global current_file_name, current_line_num, current_line_str, current_symbol_name, current_proc_name
 
     if os.path.isfile(file_name):
@@ -1161,7 +1161,8 @@ def assemble_asm_file(file_name):
                         assembly = assemble_asm_line(line, errors)
 
                         if not errors:
-                            # dump_assembly(assembly)
+                            if dump:
+                                dump_assembly(assembly)
 
                             symbol = symbols.get_symbol(current_symbol_name)
 
@@ -1187,22 +1188,19 @@ def assemble_asm_file(file_name):
 
 # main
 
+parser = argparse.ArgumentParser(description='the assembler')
+parser.add_argument('file', help='source file to be assembled')
+parser.add_argument('-d', '--dump', action='store_true', help='dump line-by-line instructions and assembly output')
+args = parser.parse_args()
+
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
-        pass  # TODO: help
-    elif len(sys.argv) < 2:
-        show_error({
-            'name': 'NO_ASM_FILE',
-            'info': []
-        })
-    else:
-        asm_file_name = sys.argv[1]
-        assemble_asm_file(asm_file_name)
+    asm_file_name = args.file
+    assemble_asm_file(asm_file_name, args.dump)
 
-        if not total_errors_count:
-            obj_file_name = os.path.splitext(os.path.basename(asm_file_name))[0] + '.obj'
-            obj_file.write_obj_file(obj_file_name, link_base=link_base)
+    if not total_errors_count:
+        obj_file_name = os.path.splitext(os.path.basename(asm_file_name))[0] + '.obj'
+        obj_file.write_obj_file(obj_file_name, link_base=link_base)
 
 
 if '__main__' == __name__:

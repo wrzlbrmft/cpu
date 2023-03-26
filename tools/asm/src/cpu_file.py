@@ -48,14 +48,15 @@ def build_cpu_symbols(errors=None, _symbol_table=None, _symbols=None, link_base=
     return buffer
 
 
-def write_cpu_file(file_name, errors=None, _symbol_table=None, _symbols=None, link_base=None):
+def write_cpu_file(file_name, errors=None, _symbol_table=None, _symbols=None, link_base=None, dump=False):
     cpu_symbols = build_cpu_symbols(errors, _symbol_table, _symbols, link_base)
 
     if not errors:
         buffer = bytearray()
         buffer.extend(cpu_symbols)
 
-        # fileutils.dump_buffer(buffer)
+        if dump:
+            fileutils.dump_buffer(buffer)
 
         with open(file_name, 'wb') as cpu:
             cpu.write(buffer)

@@ -1,5 +1,4 @@
-# usage: link [obj files...]
-
+import argparse
 import cpu_file
 import i18n
 import obj_file
@@ -166,60 +165,57 @@ def link_obj_files(file_names):
 
 # main
 
+parser = argparse.ArgumentParser(description='the linker')
+parser.add_argument('file', nargs='+', help='object file(s) to be linked')
+parser.add_argument('-d', '--dump', action='store_true', help='dump binary output')
+args = parser.parse_args()
+
 
 def main():
-    global current_obj_file_name
+    global args, current_obj_file_name
 
-    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
-        pass  # TODO: help
-    elif len(sys.argv) < 2:
-        show_error({
-            'name': 'NO_OBJ_FILES',
-            'info': []
-        })
-    else:
-        obj_file_names = sys.argv[1:]
-        read_obj_files(obj_file_names)
+    obj_file_names = args.file
+    read_obj_files(obj_file_names)
 
-        if not total_errors_count:
-            main_obj_file_names = get_symbol_obj_file_names('main')
-            if len(main_obj_file_names) > 1:
-                # there can only be one 'main' symbol
-                show_error({
-                    'name': 'DUPLICATE_SYMBOL',
-                    'info': ['main']
-                }, '')
-            elif 1 == len(main_obj_file_names):
-                # if there is one 'main' symbol, then create a cpu file (executable)
-                current_obj_file_name = ''
+    if not total_errors_count:
+        main_obj_file_names = get_symbol_obj_file_names('main')
+        if len(main_obj_file_names) > 1:
+            # there can only be one 'main' symbol
+            show_error({
+                'name': 'DUPLICATE_SYMBOL',
+                'info': ['main']
+            }, '')
+        elif 1 == len(main_obj_file_names):
+            # if there is one 'main' symbol, then create a cpu file (executable)
+            current_obj_file_name = ''
 
-                # link order:
-                #   1. the 'main' symbol
-                #   2. all other symbols of the object file that contains the 'main' symbol in the given order
-                #   3. all symbols of all other object files in the given order
-                link_symbol('main')
-                link_obj_file(main_obj_file_names[0])
-                del obj_files[main_obj_file_names[0]]
-                link_obj_files(obj_files.keys())
+            # link order:
+            #   1. the 'main' symbol
+            #   2. all other symbols of the object file that contains the 'main' symbol in the given order
+            #   3. all symbols of all other object files in the given order
+            link_symbol('main')
+            link_obj_file(main_obj_file_names[0])
+            del obj_files[main_obj_file_names[0]]
+            link_obj_files(obj_files.keys())
 
-                if not total_errors_count:
-                    errors = []
+            if not total_errors_count:
+                errors = []
 
-                    cpu_file_name = os.path.splitext(os.path.basename(main_obj_file_names[0]))[0] + '.cpu'
-                    cpu_file.write_cpu_file(cpu_file_name, errors, link_base=link_base)
+                cpu_file_name = os.path.splitext(os.path.basename(main_obj_file_names[0]))[0] + '.cpu'
+                cpu_file.write_cpu_file(cpu_file_name, errors, link_base=link_base, dump=args.dump)
 
-                    if errors:
-                        show_error(errors[0], '')
-            else:
-                # if there is no 'main' symbol, then create a new object file (library)
+                if errors:
+                    show_error(errors[0], '')
+        else:
+            # if there is no 'main' symbol, then create a new object file (library)
 
-                # link order:
-                #   - all symbols of all object files in the given order
-                link_obj_files(obj_files.keys())
+            # link order:
+            #   - all symbols of all object files in the given order
+            link_obj_files(obj_files.keys())
 
-                if not total_errors_count:
-                    obj_file_name = 'output.obj'
-                    obj_file.write_obj_file(obj_file_name)
+            if not total_errors_count:
+                obj_file_name = 'output.obj'
+                obj_file.write_obj_file(obj_file_name)
 
 
 if '__main__' == __name__:

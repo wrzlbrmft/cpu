@@ -1,7 +1,4 @@
-# usage: bin2raw [bin file] ([zero fill])
-#     zero fill (optional): number of zero-bytes to prepend to the actual data
-#         by default, zero fill is 0.
-
+import argparse
 import bin_file
 import data
 import i18n
@@ -12,9 +9,9 @@ import sys
 
 total_errors_count = 0
 
-# number of zero-bytes to fill in at the beginning of the raw file
+# default number of zero-bytes to fill in at the beginning of the raw file
 # should match the default memory address to which a program is loaded before it is executed by the cpu
-zero_fill = 0x0900  # TODO: for the time being...
+zero_fill_default = 0x0900  # TODO: for the time being...
 
 
 def show_error(error):
@@ -40,33 +37,31 @@ def parse_zero_fill(zero_fill_str):
 
 # main
 
+parser = argparse.ArgumentParser(description='convert binary file to raw file')
+parser.add_argument('file', help='binary file to be converted')
+parser.add_argument('zeros', nargs='?', default=zero_fill_default, type=int,
+                    help='number of zero-bytes to fill in at the beginning of the raw file')
+args = parser.parse_args()
+
 
 def main():
-    global zero_fill
+    global args
 
-    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help']:
-        pass  # TODO: help
-    elif len(sys.argv) < 2:
-        show_error({
-            'name': 'NO_INPUT_FILE',
-            'info': []
-        })
-    else:
-        input_file_name = sys.argv[1]
-        output_file_name = os.path.splitext(os.path.basename(input_file_name))[0] + '.raw'
+    input_file_name = args.file
+    output_file_name = os.path.splitext(os.path.basename(input_file_name))[0] + '.raw'
 
-        if len(sys.argv) > 2:
-            zero_fill = parse_zero_fill(sys.argv[2])
+    if len(sys.argv) > 2:
+        zero_fill = parse_zero_fill(sys.argv[2])
 
-        if not total_errors_count:
-            errors = []
+    if not total_errors_count:
+        errors = []
 
-            bin_data = bin_file.read_bin_file(input_file_name, errors)
+        bin_data = bin_file.read_bin_file(input_file_name, errors)
 
-            if errors:
-                show_error(errors[0])
-            else:
-                raw_file.write_raw_file(output_file_name, bin_data, zero_fill)
+        if errors:
+            show_error(errors[0])
+        else:
+            raw_file.write_raw_file(output_file_name, bin_data, args.zeros)
 
 
 if '__main__' == __name__:
